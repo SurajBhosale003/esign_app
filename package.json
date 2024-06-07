@@ -1,0 +1,15 @@
+{
+  "name": "esign_app",
+  "version": "1.0.0",
+  "description": "Esign doc app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd esignDash && yarn install",
+    "dev": "cd esignDash && yarn dev",
+    "build": "cd esignDash && yarn build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
