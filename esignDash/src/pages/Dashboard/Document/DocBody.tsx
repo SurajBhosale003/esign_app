@@ -2,7 +2,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-// import Designer from '../PDFEditor/Designer'
+import Designer from '../PDFEditor/Designer'
 function DocumentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ function DocumentDetails() {
     {/* PDF code */}
     <div>
 
-    {/* <Designer/> */}
+    <Designer/>
     </div>    
     
   </div>
