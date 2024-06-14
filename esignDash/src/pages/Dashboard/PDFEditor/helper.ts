@@ -20,12 +20,12 @@ const fontObjList = [
   {
     fallback: true,
     label: 'NotoSerifJP-Regular',
-    url: '/fonts/NotoSerifJP-Regular.otf',
+    url: '/NotoSerifJP-Regular.otf',
   },
   {
     fallback: false,
     label: 'NotoSansJP-Regular',
-    url: '/fonts/NotoSansJP-Regular.otf',
+    url: '/NotoSansJP-Regular.otf',
   },
 ];
 

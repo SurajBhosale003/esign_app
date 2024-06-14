@@ -13,10 +13,12 @@
   "dependencies": {
     "@pdfme/common": "^4.0.2",
     "@pdfme/generator": "^4.0.2",
+    "@pdfme/schemas": "^4.0.2",
     "@pdfme/ui": "^4.0.2",
     "@reduxjs/toolkit": "^2.2.5",
     "antd": "^5.18.0",
     "autoprefixer": "^10.4.19",
+    "axios": "^1.7.2",
     "frappe-react-sdk": "^1.7.0",
     "postcss": "^8.4.38",
     "react": "^18.2.0",

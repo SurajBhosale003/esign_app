@@ -1,6 +1,37 @@
-import { Link } from 'react-router-dom'; // Assuming you're using React Router
+import { Link } from 'react-router-dom'; 
+import axios from 'axios';
+import { useState } from 'react';
+import { useFrappeAuth } from 'frappe-react-sdk';
 
 function SignIn() {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await axios.post('https://your-frappe-instance/api/method/login', {
+  //       usr: email,
+  //       pwd: password
+  //     });
+  //     if (response.data.message === 'Logged In') {
+  //       const userResponse = await axios.get('https://your-frappe-instance/api/method/frappe.auth.get_logged_user');
+  //       alert(`Current user: ${userResponse.data.message}`);
+  //       // Redirect to dashboard or set user state here
+  //     }
+  //   } catch (error) {
+  //     console.error('Login failed', error);
+  //     alert('Login failed. Please check your credentials.');
+  //   }
+  // };
+  const { currentUser , login, logout , error} = useFrappeAuth();
+  const onSubmit = () => { 
+    console.log("user"+email + "Password"+password);
+    login({
+      username:email,
+      password:password
+    }).then(res => {
+      console.log(res);
+    })
+  };
   return (
     <div className="mt-20 pt-10">
       <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
@@ -14,7 +45,7 @@ function SignIn() {
               </button>
             </Link>
           </div>
-          <Link to="#" className="flex items-center justify-center mt-4 text-white rounded-lg shadow-md hover:bg-gray-200 transition-colors duration-300">
+          {/* <Link to="#" className="flex items-center justify-center mt-4 text-white rounded-lg shadow-md hover:bg-gray-200 transition-colors duration-300">
             <div className="px-4 py-3">
               <svg className="h-6 w-6" viewBox="0 0 40 40">
                 <path d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z" fill="#FFC107" />
@@ -24,10 +55,10 @@ function SignIn() {
               </svg>
             </div>
             <h1 className="px-4 py-3 w-5/6 text-center text-gray-600 font-bold">Sign-in with Google</h1>
-          </Link>
+          </Link> */}
           <div className="mt-4 flex items-center justify-between">
             <span className="border-b w-1/5 lg:w-1/4"></span>
-            <p className="text-xs text-center text-gray-500 uppercase">or Sign-in with email</p>
+            <p className="text-xs text-center text-gray-500 uppercase">Sign-in with Frappe</p>
             <span className="border-b w-1/5 lg:w-1/4"></span>
           </div>
           <div className="mt-4">
@@ -42,9 +73,9 @@ function SignIn() {
             <input className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" type="password" />
           </div>
           <div className="mt-8">
-            <Link to="/dashboard">
-              <button className="bg-[#283C42] text-white  font-bold py-2 px-4 w-full rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300">Login</button>
-            </Link>
+            {/* <Link to="/dashboard"> */}
+              <button onClick={onSubmit} className="bg-[#283C42] text-white  font-bold py-2 px-4 w-full rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300">Login</button>
+            {/* </Link> */}
           </div>
           <div className="mt-4 flex items-center justify-between">
             <span className="border-b w-1/5 md:w-1/4"></span>
