@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { addDocument, deleteDocument  } from '../../redux/reducers/documentReducerSlice';
 import { Modal, Input } from 'antd';
-import 'react-toastify/dist/ReactToastify.css';
+// import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
 function Documents() {

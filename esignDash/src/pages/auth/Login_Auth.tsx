@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../redux/reducers/userReducerSlice';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast ,Flip } from 'react-toastify';
 
 function SignIn() {
     const [email, setEmail] = useState<string>('');
@@ -24,11 +26,35 @@ function SignIn() {
             //  Store Email as well
             if (res.message === 'Logged In') {
                 dispatch(setUser({ full_name: res.full_name, email: email }));
-                navigate('/dashboard');
+                toast.success('Login Successfully', {
+                    position: "top-right",
+                    autoClose: 500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Flip,
+                    });
+                    setTimeout(() => {
+                        navigate('/dashboard');
+                      }, 1600);
             }
         }).catch(error => {
             console.error('Login failed', error);
-            alert('Login failed. Please check your credentials.');
+            // alert('Login failed. Please check your credentials.');
+            toast.error('Login failed. Please check your credentials.', {
+                position: "top-right",
+                autoClose: 500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Flip,
+                });
         });
     };
 
@@ -86,6 +112,9 @@ function SignIn() {
                 <div className="hidden lg:block lg:w-1/2 bg-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1611095780122-d692cee29291?q=80&w=1771&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}>
                 </div>
             </div>
+            <ToastContainer
+                limit={1}
+                />
         </div>
     );
 }

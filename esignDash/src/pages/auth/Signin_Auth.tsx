@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast ,Flip } from 'react-toastify';
 // import axios from 'axios';  
 // import { useFrappeCreateDoc } from 'frappe-react-sdk';
 
@@ -31,10 +33,34 @@ function SignUp() {
             const data = await response.json();
             console.log("data user creation", data);
             if (data.message.status <= 299) {
-                alert('User created successfully!');
-                navigate('/login');
+                toast.success('User Registered Successfully', {
+                    position: "top-right",
+                    autoClose: 500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Flip,
+                    });
+               
+                setTimeout(() => {
+                    navigate('/login');
+                  }, 1600);
             } else {
                 console.error('Error creating user here data:', data ,"data message ened");
+                toast.error('User Creation Error', {
+                    position: "top-right",
+                    autoClose: 500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Flip,
+                    });
                 // Handle other error scenarios as needed
             }   
         // if (data._server_messages) {
@@ -161,6 +187,9 @@ function SignUp() {
                     </div>
                 </div>
             </div>
+            <ToastContainer
+                limit={1}
+                />
         </div>
     );
 }
