@@ -18,9 +18,18 @@ import Templete from './pages/Dashboard/Templete'
 import DocBody from './pages/Dashboard/Document/DocBody'
 
 function App() {
+  const getSiteName = () => {
+		// @ts-ignore
+		if (window.frappe?.boot?.versions?.frappe && (window.frappe.boot.versions.frappe.startsWith('15') || window.frappe.boot.versions.frappe.startsWith('16'))) {
+			// @ts-ignore
+			return window.frappe?.boot?.sitename ?? import.meta.env.VITE_SITE_NAME
+		}
+		return import.meta.env.VITE_SITE_NAME
+
+	}
   return (
 	<div className="App">
-	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT ?? ''}>
+	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT} siteName={getSiteName()}>
 		<BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
 			<Routes>
 				{/* <Route path="/" element={ <div className="flex items-center justify-center min-h-screen bg-gray-100">

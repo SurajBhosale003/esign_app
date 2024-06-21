@@ -1,8 +1,23 @@
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { clearUser } from '../redux/reducers/userReducerSlice';
+import { selectFullName, selectEmail } from '../redux/selectors/userSelector';
 function Navbar_vertical() {
-  const username ='Suraj Bhosale'
-const userProfileURL='https://avatars.githubusercontent.com/u/64411938?v=4' 
+ const navigate = useNavigate();
+ const dispatch = useDispatch();
+
+function logoutUser()
+{
+  dispatch(clearUser());
+  
+  navigate("/")
+}
+const username = useSelector(selectFullName);
+const email = useSelector(selectEmail);
+// const userProfileURL='https://avatars.githubusercontent.com/u/64411938?v=4' 
+const userProfileURL='data:image/png;base64,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' 
+
   return (
     <>
     <div className="h-full p-3 space-y-5 w-60 dark:bg-gray-200 dark:text-gray-800">
@@ -10,7 +25,9 @@ const userProfileURL='https://avatars.githubusercontent.com/u/64411938?v=4'
         <Link to="/profile">
           <img src={userProfileURL} alt="" className="w-12 h-12 rounded-full dark:bg-gray-500" />
           <div>
-            <h2 className="text-lg font-semibold">{username}</h2>
+          <h2 className="text-lg font-semibold">{username}</h2>
+          <h3 className="text-xs " style={{ color: '#888', opacity: 0.6 }}>{email}</h3>
+
             <span className="flex items-center space-x-1">
               <p rel="noopener noreferrer" className="text-xs hover:underline dark:text-gray-600">View profile</p>
             </span>
@@ -91,16 +108,16 @@ const userProfileURL='https://avatars.githubusercontent.com/u/64411938?v=4'
             </p>
           </Link>
         </li>
-        <li className="hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300">
-          <Link to="/">
-            <p rel="noopener noreferrer"  className="flex items-center p-2 space-x-3 rounded-md">
+        <li onClick={logoutUser} className="hover:bg-[#283C42] hover:cursor-pointer hover:text-white hover:border-white transition-colors duration-300">
+         
+            <p rel="noopener noreferrer"  className="hover:cursor-pointer flex items-center p-2 space-x-3 rounded-md">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-5 h-5 fill-current dark:text-[#7E869E]">
                 <path d="M440,424V88H352V13.005L88,58.522V424H16v32h86.9L352,490.358V120h56V456h88V424ZM320,453.642,120,426.056V85.478L320,51Z"></path>
                 <rect width="32" height="64" x="256" y="232"></rect>
               </svg>
               <span>Logout</span>
             </p>
-          </Link>
+         
         </li>
 
 
