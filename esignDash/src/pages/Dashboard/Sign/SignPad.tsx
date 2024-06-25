@@ -40,6 +40,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
       };
       reader.readAsDataURL(file);
     }
+    closeModal();
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -112,7 +113,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
                 Drag & Drop or Click to Upload
               </label>
             </div>
-            {uploadedImage && (
+            {/* {uploadedImage && (
               <div className="mt-4">
                 <h2 className="text-lg font-semibold mb-2">Uploaded Image Preview</h2>
                 <img
@@ -122,7 +123,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
                   className="border border-gray-300 rounded"
                 />
               </div>
-            )}
+            )} */}
              {/* <Button key="clear" onClick={}>
                 Clear Uploaded Signature
             </Button>
