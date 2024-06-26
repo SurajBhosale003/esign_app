@@ -1,12 +1,14 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{user_mail}-{sign_name}-{####}",
  "creation": "2024-06-25 17:15:13.280949",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_mjvq",
-  "username",
+  "user_name",
+  "user_mail",
   "sign_name",
   "sign_blob",
   "amended_from"
@@ -15,12 +17,6 @@
   {
    "fieldname": "section_break_mjvq",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "username",
-   "fieldtype": "Link",
-   "label": "Username",
-   "options": "User"
   },
   {
    "fieldname": "sign_blob",
@@ -41,18 +37,31 @@
    "fieldname": "sign_name",
    "fieldtype": "Small Text",
    "label": "Sign Name"
+  },
+  {
+   "fieldname": "user_name",
+   "fieldtype": "Small Text",
+   "label": "Username"
+  },
+  {
+   "fieldname": "user_mail",
+   "fieldtype": "Link",
+   "label": "User Email",
+   "options": "User"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-06-25 17:18:48.655209",
+ "modified": "2024-06-26 12:40:48.249091",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
