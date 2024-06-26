@@ -1,9 +1,10 @@
 import frappe
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest= True)
 def create_user(fullName,password,email):
+    # print('hdfiewjh')
     try:
-        #  print("fullName, password, email, roles:", fullName, password, email, roles)
+        # print("fullName, password, email, roles:")
         doc=frappe.get_doc({'doctype':'User'})
 
         doc.email=email
@@ -11,8 +12,9 @@ def create_user(fullName,password,email):
         doc.full_name=fullName
         doc.username=fullName
         doc.new_password=password
-        # doc.role_profiles=["esign"]
-        doc.append('role_profiles', {'role_profile': 'esign'})
+        doc.role_profile_name="esign"
+        # doc.append('role_profiles', {'role_profile_name': 'esign'})
+
         doc.send_welcome_email=0
         # doc.roles="esign"
         # doc.append('roles', {'role': 'esign'})

@@ -9,11 +9,7 @@ function SignUp() {
     const [fullName, setFullName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    // const roles = ["esign"];
     const navigate = useNavigate();
-    
-    // const { createDoc } = useFrappeCreateDoc();
-
     const handleSignUp = async () => {
     
         try {
@@ -61,63 +57,14 @@ function SignUp() {
                     theme: "dark",
                     transition: Flip,
                     });
-                // Handle other error scenarios as needed
-            }   
-        // if (data._server_messages) {
-        //     const serverMessages = JSON.parse(data._server_messages);
-            
-        //     let userCreated = false;
-        //     serverMessages.forEach(message => {
-        //         const parsedMessage = JSON.parse(message);
-        //         if (parsedMessage.message.includes(`Newly created user <strong>${email}</strong> has no roles enabled.`)) {
-        //             userCreated = true;
-        //         }
-        //     });
 
-        //     if (userCreated) {
-        //         alert('User created successfully!');
-        //         navigate('/login');
-        //     } else {
-        //         throw new Error('Failed to create user.');
-        //     }
-        // } else {
-        //     throw new Error('Failed to create user.');
-        // }
+            }   
+        
         } catch (error) {
             console.error('Error creating user:', error);
             alert('Failed to create user. Please try again.');
         }
     };
-    //     try {
-    //         const newUser = {
-    //             doctype: 'User',
-    //             first_name: fullName,
-    //             email: email,
-    //             enabled: 1,
-    //             new_password: password,
-    //              : [{ role: 'System User' }]
-    //         }
-    
-    //         const apiUrl = 'http://127.0.0.1:8002/api/resource/User';
-    
-    //         const response = await axios.post(apiUrl, newUser, {
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         });
-    
-    //         console.log(response.data);
-    
-    //         if (response.status === 200) {
-    //             alert('User created successfully!');
-    //             navigate('/login');
-    //         } else {
-    //             throw new Error('Failed to create user.');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error creating user:', error);
-    //         alert('Failed to create user. Please try again.');
-    //     }
     
     
 
