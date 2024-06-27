@@ -79,13 +79,13 @@ function Signature() {
           <img
             src={signatureData}
             alt="Signature"
-            style={{ maxWidth: '100%', height: 'auto' }}
+            style={{ maxWidth: '100%', height: '90px' }}
             className='border border-gray-300 rounded'
           />
     <div className="flex items-center space-x-2 mt-2 gap-1">
     <input 
               type="text" 
-              className="border rounded px-4 py-2 focus:outline-none"
+              className="border rounded px-4 py-2 h-10 focus:outline-none"
               placeholder="Name of Signature"
               value={signName || ''}
               onChange={handleSignatureInput}
@@ -112,6 +112,7 @@ function Signature() {
               type="text" 
               className="border rounded px-4 py-2 focus:outline-none"
               placeholder="Name of Signature"
+              onChange={handleSignatureInput}
             />
             <button onClick={handleSaveSignatureInDB} className="bg-white text-[#283C42] px-4 py-2 rounded border-2 border-[#283C42] hover:bg-[#283C42] hover:text-white hover:border-transparent transition-colors duration-300">
               Save Signature
