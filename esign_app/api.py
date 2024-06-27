@@ -49,3 +49,27 @@ def get_signatures(user_mail):
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # ++++ Get Signature End ++++++++++++
+
+# ++++ Delete Sign ++++++++++++++++++
+@frappe.whitelist()
+def cancel_and_delete_esignature(user_mail, name):
+    try:
+        # Fetch the Esign_signature document
+        esignature = frappe.get_doc("Esign_signature", name)
+
+        # Check if the fetched document belongs to the provided user_mail
+        if esignature.user_mail == user_mail:
+            # Cancel the document
+            esignature.cancel()
+
+            # Delete the document
+            esignature.delete()
+
+            return {"status": 200, "message": "Esign_signature canceled and deleted successfully."}
+        else:
+            return {"status": 403, "message": "User mail does not match. Access denied."}
+
+    except frappe.DoesNotExistError:
+        return {"status": 404, "message": "Esign_signature document not found."}
+    except Exception as e:
+        return {"status": 500, "message": f"Error: {str(e)}"}
