@@ -9,6 +9,9 @@ export default {
       textStroke: {
         DEFAULT: '2px black',
       },
+      height: {
+        '9/10': '95vh',
+      },
     },
   },
   plugins: [
