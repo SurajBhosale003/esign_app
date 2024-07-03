@@ -10,7 +10,7 @@ export default {
         DEFAULT: '2px black',
       },
       height: {
-        '9/10': '95vh',
+        '9/10': '90vh',
       },
     },
   },
