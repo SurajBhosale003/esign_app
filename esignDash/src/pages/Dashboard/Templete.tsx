@@ -8,7 +8,7 @@ function Templete() {
   const [base64PDF, setBase64PDF] = useState<string | null>(null);
   const [pages, setPages] = useState<Array<{ page: number; data: string }> | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [zoomLevel, setZoomLevel] = useState<number>(0.65);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
@@ -52,6 +52,15 @@ function Templete() {
           viewport: viewport,
         };
         await page.render(renderContext).promise;
+
+        const borderDiv = document.createElement('div');
+        borderDiv.style.position = 'absolute';
+        borderDiv.style.top = '0';
+        borderDiv.style.left = '0';
+        borderDiv.style.width = `${viewport.width}px`;
+        borderDiv.style.height = `${viewport.height}px`;
+        borderDiv.style.border = '2px solid green';
+        container.appendChild(borderDiv);
       }
     }
   };
@@ -79,7 +88,7 @@ function Templete() {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center">
       <div className="flex flex-row w-full h-full">
-        <div id="editorDivArea" className="flex flex-col items-center justify-center gap-2 p-3 min-w-[100vh] h-full border border-blue-500">
+        <div id="editorDivArea" className="flex flex-col items-center justify-center gap-2 p-3 min-w-[100vh] max-w-[100vh] h-full border border-blue-500">
           {!pages && (
             <div className="flex flex-col items-center">
               <input
@@ -88,9 +97,6 @@ function Templete() {
                 onChange={handleFileChange}
                 className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300 mb-4"
               />
-              {/* <button className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300">
-                Upload PDF
-              </button> */}
             </div>
           )}
           {pages && (
@@ -140,8 +146,8 @@ function Templete() {
           )}
         </div>
         <div className="w-2/5 border flex flex-col">
-          <div className="w-full h-2/5 border min-w-[50vh] border-purple-500">
-            
+          <div className="p-2 w-full h-2/5 border min-w-[50vh] border-purple-500">
+            {/* Content for the first inner div */}
           </div>
           <div className="w-full h-3/5 border border-yellow-500">
             {/* Content for the second inner div */}
