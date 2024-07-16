@@ -125,3 +125,198 @@
     width: 75%;
   }
 /* Card effect end  */
+/* .control-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.page-number {
+  margin-top: 10px;
+}
+
+.component {
+  cursor: pointer;
+}
+
+#pdf-renderer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+} */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.control-buttons {
+  margin-bottom: 10px;
+}
+
+.workspace {
+  position: relative;
+  width: 800px; /* Adjust width as needed */
+  height: 600px; /* Adjust height as needed */
+  border: 1px solid #ccc;
+  overflow: hidden;
+}
+
+.component {
+  cursor: pointer;
+  border-radius: 4px;
+  /* Customize styles for draggable components */
+}
+
+.component.text {
+  /* Example text component style */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.component.image {
+  /* Example image component style */
+  background-color: #d9f9fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px; /* Adjust width */
+  height: 80px; /* Adjust height */
+  position: absolute; /* Ensure position is absolute for draggable functionality */
+}
+
+.component.selected {
+  border: 1px solid red; /* Example of selected component border */
+}
+
+.component img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.workspace input[type='text'] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.workspace .moveable-control {
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+/* Example of notification styling */
+.notification {
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  position: relative;
+  width: 18rem;
+  height: 8rem;
+  background: #29292c;
+  border-radius: 1rem;
+  overflow: hidden;
+  font-size: 16px;
+  --gradient: linear-gradient(to bottom, #a2c1ca, #507985, #283C42);
+  --color: #fff;
+}
+
+.notification:before {
+  position: absolute;
+  content: "";
+  inset: 0.0625rem;
+  border-radius: 0.9375rem;
+  background: #283C42;
+  z-index: 2;
+}
+
+.notification:after {
+  position: absolute;
+  content: "";
+  width: 0.25rem;
+  inset: 0.65rem auto 0.65rem 0.5rem;
+  border-radius: 0.125rem;
+  background: var(--gradient);
+  transition: transform 300ms ease;
+  z-index: 4;
+}
+
+.notification:hover:after {
+  transform: translateX(0.15rem);
+}
+
+.notititle {
+  color: var(--color);
+  padding: 0.65rem 0.25rem 0.4rem 1.25rem;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: transform 300ms ease;
+  z-index: 5;
+}
+
+.notification:hover .notititle {
+  transform: translateX(0.15rem);
+}
+
+.notibody {
+  color: #99999d;
+  padding: 0 1.25rem;
+  transition: transform 300ms ease;
+  z-index: 5;
+}
+
+.notification:hover .notibody {
+  transform: translateX(0.25rem);
+}
+
+.notiglow,
+.notiborderglow {
+  position: absolute;
+  width: 20rem;
+  height: 20rem;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle closest-side at center, white, transparent);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.notiglow {
+  z-index: 3;
+}
+
+.notiborderglow {
+  z-index: 1;
+}
+
+.notification:hover .notiglow {
+  opacity: 0.1;
+}
+
+.notification:hover .notiborderglow {
+  opacity: 0.1;
+}
+
+.note {
+  color: var(--color);
+  position: fixed;
+  top: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 0.9rem;
+  width: 75%;
+}

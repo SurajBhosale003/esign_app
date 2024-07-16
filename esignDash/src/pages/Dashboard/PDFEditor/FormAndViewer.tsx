@@ -63,7 +63,7 @@ function App() {
           inputs,
           options: {
             font,
-            labels: { 'clear': '消去' },
+            labels: { 'clear': 'Clear' },
             theme: {
               token: {
                 colorPrimary: '#25c2a0',

@@ -1,5 +1,7 @@
 import { FrappeProvider } from 'frappe-react-sdk'
 import { BrowserRouter, Routes , Route } from 'react-router-dom'
+import { flushSync } from "react-dom";
+import Moveable from "react-moveable";
 // import './index.css'
 // layouts 
 import HorizontalLayout from './HorizontalLayout';
@@ -16,6 +18,7 @@ import Sent from './pages/Dashboard/Sent'
 import Signature from './pages/Dashboard/Signature'
 import Templete from './pages/Dashboard/Templete'
 import DocBody from './pages/Dashboard/Document/DocBody'
+import TempleteDash from './pages/Dashboard/TempleteDash';
 
 function App() {
   const getSiteName = () => {
@@ -29,6 +32,7 @@ function App() {
 	}
   return (
 	<div className="App">
+    <Moveable flushSync={flushSync} />
 	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT} siteName={getSiteName()}>
 		<BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
 			<Routes>
@@ -48,7 +52,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/sent" element={<Sent />} />
           <Route path="/signature" element={<Signature />} />
-          <Route path="/templete" element={<Templete />} />
+          {/* <Route path="/templete" element={<Templete />} /> */}
+          <Route path="/templete" element={<TempleteDash />} />
+
         </Route>
 
         <Route path="/login" element={<Login />} />
