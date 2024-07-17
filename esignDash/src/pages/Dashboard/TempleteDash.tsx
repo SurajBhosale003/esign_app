@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
 import TempleteAdd from './templete/TempleteAdd';
 import TempleteAllList from './templete/TempleteAllList';
 
@@ -7,7 +7,7 @@ function TempleteDash() {
 
   return (
     <>
-      <TempleteAdd /> 
+      <TempleteAdd setRefreshTempletes={setRefreshTempletes} />
       <TempleteAllList refreshTempletes={refreshTempletes} setRefreshTempletes={setRefreshTempletes} />
     </>
   );

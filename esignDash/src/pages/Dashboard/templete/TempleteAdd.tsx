@@ -1,17 +1,21 @@
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
 import { Modal } from 'antd';
 import { useSelector } from 'react-redux';
 import { selectFullName, selectEmail } from '../../../redux/selectors/userSelector';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast ,Flip } from 'react-toastify';
+import { ToastContainer, toast, Flip } from 'react-toastify';
 
-function TempleteAdd() {
+interface TempleteAddProps {
+  setRefreshTempletes: Dispatch<SetStateAction<boolean>>;
+}
+
+const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [templeteName, setTempleteName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fullName = useSelector(selectFullName);
   const email = useSelector(selectEmail);
-  
+
   const showModal = () => {
     setModalVisible(true);
   };
@@ -59,21 +63,21 @@ function TempleteAdd() {
         const result = await response.json();
         console.log(result);
         if (result.message.status < 300) {
-            toast.success('Templete Created Successfully', {
-                position: "top-right",
-                autoClose: 500,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Flip,
-                });
+          toast.success('Templete Created Successfully', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
           setTempleteName(null);
           setModalVisible(false);
+          setRefreshTempletes((prev: boolean) => !prev); // Trigger refresh
         } else {
-        //   alert('Error saving templete: ' + result.message.message);
           toast.error('Error while saving templete', {
             position: "top-right",
             autoClose: 500,
@@ -84,7 +88,7 @@ function TempleteAdd() {
             progress: undefined,
             theme: "dark",
             transition: Flip,
-            });
+          });
         }
       } catch (error) {
         console.error('Error:', error);
@@ -139,9 +143,7 @@ function TempleteAdd() {
           )}
         </div>
       </Modal>
-      <ToastContainer
-        limit={1}
-        />
+      <ToastContainer limit={1} />
     </>
   );
 }
