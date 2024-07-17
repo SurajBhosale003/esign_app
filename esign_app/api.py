@@ -105,3 +105,24 @@ def get_templetes(user_mail):
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # ++++ Get Templete End ++++++++++++
+
+#+++++ Delete Templete +++++++++++++++++
+@frappe.whitelist()
+def delete_esign_templete(user_mail, name):
+    try:
+        # Fetch the Esign_signature document
+        templeteList = frappe.get_doc("TempleteList", name)
+
+        # Check if the fetched document belongs to the provided user_mail
+        if templeteList.templete_owner_email == user_mail:
+            # Delete the document
+            templeteList.delete()
+
+            return {"status": 200, "message": "Templete deleted successfully."}
+        else:
+            return {"status": 403, "message": "User mail does not match. Access denied."}
+
+    except frappe.DoesNotExistError:
+        return {"status": 404, "message": "Templete document not found."}
+    except Exception as e:
+        return {"status": 500, "message": f"Error: {str(e)}"}

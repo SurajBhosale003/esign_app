@@ -28,7 +28,7 @@
   },
   {
    "fieldname": "templete_created_at",
-   "fieldtype": "Date",
+   "fieldtype": "Datetime",
    "label": "templete created at"
   },
   {
@@ -39,7 +39,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-16 11:11:50.920231",
+ "modified": "2024-07-17 10:43:11.903474",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "TempleteList",
