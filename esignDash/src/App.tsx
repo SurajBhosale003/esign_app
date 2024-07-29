@@ -19,6 +19,7 @@ import Signature from './pages/Dashboard/Signature'
 import Templete from './pages/Dashboard/Templete'
 import DocBody from './pages/Dashboard/Document/DocBody'
 import TempleteDash from './pages/Dashboard/TempleteDash';
+import TempleteEdit from './pages/Dashboard/templete/TempleteEdit';
 
 function App() {
   const getSiteName = () => {
@@ -52,16 +53,18 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/sent" element={<Sent />} />
           <Route path="/signature" element={<Signature />} />
-          {/* <Route path="/templete" element={<Templete />} /> */}
+          <Route path="/trialTemp" element={<Templete />} />
+
+
           <Route path="/templete" element={<TempleteDash />} />
+          <Route path="/s1" element={<Templete />} />
 
         </Route>
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/document/:id" element={<DocBody/>} />
-
-
+        <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>
         </BrowserRouter>
 	  </FrappeProvider>

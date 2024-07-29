@@ -21,6 +21,8 @@ const fontObjList = [
     fallback: true,
     label: 'NotoSerifJP-Regular',
     url: '/NotoSansJP-Regular.otf',
+    // url: 'https://surajbhosale003.github.io/font-hosting/NotoSansJP-Regular.otf',
+    
   },
   {
     fallback: false,

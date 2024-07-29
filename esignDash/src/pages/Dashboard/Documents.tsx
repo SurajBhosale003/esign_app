@@ -4,18 +4,32 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { addDocument, deleteDocument  } from '../../redux/reducers/documentReducerSlice';
 import { Modal, Input } from 'antd';
-// import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+
+interface Document {
+  id: string;
+  documentName: string;
+  email: string;
+  createdAt: string;
+}
+
+interface RootState {
+  esign_document: {
+    documents: Document[];
+  };
+}
 
 function Documents() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const documents = useSelector(state => state.esign_document.documents);
+  // const documents = useSelector(state => state.esign_document.documents);
+  const documents = useSelector((state: RootState) => state.esign_document.documents);
   const [visible, setVisible] = useState(false);
   const [documentName, setDocumentName] = useState('');
   const [email, setEmail] = useState('');
 
-  function customError(msg){
+  function customError(msg : string){
     toast.error('Error:'+msg, {
       position: "top-right",
       autoClose: 500,
@@ -90,11 +104,11 @@ function Documents() {
       resetFields();
     }
   };
-  const handleDeleteDocument = (id) => {
+  const handleDeleteDocument = (id : string) => {
     try{
       dispatch(deleteDocument(id));
       deleted();
-    }catch(e){ 
+    }catch(e : any){ 
       customError(e);
     }
   };
@@ -114,7 +128,7 @@ function Documents() {
 
    
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-      {documents.map((document) => (
+      {documents.map((document: Document) => (
           <div key={document.id} className="relative">
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => handleDeleteDocument(document.id)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-trash-2 text-red-600">

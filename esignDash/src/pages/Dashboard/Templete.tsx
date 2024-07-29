@@ -17,7 +17,7 @@ function Templete() {
 
   useEffect(() => {
     if (pages) {
-      renderPage(pages[currentPage - 1].data, pageRefs.current[currentPage - 1]);
+      renderPage(pages[currentPage - 1].data, pageRefs.current[currentPage - 1],currentPage);
     }
   }, [pages, currentPage, zoomLevel]);
 
@@ -32,13 +32,11 @@ function Templete() {
      
     }
   };
-  // const resetFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setBase64PDF(null);
-  //   setPages(null);
-  //   setCurrentPage(1);
-  // }
 
-  const renderPage = async (pageData: string, container: HTMLDivElement | null) => {
+
+  const renderPage = async (pageData: string, container: HTMLDivElement | null , currentPage) => {
+   
+   
     if (container) {
       const pdf = await pdfjsLib.getDocument({ data: atob(pageData) }).promise;
       const page = await pdf.getPage(1);
@@ -64,7 +62,8 @@ function Templete() {
 
         // get element by id , 1st create the element , and here access and modify , and inside that add component 
         
-        const borderDiv = document.createElement('div');
+        const borderDiv:any = document.getElementById(`uniqueDiv1${currentPage+1}`);
+        console.log("this is green Border: ",borderDiv , `uniqueDiv1${currentPage+1}`);
         borderDiv.style.position = 'absolute';
         borderDiv.style.top = '0';
         borderDiv.style.left = '0';
@@ -72,17 +71,6 @@ function Templete() {
         borderDiv.style.height = `${viewport.height}px`;
         borderDiv.style.border = '2px solid green';  
         container.appendChild(borderDiv);
-        // const borderDiv = document.getElementById('component_drag_area'); 
-        // if (borderDiv) {
-        //     borderDiv.style.position = 'absolute';
-        //     borderDiv.style.top = '0';
-        //     borderDiv.style.left = '0';
-        //     borderDiv.style.width = `${viewport.width}px`;
-        //     borderDiv.style.height = `${viewport.height}px`;
-        //     borderDiv.style.border = '2px solid green';
-        // } else {
-        //     console.error("Element with ID 'component_drag_area' not found.");
-        // }
       }
     }
     setZoomStatus(false);
@@ -169,6 +157,7 @@ function Templete() {
                   <RightCircleOutlined />
                 </button>
               </div>
+              {/* ================================================================================================================= */}
               <div className="w-full h-full overflow-y-auto flex justify-center items-center px-4 py-2">  
                 {pages.map((page, index) => (
                   <div
@@ -177,8 +166,9 @@ function Templete() {
                     ref={(ref) => (pageRefs.current[index] = ref)}
                   >
                     <div className="pdf-page border-purple-900  ">
-                      
+                      {console.log("Index ID of Page:"+index+1)}
                     </div>
+                    <div id={`uniqueDiv1${index+1}`}></div>
                   </div>
                 ))}
               </div>
@@ -217,7 +207,7 @@ function Templete() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3V21M9 21H15M19 6V3H5V6" stroke="#283C42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-
+      
           <svg width="26" height="25" viewBox="0 -2 20 20" version="1.1">
             <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
               <g id="Dribbble-Light-Preview" transform="translate(-380.000000, -3881.000000)" fill="#283C42">
