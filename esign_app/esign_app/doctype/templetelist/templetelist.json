@@ -10,7 +10,8 @@
   "templete_owner_email",
   "templete_owner_name",
   "templete_created_at",
-  "templete_json_data"
+  "templete_json_data",
+  "base_pdf_data"
  ],
  "fields": [
   {
@@ -41,11 +42,16 @@
    "fieldname": "templete_json_data",
    "fieldtype": "JSON",
    "label": "templete json data"
+  },
+  {
+   "fieldname": "base_pdf_data",
+   "fieldtype": "JSON",
+   "label": "base pdf data"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-18 15:51:03.496801",
+ "modified": "2024-07-30 09:26:56.843745",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "TempleteList",

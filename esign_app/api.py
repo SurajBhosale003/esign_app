@@ -1,10 +1,11 @@
 import frappe
+import json 
 from datetime import datetime
 # ++++ Save or Create User ++++++++++++
 @frappe.whitelist(allow_guest= True)
 def create_user(fullName,password,email):
     try:
-        doc=frappe.get_doc({'doctype':'User'})
+        doc = frappe.get_doc({'doctype':'User'})
         doc.email=email
         doc.first_name=fullName
         doc.full_name=fullName
@@ -126,3 +127,43 @@ def delete_esign_templete(user_mail, name):
         return {"status": 404, "message": "Templete document not found."}
     except Exception as e:
         return {"status": 500, "message": f"Error: {str(e)}"}
+
+# Templete APIs --------------------------------------------------------------------
+# ++++ Update Template ++++++++++++
+@frappe.whitelist(allow_guest=True)
+def update_template(templete_name,templete_json_data, base_pdf_data):
+    try:
+        # Parse JSON data
+        templete_json_data = json.loads(templete_json_data)
+        base_pdf_data = json.loads(base_pdf_data)
+
+        doc = frappe.get_doc("TempleteList", templete_name)
+        doc.templete_json_data = templete_json_data
+        doc.base_pdf_data = base_pdf_data
+        message = 'Template Updated successfully'
+        doc.save()
+        return {'status': 200, 'message': message}
+    
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+# ++++ Save/Update Template End ++++++++++++
+
+
+# Get JSON templete Data --- components +++++++++++++
+@frappe.whitelist(allow_guest=True)
+def get_template_json(templete_name):
+    try:
+
+        doc = frappe.get_doc("TempleteList", templete_name)
+        response = {
+            'status': 200,
+            'templete_json_data': doc.templete_json_data,
+            'base_pdf_data': doc.base_pdf_data
+        }
+        return response
+
+    except frappe.DoesNotExistError:
+        return {'status': 404, 'message': 'Template not found'}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+# END================================================

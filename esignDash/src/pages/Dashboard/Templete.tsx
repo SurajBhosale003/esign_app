@@ -3,7 +3,6 @@ import { splitPDF } from './PdfLibOwn/GetPages';
 import { pdfToBase64 } from './PdfLibOwn/PDFtoBase64';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker.js';
-import { LeftCircleOutlined, RightCircleOutlined , ZoomOutOutlined , ZoomInOutlined } from '@ant-design/icons';
 import { Divider } from 'antd';
 
 
@@ -29,7 +28,6 @@ function Templete() {
       const result = await splitPDF(base64String);
       setPages(result);
       setCurrentPage(1);
-     
     }
   };
 
@@ -42,7 +40,6 @@ function Templete() {
       const page = await pdf.getPage(1);
       const viewport = page.getViewport({ scale: zoomLevel });
       container.innerHTML = '';
-
       container.style.width = `${viewport.width}px`;
       container.style.height = `${viewport.height}px`;
       container.style.position = 'relative';
@@ -73,32 +70,8 @@ function Templete() {
         container.appendChild(borderDiv);
       }
     }
-    setZoomStatus(false);
   };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const goToNextPage = () => {
-    if (pages && currentPage < pages.length) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const zoomIn = () => {
-    setZoomStatus(true);
-    setZoomLevel((prevZoomLevel) => prevZoomLevel + 0.1);
-   
-  };
-
-  const zoomOut = () => {
-    setZoomStatus(true);
-    setZoomLevel((prevZoomLevel) => Math.max(0.2, prevZoomLevel - 0.1));
-    // setZoomStatus(false);
-  };
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center">
@@ -116,49 +89,9 @@ function Templete() {
           )}
           {pages && (
             <>
-
-              <div className="flex flex-row justify-between w-full mb-2 px-4">
-                <button
-                  onClick={goToPreviousPage}
-                  disabled={currentPage === 1}
-                  className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300"
-                >
-                  <LeftCircleOutlined />
-                </button>
-                <div className="flex flex-row items-center ">
-                <button
-                  onClick={zoomOut}
-                  disabled={zoomStatus}
-                  className={`bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded transition-colors duration-300 mr-2 ${
-                    zoomStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#283C42] hover:text-white hover:border-white'
-                  }`}
-                >
-                  <ZoomOutOutlined />
-                </button>
-                <div className="flex flex-row items-center ">
-                <span className="text-sm font-semibold">Page {currentPage} / {pages?.length || 0}</span> 
-                  {/* <button onClick={resetFileChange}> reset</button> */}
-                </div>
-                <button
-                  onClick={zoomIn}
-                  disabled={zoomStatus}
-                  className={`bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded transition-colors duration-300 ${
-                    zoomStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#283C42] hover:text-white hover:border-white'
-                  }`}
-                >
-                  <ZoomInOutlined />
-                </button>
-                </div>
-                <button
-                  onClick={goToNextPage}
-                  disabled={currentPage === (pages?.length || 0)}
-                  className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300"
-                >
-                  <RightCircleOutlined />
-                </button>
-              </div>
               {/* ================================================================================================================= */}
               <div className="w-full h-full overflow-y-auto flex justify-center items-center px-4 py-2">  
+                
                 {pages.map((page, index) => (
                   <div
                     key={index}
@@ -166,11 +99,12 @@ function Templete() {
                     ref={(ref) => (pageRefs.current[index] = ref)}
                   >
                     <div className="pdf-page border-purple-900  ">
-                      {console.log("Index ID of Page:"+index+1)}
+                      {/* {console.log("Index ID of Page:"+index+1)} */}
                     </div>
                     <div id={`uniqueDiv1${index+1}`}></div>
                   </div>
                 ))}
+                
               </div>
             </>
           )}
