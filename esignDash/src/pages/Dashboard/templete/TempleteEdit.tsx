@@ -417,26 +417,23 @@ const handleRemoveImage = (componentId: number) => {
   );
 };
 const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
-  if (e.target.files) {
-    const file = e.target.files[0];
+  const file = e.target.files?.[0];
+  if (file) {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setComponents((prevComponents) =>
-        prevComponents.map((c) =>
-          c.id === componentId
-            ? {
-                ...c,
-                content: base64String,
-                value: base64String,
-              }
-            : c
+      setComponents(prevComponents =>
+        prevComponents.map(component =>
+          component.id === componentId
+            ? { ...component, content: base64String }
+            : component
         )
       );
     };
     reader.readAsDataURL(file);
   }
 };
+
 
 const handleSaveTemplete = async() => {
   if (!templete || !templete.name) {
@@ -462,7 +459,6 @@ const handleSaveTemplete = async() => {
     templete_json_data: JSON.stringify(JSON.stringify(Componentdata, null, 2)),
     base_pdf_data: JSON.stringify(JSON.stringify(datapdf, null, 2))
   };
-
   try {
     const response = await fetch('/api/method/esign_app.api.update_template', {
       method: 'POST',
