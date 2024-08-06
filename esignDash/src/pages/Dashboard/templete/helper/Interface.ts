@@ -4,7 +4,7 @@ export interface PdfRendererProps {
 
 export interface ComponentData {
     id: number;
-    type: 'text' | 'image';
+    type: string;
     content?: string;
     pageNo: number;
     value?: string; 
