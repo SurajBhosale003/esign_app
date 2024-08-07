@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import { FrappeProvider } from 'frappe-react-sdk'
 import { BrowserRouter, Routes , Route } from 'react-router-dom'
 import { flushSync } from "react-dom";
@@ -6,20 +7,20 @@ import Moveable from "react-moveable";
 // layouts 
 import HorizontalLayout from './HorizontalLayout';
 import VerticalLayout from './VerticalLayout';
-
 import Home from './pages/Home'
-import Login from './pages/auth/Login_Auth'
-import SignUp from './pages/auth/Signin_Auth'
-import Dashboard from './pages/Dashboard/Dashboard'
-import Documents from './pages/Dashboard/Documents'
-import Inbox from './pages/Dashboard/Inbox'
-import Profile from './pages/Dashboard/Profile'
-import Sent from './pages/Dashboard/Sent'
-import Signature from './pages/Dashboard/Signature'
-import Templete from './pages/Dashboard/Templete'
-import DocBody from './pages/Dashboard/Document/DocBody'
-import TempleteDash from './pages/Dashboard/TempleteDash';
-import TempleteEdit from './pages/Dashboard/templete/TempleteEdit';
+
+const Login = React.lazy(() => import('./pages/auth/Login_Auth'));
+const SignUp = React.lazy(() => import('./pages/auth/Signin_Auth'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard/Dashboard'));
+const Documents = React.lazy(() => import('./pages/Dashboard/Documents'));
+const Inbox = React.lazy(() => import('./pages/Dashboard/Inbox'));
+const Profile = React.lazy(() => import('./pages/Dashboard/Profile'));
+const Sent = React.lazy(() => import('./pages/Dashboard/Sent'));
+const Signature = React.lazy(() => import('./pages/Dashboard/Signature'));
+const Templete = React.lazy(() => import('./pages/Dashboard/Templete'));
+const DocBody = React.lazy(() => import('./pages/Dashboard/Document/DocBody'));
+const TempleteDash = React.lazy(() => import('./pages/Dashboard/TempleteDash'));
+const TempleteEdit = React.lazy(() => import('./pages/Dashboard/templete/TempleteEdit'));
 
 function App() {
   const getSiteName = () => {
@@ -36,12 +37,8 @@ function App() {
     <Moveable flushSync={flushSync} />
 	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT} siteName={getSiteName()}>
 		<BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
+      <Suspense fallback={<div>Loading...</div>}>
 			<Routes>
-				{/* <Route path="/" element={ <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-500">Hello, Tailwind CSS!</h1>
-    </div>} />
-				<Route path="/login" element={<h1>Login Page</h1>} /> */}
-
 				<Route element={<HorizontalLayout />}>
           <Route path="/" element={<Home />} />
         </Route>
@@ -66,6 +63,7 @@ function App() {
         <Route path="/document/:id" element={<DocBody/>} />
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>
+        </Suspense>
         </BrowserRouter>
 	  </FrappeProvider>
 	</div>
