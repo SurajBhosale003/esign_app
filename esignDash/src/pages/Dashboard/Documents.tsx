@@ -3,131 +3,145 @@ import { ToastContainer, toast ,Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { addDocument, deleteDocument  } from '../../redux/reducers/documentReducerSlice';
-import { Modal, Input } from 'antd';
+import { Modal ,Tabs, Input, Button, Card, List } from 'antd';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
-interface Document {
-  id: string;
-  documentName: string;
-  email: string;
-  createdAt: string;
-}
-
-interface RootState {
-  esign_document: {
-    documents: Document[];
-  };
-}
-
+// interface Document {
+//   id: string;
+//   documentName: string;
+//   email: string;
+//   createdAt: string;
+// }
+const { TabPane } = Tabs;
+const templateNames = ['Template 1', 'Template 2', 'Template 3', 'Template 4', 'Template 5','Template 6', 'Template 7', 'Template 8', 'Template 9', 'Template 10'];
 function Documents() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  // const documents = useSelector(state => state.esign_document.documents);
-  const documents = useSelector((state: RootState) => state.esign_document.documents);
-  const [visible, setVisible] = useState(false);
-  const [documentName, setDocumentName] = useState('');
-  const [email, setEmail] = useState('');
 
-  function customError(msg : string){
-    toast.error('Error:'+msg, {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-      });
-  }
-  function error()
-  {
-    toast.error('Document name & email cannot be blank', {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-      });
-  }
-  function deleted()
-  {
-    toast.error('Deleted successfully', {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-      });
-  }
-  function success()
-  {
-    toast.success('Document Created Successfully', {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-      });
-  }
-  function resetFields()
-  {
-    setVisible(false);
-    setDocumentName('');
-    setEmail('');
-  }
-  const handleAddDocument = () => {
-    console.log('Doc'+documentName +'Email: '+email);
-    if (documentName==''  || email =='') {
-      error();
-      return;
-    }
-    try{
-      dispatch(addDocument({ documentName, email }));
-      success();
-      resetFields();
-    }catch(e){
-      resetFields();
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  // const documents = useSelector(state => state.esign_document.documents);
+  // const documents = useSelector((state: RootState) => state.esign_document.documents);
+  const [visible, setVisible] = useState(false);
+  // const [documentName, setDocumentName] = useState('');
+  const [email, setEmail] = useState('');
+  const [currentTab, setCurrentTab] = useState('1');
+  const [title, setTitle] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+
+  const nextTab = () => {
+    if (currentTab === '1') {
+      setCurrentTab('2');
+    } else if (currentTab === '2') {
+      setCurrentTab('3');
     }
   };
-  const handleDeleteDocument = (id : string) => {
-    try{
-      dispatch(deleteDocument(id));
-      deleted();
-    }catch(e : any){ 
-      customError(e);
+
+  const previousTab = () => {
+    if (currentTab === '2') {
+      setCurrentTab('1');
+    } else if (currentTab === '3') {
+      setCurrentTab('2');
     }
   };
+  // function customError(msg : string){
+  //   toast.error('Error:'+msg, {
+  //     position: "top-right",
+  //     autoClose: 500,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "dark",
+  //     transition: Flip,
+  //     });
+  // }
+  // function error()
+  // {
+  //   toast.error('Document name & email cannot be blank', {
+  //     position: "top-right",
+  //     autoClose: 500,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "dark",
+  //     transition: Flip,
+  //     });
+  // }
+  // function deleted()
+  // {
+  //   toast.error('Deleted successfully', {
+  //     position: "top-right",
+  //     autoClose: 500,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "dark",
+  //     transition: Flip,
+  //     });
+  // }
+  // function success()
+  // {
+  //   toast.success('Document Created Successfully', {
+  //     position: "top-right",
+  //     autoClose: 500,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "dark",
+  //     transition: Flip,
+  //     });
+  // }
+  // function resetFields()
+  // {
+  //   setVisible(false);
+  //   setDocumentName('');
+  //   setEmail('');
+  // }
+  // const handleAddDocument = () => {
+  //   console.log('Doc'+documentName +'Email: '+email);
+  //   if (documentName==''  || email =='') {
+  //     error();
+  //     return;
+  //   }
+  //   try{
+  //     dispatch(addDocument({ documentName, email }));
+  //     success();
+  //     resetFields();
+  //   }catch(e){
+  //     resetFields();
+  //   }
+  // };
+  // const handleDeleteDocument = (id : string) => {
+  //   try{
+  //     dispatch(deleteDocument(id));
+  //     deleted();
+  //   }catch(e : any){ 
+  //     customError(e);
+  //   }
+  // };
 
   return (
     <>
       <div className="mb-5">
         <button
-          onClick={() => setVisible(true)} // Open the modal on button click
+          onClick={() => setVisible(true)}
           className=" mt-2 mr-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
         >
           Create Document
         </button>
       </div>
-      <div>
+     
      
 
    
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+      {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
       {documents.map((document: Document) => (
           <div key={document.id} className="relative">
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => handleDeleteDocument(document.id)}>
@@ -152,10 +166,9 @@ function Documents() {
           </div>
       ))}
 
-      </div>
-      </div>
+      </div> */}
       
-      <Modal
+      {/* <Modal
         title="Create Document"
         open={visible}
         onCancel={() => setVisible(false)} // Close the modal
@@ -184,6 +197,75 @@ function Documents() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+      </Modal> */}
+
+<Modal
+        title="Create Document"
+        open={visible}
+        onCancel={() => setVisible(false)}
+        footer={null}
+      >
+        <Tabs activeKey={currentTab} onChange={key => setCurrentTab(key)}>
+          <TabPane 
+          tab={<span className={currentTab === '1' ? 'text-[#283C42]' : 'text-gray-500'}>Title</span>}
+          disabled key="1">
+            <input
+            className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+              placeholder="Enter Document Title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+            />
+            <div style={{ textAlign: 'right', marginTop: 20 }}>
+              <button 
+              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+              onClick={nextTab}>Next</button>
+            </div>
+          </TabPane>
+          <TabPane tab="Templates" disabled key="2">
+            <div 
+            className="doc-temp-scroll-container"
+            style={{ maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
+              <List
+                grid={{ gutter: 16, column: 2 }}
+                dataSource={templateNames}
+                renderItem={item => (
+                  <List.Item>
+                    <Card
+                      hoverable
+                      onClick={() => setSelectedTemplate(item)}
+                      style={{ backgroundColor: selectedTemplate === item ? '#283C42' : '#fff' ,  color: selectedTemplate === item ? '#fff' : '#000' }}
+                    >
+                      {item}
+                    </Card>
+                  </List.Item>
+                )}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+              <button 
+              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+              onClick={previousTab}>Previous</button>
+              <button 
+              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+              onClick={nextTab}>Next</button>
+            </div>
+          </TabPane>
+          <TabPane tab="Confirm" disabled key="3">
+            <div>
+              <p>Title: {title}</p>
+              <p>Email: {email}</p>
+              <p>Template Name: {selectedTemplate}</p>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+              <button 
+              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+              onClick={previousTab}>Previous</button>
+              <button 
+              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+              onClick={() => setVisible(false)}>Confirm</button>
+            </div>
+          </TabPane>
+        </Tabs>
       </Modal>
       <ToastContainer
       limit={1}

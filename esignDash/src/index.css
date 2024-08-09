@@ -395,3 +395,11 @@
   box-sizing: border-box;
   z-index: 1000;
 }
+.doc-temp-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.doc-temp-scroll-container
+{
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
