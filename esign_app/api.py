@@ -216,3 +216,34 @@ def get_template_data(templete_name):
             'templete_json_data': '',
             'base_pdf_data': ''
         }
+
+#Document List Display ++++++++++++++++++++++++++++++++++++++++++++
+# Get Documents 
+@frappe.whitelist(allow_guest=True)
+def get_documents_list(user_mail):
+    try:
+        document_list = frappe.get_all(
+            'DocumentList',
+            filters={'owner_email': user_mail},
+            fields=['name','document_title', 'template_title', 'owner_email', 'document_created_at']
+        )
+        return {'status': 200, 'data': document_list}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+#+++++ Delete Templete +++++++++++++++++
+@frappe.whitelist()
+def delete_esign_document(user_mail, name):
+    try:
+        documentList = frappe.get_doc("DocumentList", name)
+        if documentList.owner_email == user_mail:
+            documentList.delete()
+
+            return {"status": 200, "message": "Document deleted successfully."}
+        else:
+            return {"status": 403, "message": "User mail does not match. Access denied."}
+
+    except frappe.DoesNotExistError:
+        return {"status": 404, "message": "Document not found."}
+    except Exception as e:
+        return {"status": 500, "message": f"Error: {str(e)}"}
