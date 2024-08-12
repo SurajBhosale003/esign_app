@@ -167,3 +167,52 @@ def get_template_json(templete_name):
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # END================================================
+
+# ================================= Document API =================================
+# Fetch Template data 
+@frappe.whitelist(allow_guest=True)
+def get_templetes_list_doc(user_mail):
+    try:
+        templetes_list = frappe.get_all(
+            'TempleteList',
+            filters={'templete_owner_email': user_mail},
+            fields=['name']
+        )
+        return {'status': 200, 'data': templetes_list}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+#END================================================
+# Save Document data
+@frappe.whitelist(allow_guest=True)
+def save_template_document(templete_name, document_name, user_email):
+    try:
+        template_data = get_template_data(templete_name)
+        document_data = {
+            'doctype': 'DocumentList', 
+            'document_title': document_name,
+            'template_title': templete_name,
+            'owner_email': user_email,
+            'document_json_data': template_data['templete_json_data'],
+            'base_pdf_datad': template_data['base_pdf_data'],
+            'document_created_at': datetime.now()
+        }
+        document_doc = frappe.get_doc(document_data)
+        document_doc.insert()
+
+        return {'status': 200, 'message': 'Template and Document created successfully'}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+        
+def get_template_data(templete_name):
+    try:
+        # Fetch the template data based on template_name
+        template_doc = frappe.get_doc('TempleteList', {'name': templete_name})
+        return {
+            'templete_json_data': template_doc.templete_json_data, 
+            'base_pdf_data': template_doc.base_pdf_data
+        }
+    except frappe.DoesNotExistError:
+        return {
+            'templete_json_data': '',
+            'base_pdf_data': ''
+        }
