@@ -1,32 +1,22 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Designer from '../PDFEditor/Designer';
-
-interface Document {
-  id: string;
-  documentName: string;
-  email: string;
-  createdAt: string;
+import { useLocation } from 'react-router-dom';
+interface DocumentList {
+  name: string;
+  document_title: string;
+  template_title: string;
+  owner_email: string;
+  document_created_at: string;
 }
-
-interface AppState {
-  esign_document: {
-    documents: Document[];
-  };
-}
-
 function DocumentDetails() {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const document = useSelector((state: AppState) =>
-    state.esign_document.documents.find(doc => doc.id === id)
-  );
-
-  if (!document) {
-    return <p>Document not found</p>;
-  }
+  const location = useLocation();
+  const { document } = location.state as { document?: DocumentList } || {};
+    if (!document) {
+      console.log("Data State",document);
+      return <p>Document not found</p>;
+    }
 
   return (
     <>
@@ -38,13 +28,13 @@ function DocumentDetails() {
           >
             Back
           </button>
-          <h1 className="text-2xl font-bold">{document.documentName}</h1>
-          <p>Email: {document.email}</p>
-          <p>Created At: {document.createdAt}</p>
-        </div>
-        {/* PDF code */}
+          <h1 className="text-2xl font-bold">{document.document_title}</h1>
+          <p>Email: {document.owner_email}</p>
+          <p>Created At: {document.document_created_at}</p>
+        </div>  
         <div>
-          <Designer />
+          
+          
         </div>
       </div>
     </>
