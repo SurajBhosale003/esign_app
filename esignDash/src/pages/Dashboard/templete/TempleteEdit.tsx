@@ -8,12 +8,12 @@ import { MoveableManagerInterface, Renderer } from "react-moveable";
 import PdfRenderer from './pdfsb/PdfRenderer';
 import { PDFDocument, rgb } from 'pdf-lib';
 // Helper Custom ---
-import { datapdfDemo } from './helper/DataPDF'
-import { BlankDatapdf } from './helper/BlankPDF'
-import { initialComponents , DexcissTemplete , HelloDexciss } from './helper/TemplateMaping';
-import { ComponentData } from './helper/Interface'
-import { splitPDF } from './helper/GetPages';
-import { pdfToBase64 } from './helper/PDFtoBase64';
+import { datapdfDemo } from '../helper/DataPDF'
+import { BlankDatapdf } from '../helper/BlankPDF'
+import { initialComponents , DexcissTemplete , HelloDexciss } from '../helper/TemplateMaping';
+import { ComponentData } from '../helper/Interface'
+import { splitPDF } from '../helper/GetPages';
+import { pdfToBase64 } from '../helper/PDFtoBase64';
 
 
 import './templete.css'
@@ -50,7 +50,6 @@ const TempleteEdit = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // on load render components if available
     const fetchTemplateData = async () => {
       try {
         const response = await fetch(`/api/method/esign_app.api.get_template_json?templete_name=${templete?templete.name:''}`);
@@ -464,7 +463,7 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
-  const varName = "eSign"; // Name or title of the PDF while saving--------------
+  const varName = "eSign";
   const link = document.createElement('a');
   link.href = url;
   link.download = `${varName}.pdf`;
@@ -583,6 +582,7 @@ return (
       <h4>Owner Name: {templete.templete_owner_name}</h4>
       <h4>Created At: {new Date(templete.templete_created_at).toLocaleString()}</h4>
     </div> */}
+
 <div className="text-xs flex gap-3 relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
           <button
             className="absolute top-4 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
@@ -622,17 +622,6 @@ return (
       
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={() => addComponent('image')}>Add Image</button>
-      
-{/*       
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={loadComponents}>Load Components from JSON</button>
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={loadDexcissComponents}>Load Dexciss Component from JSON</button>
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={loadHelloDexcissComponents}>Load Hello Component from JSON</button>
-       */}
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={logComponentData}>Log Component Data</button>

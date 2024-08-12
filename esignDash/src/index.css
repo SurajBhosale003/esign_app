@@ -403,3 +403,41 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+
+/* Animation++++++++++++++++++++++++++++++++++++++ */
+@keyframes loading-text {
+  0% { letter-spacing: 1px; transform: translateX(0); }
+  40% { letter-spacing: 2px; transform: translateX(26px); }
+  80% { letter-spacing: 1px; transform: translateX(32px); }
+  90% { letter-spacing: 2px; transform: translateX(0); }
+  100% { letter-spacing: 1px; transform: translateX(0); }
+}
+
+@keyframes loading-ball {
+  0% { width: 16px; transform: translateX(0); }
+  40% { width: 100%; transform: translateX(0); }
+  80% { width: 16px; transform: translateX(64px); }
+  90% { width: 100%; transform: translateX(0); }
+  100% { width: 16px; transform: translateX(0); }
+}
+
+@keyframes loading-ball-inner {
+  0% { width: 16px; transform: translateX(0); }
+  40% { width: 80%; transform: translateX(0); }
+  80% { width: 100%; transform: translateX(0); }
+  90% { width: 80%; transform: translateX(15px); }
+  100% { width: 16px; transform: translateX(0); }
+}
+
+.animate-loading-text {
+  animation: loading-text 3.5s ease-in-out infinite;
+}
+
+.animate-loading-ball {
+  animation: loading-ball 3.5s ease-in-out infinite;
+}
+
+.animate-loading-ball-inner {
+  animation: loading-ball-inner 3.5s ease-in-out infinite;
+}

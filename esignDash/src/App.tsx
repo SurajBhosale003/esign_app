@@ -8,6 +8,7 @@ import Moveable from "react-moveable";
 import HorizontalLayout from './HorizontalLayout';
 import VerticalLayout from './VerticalLayout';
 import Home from './pages/Home'
+import BookAnimation from './loading/BookAnimation';
 
 const Login = React.lazy(() => import('./pages/auth/Login_Auth'));
 const SignUp = React.lazy(() => import('./pages/auth/Signin_Auth'));
@@ -37,7 +38,7 @@ function App() {
     <Moveable flushSync={flushSync} />
 	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT} siteName={getSiteName()}>
 		<BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<BookAnimation/>}>
 			<Routes>
 				<Route element={<HorizontalLayout />}>
           <Route path="/" element={<Home />} />
@@ -57,7 +58,7 @@ function App() {
           <Route path="/s1" element={<Templete />} />
 
         </Route>
-
+        {/* <Route path="/loading" element={<BookAnimation />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/document/:id" element={<DocBody/>} />

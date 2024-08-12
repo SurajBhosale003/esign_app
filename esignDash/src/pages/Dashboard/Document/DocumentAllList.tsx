@@ -140,7 +140,8 @@ const DocumentAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
           <div className="bg-[#283C42] text-white rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer p-4"
                style={{ width: '350px', height: '100px' }}
                onClick={() => handleEdit(document)}>
-            <h3 className="mt-2 font-bold">{document.document_title}</h3>
+            <h3 className=" font-bold">{document.document_title}</h3>
+            <h4 className=" font-bold text-xs">{document.template_title}</h4>
             <p className="text-sm text-gray-500">{new Date(document.document_created_at).toLocaleString()}</p>
           </div>
         </div>
