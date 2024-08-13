@@ -111,10 +111,7 @@ def get_templetes(user_mail):
 @frappe.whitelist()
 def delete_esign_templete(user_mail, name):
     try:
-        # Fetch the Esign_signature document
         templeteList = frappe.get_doc("TempleteList", name)
-
-        # Check if the fetched document belongs to the provided user_mail
         if templeteList.templete_owner_email == user_mail:
             # Delete the document
             templeteList.delete()

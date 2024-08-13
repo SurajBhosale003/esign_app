@@ -1,6 +1,6 @@
+import { useNavigate, useLocation } from 'react-router-dom';
+import './document.css'
 
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 interface DocumentList {
   name: string;
   document_title: string;
@@ -8,7 +8,7 @@ interface DocumentList {
   owner_email: string;
   document_created_at: string;
 }
-function DocumentDetails() {
+function DocBody() {
   const navigate = useNavigate();
   const location = useLocation();
   const { document } = location.state as { document?: DocumentList } || {};
@@ -40,4 +40,4 @@ function DocumentDetails() {
   );
 }
 
-export default DocumentDetails;
+export default DocBody;

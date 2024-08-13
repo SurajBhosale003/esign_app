@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
-// import Designer from "./pdfmeSupport/Designer";
+// import back canva from "./pdfsb";
 import Moveable from 'react-moveable';
 import { MoveableManagerInterface, Renderer } from "react-moveable";
 import PdfRenderer from './pdfsb/PdfRenderer';
@@ -391,7 +391,7 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
   if (!acc[component.pageNo]) acc[component.pageNo] = [];
   acc[component.pageNo].push(component);
   return acc;
-}, {} as { [key: number]: ComponentData[] });
+}, {} as { [key: number]: ComponentData[] });//start from 0 page number 
 
 
   // Apply components to their respective pages
