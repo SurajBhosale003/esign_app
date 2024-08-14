@@ -9,7 +9,7 @@ import HorizontalLayout from './HorizontalLayout';
 import VerticalLayout from './VerticalLayout';
 import Home from './pages/Home'
 import BookAnimation from './loading/BookAnimation';
-import Temp from './pages/Dashboard/Document/Temp';
+import Temp from './loading/Temp'
 
 const Login = React.lazy(() => import('./pages/auth/Login_Auth'));
 const SignUp = React.lazy(() => import('./pages/auth/Signin_Auth'));
@@ -63,7 +63,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/document/:id" element={<DocBody/>} />
-        {/* <Route path="/document/:id" element={<Temp/>} /> */}
+        <Route path="/temp" element={<BookAnimation/>} />
 
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>

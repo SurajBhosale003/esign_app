@@ -2,6 +2,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { ToastContainer, toast, Flip } from 'react-toastify';
+import { extractUniqueElements } from '../helper/extractUniqueElements';
+
 
 // import back canva from "./pdfsb";
 import Moveable from 'react-moveable';
@@ -36,6 +38,7 @@ interface BasePDFInterface
 function DocBody() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [assignedUser , setAssignedUser] = useState<String[]>([])
   const [components, setComponents] = useState<ComponentData[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<HTMLElement | null>(null);
@@ -86,7 +89,17 @@ function DocBody() {
     };
 
     fetchTemplateData();
+    addAssignUser();
   }, []);
+
+
+  const addAssignUser = () =>{
+    const AssignedUsers: string[] = extractUniqueElements(components);
+    setAssignedUser(AssignedUsers);
+  }
+  useEffect(() => {
+    addAssignUser();
+  },[components])
 
   const Editable = {
     name: "editable",
@@ -285,6 +298,12 @@ const deleteComponent = () => {
     setTarget(null);
   }
 };
+
+const logAssignUserData = () =>
+{ 
+  // const AssignedUsers: string[] = extractUniqueElements(components);
+  console.log("Assigned Unique list: " ,assignedUser);
+}
 
 const logComponentData = () => {
   const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
@@ -513,7 +532,8 @@ const handleSelectChange = (event:any) => {
     const templeteObject = {
       document_title: documentData.name,
       document_json_data : JSON.stringify(JSON.stringify(Componentdata, null, 2)),
-      base_pdf_datad: JSON.stringify(JSON.stringify(datapdf, null, 2))
+      base_pdf_datad: JSON.stringify(JSON.stringify(datapdf, null, 2)),
+      assigned_user_list:  JSON.stringify(JSON.stringify(assignedUser, null, 2))
     };
     try {
       const response = await fetch('/api/method/esign_app.api.update_document', {
@@ -610,6 +630,9 @@ const handleSelectChange = (event:any) => {
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={logComponentData}>Log Component Data</button>
+
+      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+      onClick={logAssignUserData}>Log Assign User Data</button>
       
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   
@@ -618,7 +641,7 @@ const handleSelectChange = (event:any) => {
       onClick={handleSaveDocument}
       >Save Document</button>   
 
-      <SendDoc/>
+      <SendDoc  owner_email={documentData.owner_email} assigned_user={assignedUser} />
   </div>
 
   <div className="templete-app text-xs">

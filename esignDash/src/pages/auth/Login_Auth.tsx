@@ -56,7 +56,7 @@ function SignIn() {
             //  { message: "Logged In", home_page: "/app", full_name: "Administrator" }
             //  Store Email as well
             if (res.message === 'Logged In') {
-                dispatch(setUser({ full_name: res.full_name, email: email }));
+                dispatch(setUser({ full_name: res.full_name as string, email: email }));
                 toast.success('Login Successfully', {
                     position: "top-right",
                     autoClose: 500,
@@ -80,7 +80,7 @@ function SignIn() {
                 autoClose: 500,
                 hideProgressBar: false,
                 closeOnClick: true,
-                pauseOnHover: true,
+                pauseOnHover: true, 
                 draggable: true,
                 progress: undefined,
                 theme: "dark",

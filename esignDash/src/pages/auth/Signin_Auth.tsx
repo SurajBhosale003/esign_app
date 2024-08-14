@@ -158,7 +158,7 @@ function SignUp() {
                     <div className="mt-4 flex items-center justify-between">
                         <span className="border-b w-1/5 md:w-1/4"></span>
                       
-                            <p onClick={handleLoginRedirect}  className="text-xs text-gray-500 uppercase">Already Have an Account</p>
+                            <p onClick={handleLoginRedirect}  className="cursor-pointer text-xs text-gray-500 uppercase">Already Have an Account</p>
                        
                         <span className="border-b w-1/5 md:w-1/4"></span>
                     </div>
