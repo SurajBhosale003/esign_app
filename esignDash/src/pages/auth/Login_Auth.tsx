@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 // import axios from 'axios';
-import { useState } from 'react';
+import { useState ,useRef } from 'react';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../redux/reducers/userReducerSlice';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast ,Flip } from 'react-toastify';
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap';
 
 function SignIn() {
     const [email, setEmail] = useState<string>('');
@@ -14,7 +16,36 @@ function SignIn() {
     const {  login, logout } = useFrappeAuth();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const loginRef = useRef(null);
 
+    const navigateToBack = () => {
+        gsap.to(loginRef.current, {
+            x: '-100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+            onComplete: () => navigate('/'),
+        });
+    }
+
+    const handleSignupRedirect = () => {
+        gsap.to(loginRef.current, {
+            x: '-100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+            onComplete: () => navigate('/signup'),
+        });
+    };
+    useGSAP(()=>{ 
+        gsap.from(loginRef.current, {
+            x: '-100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+        });
+    })
+    
     const onSubmit = () => {
         console.log("User: " + email + " Password: " + password);
         login({
@@ -60,16 +91,19 @@ function SignIn() {
 
     return (
         <div className="mt-20 pt-10">
-            <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
+            <div ref={loginRef} className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
                 <div className="w-full p-8 lg:w-1/2">
                     <div className="w-full p-5 lg:w-1/9 relative">
-                        <Link to="/">
-                            <button className="absolute top-2 left-2 rounded-full bg-[#d1e0e4] p-1 hover:bg-[#a2c1ca]">
+                        
+                            <button 
+                            className="absolute top-2 left-2 rounded-full bg-[#d1e0e4] p-1 hover:bg-[#a2c1ca]"
+                            onClick={navigateToBack}
+                            >
                                 <svg className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M14.348 5.652a.5.5 0 01.707.707l-9.9 9.9a.5.5 0 11-.707-.707l9.9-9.9zM5.653 5.652a.5.5 0 00-.707.707l9.9 9.9a.5.5 0 00.707-.707l-9.9-9.9z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                        </Link>
+                        
                     </div>
 
                     <div className="mt-4 flex items-center justify-between">
@@ -104,9 +138,9 @@ function SignIn() {
                         </button>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
-                        <span className="border-b w-1/5 md:w-1/4"></span>
-                        <Link to="/signup" className="text-xs text-gray-500 uppercase">Don't Have an Account?</Link>
-                        <span className="border-b w-1/5 md:w-1/4"></span>
+                    <span className="border-b w-1/5 md:w-1/4"></span>
+                    <button onClick={handleSignupRedirect} className="text-xs text-gray-500 uppercase">Don't Have an Account?</button>
+                    <span className="border-b w-1/5 md:w-1/4"></span>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 bg-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1611095780122-d692cee29291?q=80&w=1771&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}>

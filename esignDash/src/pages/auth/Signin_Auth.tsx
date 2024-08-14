@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast ,Flip } from 'react-toastify';
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap';
 // import axios from 'axios';  
 // import { useFrappeCreateDoc } from 'frappe-react-sdk';
 
@@ -66,21 +68,49 @@ function SignUp() {
         }
     };
     
-    
+    const sinUpRef = useRef(null);
+
+    const navigateToBack = () => {
+        gsap.to(sinUpRef.current, {
+            x: '100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+            onComplete: () => navigate('/'),
+        });
+    }
+    const handleLoginRedirect = () => {
+        gsap.to(sinUpRef.current, {
+            x: '100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+            onComplete: () => navigate('/login'),
+        });
+    };
+    useGSAP(()=>{ 
+        gsap.from(sinUpRef.current, {
+            x: '100%',
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.inOut',
+        });
+    })
+
 
     return (
         <div className="mt-20 pt-10">
-            <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
+            <div ref={sinUpRef} className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
                 <div className="hidden lg:block lg:w-1/2 bg-cover" style={{backgroundImage: "url('https://images.pexels.com/photos/5273563/pexels-photo-5273563.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')"}}></div>
                 <div className="w-full p-8 lg:w-1/2">
                     <div className="w-full p-5 lg:w-1/9 relative">
-                        <Link to="/">
-                            <button className="absolute top-2 right-2 rounded-full bg-[#d1e0e4] p-1 hover:bg-[#a2c1ca]">
+                       
+                            <button  onClick={navigateToBack} className="absolute top-2 right-2 rounded-full bg-[#d1e0e4] p-1 hover:bg-[#a2c1ca]">
                                 <svg className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M14.348 5.652a.5.5 0 01.707.707l-9.9 9.9a.5.5 0 11-.707-.707l9.9-9.9zM5.653 5.652a.5.5 0 00-.707.707l9.9 9.9a.5.5 0 00.707-.707l-9.9-9.9z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                        </Link>
+                      
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                         <span className="border-b w-1/5 lg:w-1/4"></span>
@@ -127,9 +157,9 @@ function SignUp() {
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                         <span className="border-b w-1/5 md:w-1/4"></span>
-                        <Link to="/login">
-                            <p className="text-xs text-gray-500 uppercase">Already Have an Account</p>
-                        </Link>
+                      
+                            <p onClick={handleLoginRedirect}  className="text-xs text-gray-500 uppercase">Already Have an Account</p>
+                       
                         <span className="border-b w-1/5 md:w-1/4"></span>
                     </div>
                 </div>
