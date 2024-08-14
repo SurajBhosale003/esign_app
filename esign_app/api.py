@@ -264,15 +264,18 @@ def get_document_components_and_basepdf(document_name):
 
 # update document State 
 @frappe.whitelist(allow_guest=True)
-def update_document(document_title,document_json_data, base_pdf_datad):
+def update_document(document_title,document_json_data, base_pdf_datad , assigned_user_list):
     try:
         # Parse JSON data
         document_json_data = json.loads(document_json_data)
         base_pdf_datad = json.loads(base_pdf_datad)
-
+        assign_users = json.loads(assigned_user_list)
+        
         doc = frappe.get_doc("DocumentList", document_title)
+
         doc.document_json_data = document_json_data
         doc.base_pdf_datad = base_pdf_datad
+        doc.assigned_users = assign_users
         message = 'Document Updated successfully'
         doc.save()
         return {'status': 200, 'message': message}
