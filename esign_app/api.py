@@ -244,3 +244,39 @@ def delete_esign_document(user_mail, name):
         return {"status": 404, "message": "Document not found."}
     except Exception as e:
         return {"status": 500, "message": f"Error: {str(e)}"}
+
+# ++++++ Get Document Components and BasePDF data +++++++++++++++
+@frappe.whitelist(allow_guest=True)
+def get_document_components_and_basepdf(document_name):
+    try:
+        doc = frappe.get_doc("DocumentList", document_name)
+        response = {
+            'status': 200,
+            'document_json_data': doc.document_json_data,
+            'base_pdf_datad': doc.base_pdf_datad
+        }
+        return response
+
+    except frappe.DoesNotExistError:
+        return {'status': 404, 'message': 'Document not found'}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+# update document State 
+@frappe.whitelist(allow_guest=True)
+def update_document(document_title,document_json_data, base_pdf_datad):
+    try:
+        # Parse JSON data
+        document_json_data = json.loads(document_json_data)
+        base_pdf_datad = json.loads(base_pdf_datad)
+
+        doc = frappe.get_doc("DocumentList", document_title)
+        doc.document_json_data = document_json_data
+        doc.base_pdf_datad = base_pdf_datad
+        message = 'Document Updated successfully'
+        doc.save()
+        return {'status': 200, 'message': message}
+    
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+# ++++ Save/Update Template End ++++++++++++
