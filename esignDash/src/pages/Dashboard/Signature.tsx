@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import SignPad from './Sign/SignPad';
 import { selectFullName, selectEmail } from '../../redux/selectors/userSelector';
 import AllSignatures from './Sign/AllSignatures';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast ,Flip } from 'react-toastify';
 
 function Signature() {
   const [signatureData, setSignatureData] = useState<string | null>(null);
@@ -42,7 +44,18 @@ function Signature() {
       const result = await response.json();
   
       if (result.message.status < 300) {
-        alert('Signature saved successfully');
+        // alert('Signature saved successfully');
+        toast.success('Sign Created Successfully', {
+          position: "top-right",
+          autoClose: 500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Flip,
+          });
         setUploadedImage(null);
         setSignatureData(null);
         setSignName('');
@@ -117,7 +130,7 @@ function Signature() {
           </div>
         </div>
       )}
-      
+      {/* <ToastContainer limit={1}/> */}
       <AllSignatures refreshSignatures={refreshSignatures} setRefreshSignatures={setRefreshSignatures} />
     </div>
   );

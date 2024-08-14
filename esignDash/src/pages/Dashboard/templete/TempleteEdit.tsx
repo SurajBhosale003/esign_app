@@ -370,12 +370,10 @@ const base64ToUint8Array = (base64:any) => {
 const mergeAndPrintPDF = async () => {
   const pdfDoc = await PDFDocument.create(); // Create a new PDF document
   
-  // Merge all
   for (let i = 0; i < datapdf.length; i++) {
     const pdfBytes = base64ToUint8Array(datapdf[i].data);
     const pdfToMerge = await PDFDocument.load(pdfBytes);
 
-    // Copy pagas to pdf
     const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
     pages.forEach(page => pdfDoc.addPage(page));
   }
@@ -463,7 +461,7 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
-  const varName = "eSign";
+  const varName = `esignTemplate-${templete?templete.templete_title:'eSignTemplate'}`;
   const link = document.createElement('a');
   link.href = url;
   link.download = `${varName}.pdf`;

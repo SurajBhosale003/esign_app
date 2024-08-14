@@ -90,12 +90,12 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
               penColor="black"
               canvasProps={{ width: 470, height: 200, className: 'sigCanvas' }}
             />
-            <Button key="clear" onClick={handleClear}>
+            <button className='bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300' key="clear" onClick={handleClear}>
             Clear Signature
-          </Button>
-          <Button key="save" type="primary" onClick={handleSave}>
+          </button>
+          <button className='ml-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300' key="save" onClick={handleSave}>
             Save Signature
-          </Button>
+          </button> 
           </TabPane>
           <TabPane tab="Upload Signature" key="2">
             <div
@@ -113,23 +113,6 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
                 Drag & Drop or Click to Upload
               </label>
             </div>
-            {/* {uploadedImage && (
-              <div className="mt-4">
-                <h2 className="text-lg font-semibold mb-2">Uploaded Image Preview</h2>
-                <img
-                  src={uploadedImage}
-                  alt="Uploaded Image"
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                  className="border border-gray-300 rounded"
-                />
-              </div>
-            )} */}
-             {/* <Button key="clear" onClick={}>
-                Clear Uploaded Signature
-            </Button>
-            <Button key="clear" onClick={}>
-                Add Signature
-            </Button> */}
           </TabPane>
         </Tabs>
       </Modal>

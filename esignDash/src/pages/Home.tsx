@@ -1,18 +1,42 @@
-
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap';
 import SignImage from '../assets/HomePage/sign.jpg';
 import SignImage2 from '../assets/HomePage/sign2.jpg';
+// import { useRef } from 'react';
 
 function Home() {
+  // const gsapRef = useRef();
+  useGSAP(()=>{
+    gsap.from(".home-card-2",{
+      x:500,
+      y:200,
+      duration:2,
+      opacity:0,
+      ease: 'power3.out',
+      delay:1
+    })
+    gsap.to(".home-card-1",{
+      y:-100,
+      duration:2,
+      ease: 'power3.out',
+      delay:1
+    })
+    gsap.from(".home-main-headline",{
+      opacity: 0,
+      duration:2
+    })
+  })  
+
   return (
-    <>
+    <div className='overflow-hidden'>
       <div className="flex items-center justify-center">
-        <span className="font-bold text-[170px] mt-20 text-[#283C42] hover:cursor-default">
-          Document <span className="text-[175px] font-bold text-white text-stroke">Sign</span>
+        <span className="home-main-headline font-bold text-[170px] mt-20 text-[#283C42] hover:cursor-default">
+          <span className=''>Document</span> <span className="text-[175px] font-bold text-white text-stroke">Sign</span>
         </span>
       </div>
       <div>
         <div className="flex justify-between mt-15 mx-20">
-          <div className="outline-dashed outline-2 outline-offset-2 m-20 mt-60 relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-96">
+          <div className="home-card-1 outline-dashed outline-2 outline-offset-2 m-20 mt-60 relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-96">
             <div className="relative h-56 mx-4 -mt-6 overflow-hidden text-white shadow-lg bg-clip-border rounded-xl bg-blue-gray-500 shadow-blue-gray-500/40">
               <img src={SignImage} alt="card-image" />
             </div>
@@ -31,7 +55,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="outline-dashed outline-2 outline-offset-2 relative flex flex-col mt-6 text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-96 h-96 overflow-hidden transform rotate-[-20deg]">
+          <div className="home-card-2 outline-dashed outline-2 outline-offset-2 relative flex flex-col mt-6 text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-96 h-96 overflow-hidden transform rotate-[-20deg]">
             <div className="relative h-3/5 mx-4 -mt-6 overflow-hidden text-white shadow-lg bg-clip-border rounded-xl bg-blue-gray-500 shadow-blue-gray-500/40">
               <img src={SignImage2} alt="card-image" />
             </div>
@@ -45,7 +69,7 @@ function Home() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

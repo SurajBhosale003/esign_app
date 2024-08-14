@@ -431,13 +431,13 @@
 }
 
 .animate-loading-text {
-  animation: loading-text 3.5s ease-in-out infinite;
+  animation: loading-text 1.5s ease-in-out infinite;
 }
 
 .animate-loading-ball {
-  animation: loading-ball 3.5s ease-in-out infinite;
+  animation: loading-ball 1.5s ease-in-out infinite;
 }
 
 .animate-loading-ball-inner {
-  animation: loading-ball-inner 3.5s ease-in-out infinite;
+  animation: loading-ball-inner 1.5s ease-in-out infinite;
 }

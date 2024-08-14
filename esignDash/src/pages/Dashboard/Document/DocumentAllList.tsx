@@ -38,8 +38,8 @@ const DocumentAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-       const handleEdit = (document:DocumentList) => {
-         navigate(`/document/${document.name}`, { state: { document } }); 
+       const handleEdit = (documentData:DocumentList) => {
+         navigate(`/document/${documentData.name}`, { state: { documentData } }); 
        };
 
   useEffect(() => {
