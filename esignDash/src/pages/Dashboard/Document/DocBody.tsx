@@ -35,11 +35,18 @@ interface BasePDFInterface
   page: number;
   data: string;
 }
+type SelectedComponent = {
+  id: number;
+  type: ComponentType;
+} | null;
+
+type ComponentType = "text" | "image";
 function DocBody() {
   const navigate = useNavigate();
   const location = useLocation();
   const [assignedUser , setAssignedUser] = useState<String[]>([])
   const [components, setComponents] = useState<ComponentData[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const [userInput, setUserInput] = useState<string>('');
@@ -54,6 +61,17 @@ function DocBody() {
     console.log("Data State",documentData);
     return <p>Document not found</p>;
   }
+  useEffect(() => {
+    if (selectedId !== null) {
+      const component = components.find(c => c.id === selectedId);
+      if (component) {
+        setSelectedComponent({ id: component.id, type: component.type });
+      } else {
+        setSelectedComponent(null);
+      }
+    }
+  }, [selectedId, target, components]);
+
   useEffect(() => {
     const fetchTemplateData = async () => {
       try {
@@ -794,6 +812,8 @@ const handleSelectChange = (event:any) => {
           />
         </>
         )}
+
+
       </div>
         {selectedId && (
         <>
