@@ -221,8 +221,8 @@ def get_documents_list(user_mail):
     try:
         document_list = frappe.get_all(
             'DocumentList',
-            filters={'owner_email': user_mail},
-            fields=['name','document_title', 'template_title', 'owner_email', 'document_created_at']
+            filters={'owner_email': user_mail , 'isnoteditable': 0},
+            fields=['name','document_title', 'template_title', 'owner_email', 'document_created_at', 'isnoteditable']
         )
         return {'status': 200, 'data': document_list}
     except Exception as e:
@@ -235,7 +235,6 @@ def delete_esign_document(user_mail, name):
         documentList = frappe.get_doc("DocumentList", name)
         if documentList.owner_email == user_mail:
             documentList.delete()
-
             return {"status": 200, "message": "Document deleted successfully."}
         else:
             return {"status": 403, "message": "User mail does not match. Access denied."}
@@ -283,3 +282,29 @@ def update_document(document_title,document_json_data, base_pdf_datad , assigned
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # ++++ Save/Update Template End ++++++++++++
+
+# update document and assign to users [ Frezzee the document ]
+
+@frappe.whitelist(allow_guest=True)
+def send_document_data(to, subject, body, document_name, user_mail, isChecked):
+    try:
+        # to_emails = json.loads(to)
+       
+        # Fetch the document using the provided document name
+        doc = frappe.get_doc("DocumentList", document_name)
+        
+        # Assign the parsed data to the document fields
+        doc.assigned_users = to
+        doc.document_subject = subject
+        doc.description = body
+        doc.user_mail = user_mail
+        doc.isnoteditable = isChecked
+        
+        # Save the document
+        doc.save()      
+        return {'status': 200, 'message': 'Document Assigned Successfully'}
+    
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "send_document_data")
+        return {'status': 500, 'message': str(e)}
+# End ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

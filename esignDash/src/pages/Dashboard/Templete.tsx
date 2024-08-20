@@ -13,7 +13,7 @@
 // import { Divider } from 'antd';
 
 
-// function Templete() {
+function Templete() {
 //   const [base64PDF, setBase64PDF] = useState<string | null>(null);
 //   const [pages, setPages] = useState<Array<{ page: number; data: string }> | null>(null);
 //   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -80,7 +80,9 @@
 //   };
 
 
-//   return (
+  return (
+    <>
+    </>
 //     <div className="h-screen w-full flex flex-col items-center justify-center">
 //       <div className="flex flex-row w-full h-full">
 //         <div id="editorDivArea" className="flex flex-col items-center justify-center gap-2 p-3 min-w-[100vh] max-w-[100vh] h-full border border-blue-500">
@@ -202,7 +204,7 @@
 //         </div>  
 //       </div>
 //     </div>
-//   );
-// }
+  );
+}
 
-// export default Templete;
+export default Templete;

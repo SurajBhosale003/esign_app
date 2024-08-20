@@ -438,6 +438,4 @@
   animation: loading-ball 1.5s ease-in-out infinite;
 }
 
-.animate-loading-ball-inner {
-  animation: loading-ball-inner 1.5s ease-in-out infinite;
-}
+.animate-loading-ball-inner {  animation: loading-ball-inner 1.5s ease-in-out infinite; }

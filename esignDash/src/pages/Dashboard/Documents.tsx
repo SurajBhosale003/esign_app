@@ -3,7 +3,6 @@ import { ToastContainer, toast ,Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { selectEmail } from '../../redux/selectors/userSelector';
 import { Modal ,Tabs, Card, List } from 'antd';
-import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import DocumentAllList from './Document/DocumentAllList';
 

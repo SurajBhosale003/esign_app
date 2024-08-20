@@ -59,7 +59,7 @@ function App() {
           <Route path="/s1" element={<Templete />} />
 
         </Route>
-        {/* <Route path="/loading" element={<BookAnimation />} /> */}
+        <Route path="/loading" element={<BookAnimation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/document/:id" element={<DocBody/>} />
@@ -67,8 +67,8 @@ function App() {
 
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>
-        </Suspense>
-        </BrowserRouter>
+      </Suspense>
+    </BrowserRouter>
 	  </FrappeProvider>
 	</div>
   )
