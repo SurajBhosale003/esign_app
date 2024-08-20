@@ -43,7 +43,7 @@ const BookAnimation: React.FC = () => {
             duration: 1,
             ease: 'power2.inOut'
           });
-      }
+      } 
     });
   }, []);
 
@@ -53,7 +53,7 @@ const BookAnimation: React.FC = () => {
         <p
           key={index}
           ref={el => textRefs.current[index] = el}
-          className="absolute top-[260px] text-[#283d43] font-bold text-5xl opacity-0"
+          className="absolute top-[40%] text-[#283d43] font-bold text-5xl opacity-0"
         >
           {text}
         </p>
