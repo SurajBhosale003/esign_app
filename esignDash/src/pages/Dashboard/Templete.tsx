@@ -50,7 +50,7 @@ function Templete() {
 //       container.style.width = `${viewport.width}px`;
 //       container.style.height = `${viewport.height}px`;
 //       container.style.position = 'relative';
-//       console.log(pages); 
+//       // // console.log(pages); 
 //       const canvas = document.createElement('canvas');
 //       const context = canvas.getContext('2d');
 //       if (context) {
@@ -67,7 +67,7 @@ function Templete() {
 //         // get element by id , 1st create the element , and here access and modify , and inside that add component 
         
 //         const borderDiv:any = document.getElementById(`uniqueDiv1${currentPage+1}`);
-//         console.log("this is green Border: ",borderDiv , `uniqueDiv1${currentPage+1}`);
+//         // // console.log("this is green Border: ",borderDiv , `uniqueDiv1${currentPage+1}`);
 //         borderDiv.style.position = 'absolute';
 //         borderDiv.style.top = '0';
 //         borderDiv.style.left = '0';
@@ -108,7 +108,7 @@ function Templete() {
 //                     ref={(ref) => (pageRefs.current[index] = ref)}
 //                   >
 //                     <div className="pdf-page border-purple-900  ">
-//                       {/* {console.log("Index ID of Page:"+index+1)} */}
+//                       {/* {// // console.log("Index ID of Page:"+index+1)} */}
 //                     </div>
 //                     <div id={`uniqueDiv1${index+1}`}></div>
 //                   </div>

@@ -43,7 +43,7 @@ const DocumentAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
        };
 
   useEffect(() => {
-    console.log("Inside useEffect");
+    // // // console.log("Inside useEffect");
     const fetchTempletes = async () => {
       try {
         const response = await fetch(`/api/method/esign_app.api.get_documents_list?user_mail=${email}`, {
@@ -54,7 +54,7 @@ const DocumentAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
         });
 
         const result: ApiResponse = await response.json();
-        console.log("Trigger API all list",result);
+        // // // console.log("Trigger API all list",result);
 
         if (response.status === 200) {
           if (result.message.data.length > 0) {
@@ -89,7 +89,7 @@ const DocumentAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
       });
 
       const result: ApiDeleteResponse = await response.json();
-      console.log('Delete Template API Response:', result);
+      // // // console.log('Delete Template API Response:', result);
 
       if (result.message.status === 200) {
         setDocuments(documents.filter(document => document.name !== name));

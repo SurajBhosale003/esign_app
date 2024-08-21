@@ -57,15 +57,11 @@ def get_signatures(user_mail):
 @frappe.whitelist()
 def cancel_and_delete_esignature(user_mail, name):
     try:
-        # Fetch the Esign_signature document
         esignature = frappe.get_doc("Esign_signature", name)
 
-        # Check if the fetched document belongs to the provided user_mail
         if esignature.user_mail == user_mail:
-            # Cancel the document
             esignature.cancel()
 
-            # Delete the document
             esignature.delete()
 
             return {"status": 200, "message": "Esign_signature canceled and deleted successfully."}
@@ -113,7 +109,6 @@ def delete_esign_templete(user_mail, name):
     try:
         templeteList = frappe.get_doc("TempleteList", name)
         if templeteList.templete_owner_email == user_mail:
-            # Delete the document
             templeteList.delete()
 
             return {"status": 200, "message": "Templete deleted successfully."}
@@ -130,7 +125,6 @@ def delete_esign_templete(user_mail, name):
 @frappe.whitelist(allow_guest=True)
 def update_template(templete_name,templete_json_data, base_pdf_data):
     try:
-        # Parse JSON data
         templete_json_data = json.loads(templete_json_data)
         base_pdf_data = json.loads(base_pdf_data)
 
@@ -202,7 +196,6 @@ def save_template_document(templete_name, document_name, user_email):
         
 def get_template_data(templete_name):
     try:
-        # Fetch the template data based on template_name
         template_doc = frappe.get_doc('TempleteList', {'name': templete_name})
         return {
             'templete_json_data': template_doc.templete_json_data, 
@@ -288,19 +281,14 @@ def update_document(document_title,document_json_data, base_pdf_datad , assigned
 @frappe.whitelist(allow_guest=True)
 def send_document_data(to, subject, body, document_name, user_mail, isChecked):
     try:
-        # to_emails = json.loads(to)
-       
-        # Fetch the document using the provided document name
         doc = frappe.get_doc("DocumentList", document_name)
         
-        # Assign the parsed data to the document fields
         doc.assigned_users = to
         doc.document_subject = subject
         doc.description = body
         doc.user_mail = user_mail
         doc.isnoteditable = isChecked
         
-        # Save the document
         doc.save()      
         return {'status': 200, 'message': 'Document Assigned Successfully'}
     
@@ -308,3 +296,17 @@ def send_document_data(to, subject, body, document_name, user_mail, isChecked):
         frappe.log_error(frappe.get_traceback(), "send_document_data")
         return {'status': 500, 'message': str(e)}
 # End ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# get List for User of Doc Assigned Fetch +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+@frappe.whitelist(allow_guest=True)
+def get_documents_by_user(user_mail):
+    try:
+        # Fetch all documents where the user's email is in assigned_users
+        documents_list = frappe.get_all(
+            'DocumentList',
+            filters=[['assigned_users', 'like', f'%{user_mail}%']],
+            fields=['name', 'document_title', 'owner_email', 'document_created_at', 'assigned_users']
+        )
+        return {'status': 200, 'data': documents_list}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}

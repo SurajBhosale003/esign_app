@@ -54,7 +54,7 @@ const TempleteEdit = () => {
       try {
         const response = await fetch(`/api/method/esign_app.api.get_template_json?templete_name=${templete?templete.name:''}`);
         const result = await response.json();
-        console.log(result);
+        // // console.log(result);
         if(result.message.templete_json_data == null || result.message.base_pdf_data == null)
         {
           return ;
@@ -293,7 +293,7 @@ const logComponentData = () => {
     fontSize,
     assign,
   }));
-  console.log(JSON.stringify(data, null, 2));
+  // // console.log(JSON.stringify(data, null, 2));
 };
 
 
@@ -516,7 +516,7 @@ const handleSaveTemplete = async() => {
     content,
     value,
   }));
-  console.log(JSON.stringify(Componentdata, null, 2));
+  // // console.log(JSON.stringify(Componentdata, null, 2));
 
   const templeteObject = {
     templete_name: templete.name,
@@ -533,7 +533,7 @@ const handleSaveTemplete = async() => {
     });
 
     const result = await response.json();
-    console.log(result);
+    // // console.log(result);
     if (result.message.status < 300) {
       toast.success('Template Updated Successfully', {
         position: 'top-right',

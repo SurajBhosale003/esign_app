@@ -39,11 +39,11 @@ function Documents() {
         });
 
         const result:ApiResponse = await response.json();
-        console.log("Template Fetch Result :"+ JSON.stringify(result));
+        // // // console.log("Template Fetch Result :"+ JSON.stringify(result));
         if (result.message.status === 200) {
           const names = result.message.data.map(item => item.name);
           setTemplateNames(names);
-          console.log(templateNames);
+          // // // console.log(templateNames);
         } else {
           
         }
@@ -72,7 +72,7 @@ function Documents() {
         body: JSON.stringify(DocumentObj),
       });
       const result = await response.json();
-      console.log(result);
+      // // // console.log(result);
       if (result.message.status < 300) {
         toast.success('Document Created Successfully', {
           position: "top-right",
@@ -143,7 +143,7 @@ function Documents() {
   const previousTab = () => {
     if (currentTab === '2') {
       setCurrentTab('1');
-      console.log(selectedTemplate);
+      // // // console.log(selectedTemplate);
     } else if (currentTab === '3') {
       setCurrentTab('2');
     }

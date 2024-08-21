@@ -210,7 +210,7 @@ const Templete: React.FC = () => {
       fontSize,
       assign
     }));
-    console.log(JSON.stringify(data, null, 2));
+    // // console.log(JSON.stringify(data, null, 2));
   };
 
   return (
@@ -678,7 +678,7 @@ const Templete: React.FC = () => {
       fontSize,
       assign
     }));
-    console.log(JSON.stringify(data, null, 2));
+    // // console.log(JSON.stringify(data, null, 2));
   };
 
   return (
@@ -914,7 +914,7 @@ function Template() {
 
   const handleDeselect = () => {
     // Implement functionality when workspace is clicked (deselection logic, etc.)
-    console.log('Workspace clicked. Deselect logic can be implemented here.');
+    // // console.log('Workspace clicked. Deselect logic can be implemented here.');
   };
 
   const goToPreviousPage = () => {

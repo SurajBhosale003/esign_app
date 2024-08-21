@@ -54,7 +54,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         });
   
         const result: ApiResponse = await response.json();
-        console.log('API Response:', result);
+        // // console.log('API Response:', result);
   
         if (response.status === 200) {
           setSignatures(result.message.data);
@@ -112,7 +112,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
       });
 
       const result: ApiDeleteResponse = await response.json();
-      console.log('Delete API Response:', result);
+      // // console.log('Delete API Response:', result);
 
       if (result.message.status === 200) {
         deleted();

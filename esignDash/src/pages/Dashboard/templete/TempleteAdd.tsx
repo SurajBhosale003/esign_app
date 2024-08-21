@@ -61,7 +61,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
         });
 
         const result = await response.json();
-        console.log(result);
+        // // console.log(result);
         if (result.message.status < 300) {
           toast.success('Templete Created Successfully', {
             position: "top-right",

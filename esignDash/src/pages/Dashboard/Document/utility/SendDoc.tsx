@@ -58,7 +58,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   };
   const sendDialogHandle = () => {
     setTarget(null);
-    console.log(emails);
+    // // // console.log(emails);
     setVisible(true);
   };
   const sendMail = async () => {
@@ -71,7 +71,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
       user_mail: owner_email,
       isChecked: checked,
     };
-    console.log(DocumentObj);
+    // // console.log(DocumentObj);
     try {
       const response = await fetch('/api/method/esign_app.api.send_document_data', {
         method: 'POST', 
@@ -81,7 +81,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
         body: JSON.stringify(DocumentObj),
       });
       const result = await response.json();
-      console.log(result);
+      // // console.log(result);
       if (result.message.status < 300) {
         toast.success('Document Assigned Successfully', {
           position: "top-right",
@@ -228,9 +228,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
           </div>
         </div>
       </Modal>
-      <ToastContainer
-      limit={1}
-      />
+
     </>
   );
 }

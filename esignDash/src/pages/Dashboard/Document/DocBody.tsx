@@ -58,7 +58,7 @@ function DocBody() {
   const textInputRef = useRef<HTMLInputElement | null>(null);
   const { documentData } = location.state as { documentData?: DocumentList } || {};
   if (!documentData) {
-    console.log("Data State",documentData);
+    // // // console.log("Data State",documentData);
     return <p>Document not found</p>;
   }
   useEffect(() => {
@@ -77,8 +77,8 @@ function DocBody() {
       try {
         const response = await fetch(`/api/method/esign_app.api.get_document_components_and_basepdf?document_name=${documentData?documentData.name:''}`);
         const result = await response.json();
-        console.log("documentData :" ,JSON.stringify(documentData));
-        console.log(result);
+        // // // console.log("documentData :" ,JSON.stringify(documentData));
+        // // // console.log(result);
         if(result.message.document_json_data == null || result.message.base_pdf_datad == null)
         {
           return ;
@@ -93,8 +93,8 @@ function DocBody() {
           ? JSON.parse(result.message.base_pdf_datad)
           : result.message.base_pdf_datad;
 
-          console.log("Parseeee",parsedData)
-          console.log("Baseeee",BasePDFData)
+          // // // console.log("Parseeee",parsedData)
+          // // // console.log("Baseeee",BasePDFData)
         setComponents(parsedData);
         setdatapdf(BasePDFData);
         } else {
@@ -320,7 +320,7 @@ const deleteComponent = () => {
 const logAssignUserData = () =>
 { 
   // const AssignedUsers: string[] = extractUniqueElements(components);
-  console.log("Assigned Unique list: " ,assignedUser);
+  // // console.log("Assigned Unique list: " ,assignedUser);
 }
 
 const logComponentData = () => {
@@ -336,7 +336,7 @@ const logComponentData = () => {
     fontSize,
     assign,
   }));
-  console.log(JSON.stringify(data, null, 2));
+  // // console.log(JSON.stringify(data, null, 2));
 };
 
 
@@ -548,13 +548,20 @@ const handleSelectChange = (event:any) => {
       content,
       value,
     }));
-    console.log(JSON.stringify(Componentdata, null, 2));
+    // // // console.log(JSON.stringify(Componentdata, null, 2));
   
+    const formattedEmails = assignedUser.reduce((acc, email, index) => {
+      const emailStr = String(email);
+      acc[index] = { email: emailStr, status: 'unseen' };
+      return acc;
+    }, {} as { [key: number]: { email: string; status: string } });
+
+    // // // console.log("--------format---------",formattedEmails);
     const templeteObject = {
       document_title: documentData.name,
       document_json_data : JSON.stringify(JSON.stringify(Componentdata, null, 2)),
       base_pdf_datad: JSON.stringify(JSON.stringify(datapdf, null, 2)),
-      assigned_user_list:  JSON.stringify(JSON.stringify(assignedUser, null, 2))
+      assigned_user_list : JSON.stringify(formattedEmails, null, 2)
     };
     try {
       const response = await fetch('/api/method/esign_app.api.update_document', {
@@ -566,7 +573,7 @@ const handleSelectChange = (event:any) => {
       });
   
       const result = await response.json();
-      console.log(result);
+      // // // console.log(result);
       if (result.message.status < 300) {
         toast.success('Document Updated Successfully', {
           position: 'top-right',

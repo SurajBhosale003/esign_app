@@ -87,7 +87,7 @@ const TempleteAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
       });
 
       const result: ApiDeleteResponse = await response.json();
-      console.log('Delete Template API Response:', result);
+      // // console.log('Delete Template API Response:', result);
 
       if (result.message.status === 200) {
         setTempletes(templetes.filter(templete => templete.name !== name));

@@ -29,7 +29,7 @@ function SignUp() {
             });
     
             const data = await response.json();
-            console.log("data user creation", data);
+            // // // console.log("data user creation", data);
             if (data.message.status <= 299) {
                 toast.success('User Registered Successfully', {
                     position: "top-right",

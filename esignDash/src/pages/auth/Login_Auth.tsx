@@ -47,12 +47,12 @@ function SignIn() {
     })
     
     const onSubmit = () => {
-        console.log("User: " + email + " Password: " + password);
+        // // // console.log("User: " + email + " Password: " + password);
         login({
             username: email,
             password: password
         }).then(res => {
-            console.log(res);
+            // // // console.log(res);
             //  { message: "Logged In", home_page: "/app", full_name: "Administrator" }
             //  Store Email as well
             if (res.message === 'Logged In') {
