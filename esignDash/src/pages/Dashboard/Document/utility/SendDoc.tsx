@@ -8,13 +8,16 @@ interface SendDocProps {
   assigned_user: string[];
   template_tite: string;
   document_title: string;
+  setTarget: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
 }
 
-function SendDoc({ owner_email, assigned_user, template_tite, document_title }: SendDocProps) {
+
+
+function SendDoc({ owner_email, assigned_user, template_tite, document_title , setTarget }: SendDocProps) {
   const [visible, setVisible] = useState<boolean>(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [newEmail, setNewEmail] = useState<string>('');
-  const [mailTitle,setMailTitle] = useState<string>(document_title);
+  const [mailTitle,setMailTitle] = useState<string>(`${document_title}-(${template_tite})`);
   const [mailBody, setMailBody] = useState<string>('');
   const [checked, setChecked] = useState<number>(0);
   useEffect(() => {
@@ -39,19 +42,11 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title }: 
   const removeEmail = (emailToRemove: string) => {
     setEmails(emails.filter(email => email !== emailToRemove));
   };
-
   const sendDialogHandle = () => {
+    setTarget(null);
     console.log(emails);
     setVisible(true);
   };
-
-  // const sendMail = async() => {
-  //   console.log('Sending Mail', emails, mailTitle, mailBody, document_title );
-
-
-
-  //   setVisible(false);
-  // };
   const sendMail = async () => {
     setVisible(false)
     const DocumentObj = {

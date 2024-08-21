@@ -599,7 +599,7 @@ return (
         onChange={handleFileChange}
         className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300"
       />
-        <select
+        {/* <select
           className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onChange={handleSelectChange}
         >
@@ -610,7 +610,7 @@ return (
           <option value="loadComponents">Load Template 1</option>
           <option value="loadDexcissComponents">Load Dexciss Components</option>
           <option value="loadHelloDexcissComponents">Load Hello Dexciss Components</option>
-        </select>
+        </select> */}
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={LoadBlankPage}>Load Blank Page</button>
@@ -620,9 +620,9 @@ return (
       
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={() => addComponent('image')}>Add Image</button>
-
+{/* 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={logComponentData}>Log Component Data</button>
+      onClick={logComponentData}>Log Component Data</button> */}
       
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   

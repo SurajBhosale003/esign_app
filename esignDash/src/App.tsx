@@ -44,7 +44,6 @@ function App() {
 				<Route element={<HorizontalLayout />}>
           <Route path="/" element={<Home />} />
         </Route>
-        {/* Vertical */}
         <Route element={<VerticalLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/documents" element={<Documents />} />
@@ -53,18 +52,14 @@ function App() {
           <Route path="/sent" element={<Sent />} />
           <Route path="/signature" element={<Signature />} />
           <Route path="/trialTemp" element={<Templete />} />
-
-
           <Route path="/templete" element={<TempleteDash />} />
           <Route path="/s1" element={<Templete />} />
-
         </Route>
         <Route path="/loading" element={<BookAnimation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/document/:id" element={<DocBody/>} />
         <Route path="/temp" element={<BookAnimation/>} />
-
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>
       </Suspense>

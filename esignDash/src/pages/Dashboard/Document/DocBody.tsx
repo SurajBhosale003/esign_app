@@ -369,6 +369,7 @@ const handleSelectChange = (event:any) => {
     } catch (error) {
       console.error("Error loading data:", error);
     }
+    setTarget(null);
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -379,6 +380,7 @@ const handleSelectChange = (event:any) => {
       const result = await splitPDF(base64String);
       setdatapdf(result);
       setCurrentPage(0);
+      setTarget(null);
     }
   };
   useEffect(() => {
@@ -499,6 +501,7 @@ const handleSelectChange = (event:any) => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    setTarget(null);
   };
   
   const handleRemoveImage = (componentId: number) => {
@@ -593,7 +596,7 @@ const handleSelectChange = (event:any) => {
       console.error('Error:', error);
       alert('An error occurred while updating the template');
     }
-  
+    setTarget(null);
    }
   
   
@@ -603,7 +606,7 @@ const handleSelectChange = (event:any) => {
         <div className="relative p-2 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
           <button
             className="absolute top-2 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
-            onClick={() => navigate(-1)}
+            onClick={() => {setTarget(null); navigate(-1);  }}
           >
             Back
           </button>
@@ -624,7 +627,7 @@ const handleSelectChange = (event:any) => {
         onChange={handleFileChange}
         className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300"
       />
-        <select
+        {/* <select
           className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onChange={handleSelectChange}
         >
@@ -635,7 +638,7 @@ const handleSelectChange = (event:any) => {
           <option value="loadComponents">Load Template 1</option>
           <option value="loadDexcissComponents">Load Dexciss Components</option>
           <option value="loadHelloDexcissComponents">Load Hello Dexciss Components</option>
-        </select>
+        </select> */}
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={LoadBlankPage}>Load Blank Page</button>
@@ -646,11 +649,11 @@ const handleSelectChange = (event:any) => {
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={() => addComponent('image')}>Add Image</button>
 
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+      {/* <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={logComponentData}>Log Component Data</button>
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={logAssignUserData}>Log Assign User Data</button>
+      onClick={logAssignUserData}>Log Assign User Data</button> */}
       
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   
@@ -659,7 +662,7 @@ const handleSelectChange = (event:any) => {
       onClick={handleSaveDocument}
       >Save Document</button>   
 
-      <SendDoc owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
+      <SendDoc setTarget={setTarget} owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
   </div>
 
   <div className="templete-app text-xs">
