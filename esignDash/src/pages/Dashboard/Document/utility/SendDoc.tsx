@@ -2,6 +2,7 @@ import { Modal } from "antd";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast ,Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 interface SendDocProps {
   owner_email: string;
@@ -20,6 +21,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   const [mailTitle,setMailTitle] = useState<string>(`${document_title}-(${template_tite})`);
   const [mailBody, setMailBody] = useState<string>('');
   const [checked, setChecked] = useState<number>(0);
+  const navigate = useNavigate();
   useEffect(() => {
     const formattedEmails = assigned_user.reduce((acc, email, index) => {
       acc[index] = { email, status: 'unseen' };
@@ -94,6 +96,9 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
           theme: "dark",
           transition: Flip,
         });
+        setTimeout(() => {
+          navigate('/documents');
+        }, 2000);
       } else {
         toast.error('Error While Sending Document...', {
           position: "top-right",

@@ -301,10 +301,9 @@ def send_document_data(to, subject, body, document_name, user_mail, isChecked):
 @frappe.whitelist(allow_guest=True)
 def get_documents_by_user(user_mail):
     try:
-        # Fetch all documents where the user's email is in assigned_users
         documents_list = frappe.get_all(
             'DocumentList',
-            filters=[['assigned_users', 'like', f'%{user_mail}%']],
+            filters={'isnoteditable': 1, 'assigned_users': ['like', f'%{user_mail}%']},
             fields=['name', 'document_title', 'owner_email', 'document_created_at', 'assigned_users']
         )
         return {'status': 200, 'data': documents_list}

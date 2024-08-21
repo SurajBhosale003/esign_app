@@ -687,6 +687,12 @@ return (
                 onChange={(e) => handleImageUpload(e, component.id)}
               />
             )}
+              {/* <input
+                type="date"
+                accept="image/*"
+                value={new Date().toISOString().split('T')[0]}
+                onChange={(e) => handleImageUpload(e, component.id)}
+              /> */}
             {component.content && (
               <div>
                 <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
