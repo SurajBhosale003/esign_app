@@ -15,14 +15,20 @@ interface SendDocProps {
 
 function SendDoc({ owner_email, assigned_user, template_tite, document_title , setTarget }: SendDocProps) {
   const [visible, setVisible] = useState<boolean>(false);
-  const [emails, setEmails] = useState<string[]>([]);
+  const [emails, setEmails] = useState<{ [key: number]: { email: string; status: string } }>({});
   const [newEmail, setNewEmail] = useState<string>('');
   const [mailTitle,setMailTitle] = useState<string>(`${document_title}-(${template_tite})`);
   const [mailBody, setMailBody] = useState<string>('');
   const [checked, setChecked] = useState<number>(0);
   useEffect(() => {
-    setEmails(assigned_user);
+    const formattedEmails = assigned_user.reduce((acc, email, index) => {
+      acc[index] = { email, status: 'unseen' };
+      return acc;
+    }, {} as { [key: number]: { email: string; status: string } });
+
+    setEmails(formattedEmails);
   }, [assigned_user]);
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(e.target.checked ? 1 : 0);
   };
@@ -32,15 +38,23 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   const handleMailBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMailBody(e.target.value);
   };
-  const addEmail = () => {
-    if (newEmail && !emails.includes(newEmail)) {
-      setEmails([...emails, newEmail]);
+ const addEmail = () => {
+    if (newEmail && !Object.values(emails).some(e => e.email === newEmail)) {
+      const newIndex = Object.keys(emails).length;
+      setEmails({ ...emails, [newIndex]: { email: newEmail, status: 'unseen' } });
       setNewEmail('');
     }
   };
 
   const removeEmail = (emailToRemove: string) => {
-    setEmails(emails.filter(email => email !== emailToRemove));
+    const updatedEmails = Object.keys(emails)
+      .filter(key => emails[parseInt(key)].email !== emailToRemove)
+      .reduce((acc, key, index) => {
+        acc[index] = emails[parseInt(key)];
+        return acc;
+      }, {} as { [key: number]: { email: string; status: string } });
+
+    setEmails(updatedEmails);
   };
   const sendDialogHandle = () => {
     setTarget(null);
@@ -50,7 +64,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   const sendMail = async () => {
     setVisible(false)
     const DocumentObj = {
-      to: JSON.stringify(emails) ,
+      to: JSON.stringify(emails , null , 2) ,
       subject: mailTitle,
       body: mailBody,
       document_name: document_title,
@@ -156,12 +170,15 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
             </div>
             <div className="mt-2 max-h-24 overflow-y-auto">
               <ul>
-                {emails.map((email, idx) => (
-                  <li key={idx} className="flex justify-between items-center bg-white text-black text-xs px-3 py-2 rounded mb-1">
-                    <span>{email}</span>
+                {Object.keys(emails).map(key => (
+                  <li
+                    key={key}
+                    className="flex justify-between items-center bg-white text-black text-xs px-3 py-2 rounded mb-1"
+                  >
+                    <span>{emails[parseInt(key)].email}</span>
                     <button
                       type="button"
-                      onClick={() => removeEmail(email)}
+                      onClick={() => removeEmail(emails[parseInt(key)].email)}
                       className="text-red-500 text-xs font-semibold"
                     >
                       Remove
