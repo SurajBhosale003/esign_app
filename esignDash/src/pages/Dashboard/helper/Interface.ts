@@ -9,7 +9,7 @@ export interface ComponentData {
     pageNo: number;
     value?: string; 
     position: { top: number; left: number };
-    size: { width: number; height: number };
+    size?: { width: number; height: number };
     name: string;
     fontSize?: number;
     assign?: string[];
