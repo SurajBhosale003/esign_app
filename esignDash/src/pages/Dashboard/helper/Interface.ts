@@ -13,4 +13,5 @@ export interface ComponentData {
     name: string;
     fontSize?: number;
     assign?: string[];
+    checked?: boolean;
   }
