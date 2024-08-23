@@ -17,6 +17,8 @@
     "axios": "^1.7.2",
     "gsap": "^3.12.5",
     "pdfjs-dist": "^3.11.174",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-signature-canvas": "^1.0.6"
   },
   "devDependencies": {
