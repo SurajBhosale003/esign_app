@@ -3,6 +3,10 @@ import { FrappeProvider } from 'frappe-react-sdk'
 import { BrowserRouter, Routes , Route } from 'react-router-dom'
 import { flushSync } from "react-dom";
 import Moveable from "react-moveable";
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
 // import './index.css'
 // layouts 
 import HorizontalLayout from './HorizontalLayout';
@@ -10,6 +14,7 @@ import VerticalLayout from './VerticalLayout';
 import Home from './pages/Home'
 import BookAnimation from './loading/BookAnimation';
 import Temp from './loading/Temp'
+
 
 const Login = React.lazy(() => import('./pages/auth/Login_Auth'));
 const SignUp = React.lazy(() => import('./pages/auth/Signin_Auth'));
@@ -39,6 +44,7 @@ function App() {
     <Moveable flushSync={flushSync} />
 	  <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT} siteName={getSiteName()}>
 		<BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
+    <DndProvider backend={HTML5Backend}>
       <Suspense fallback={<BookAnimation/>}>
 			<Routes>
 				<Route element={<HorizontalLayout />}>
@@ -63,6 +69,7 @@ function App() {
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>
       </Suspense>
+      </DndProvider>
     </BrowserRouter>
 	  </FrappeProvider>
 	</div>
