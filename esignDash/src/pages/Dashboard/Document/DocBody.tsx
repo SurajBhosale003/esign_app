@@ -443,7 +443,7 @@ const handleSelectChange = (event:any) => {
             size: component.fontSize,
             color: rgb(0, 0, 0),
             lineHeight: fontSize * 1.2,
-            maxWidth: component.size.width,
+            maxWidth: component.size?.width,
           });
         } else if (component.type === 'image' && component.content) {
           const imageData = component.content.split(',')[1];
@@ -465,8 +465,8 @@ const handleSelectChange = (event:any) => {
           }
   
           const { width: imageWidth, height: imageHeight } = embeddedImage;
-          const containerWidth = component.size.width;
-          const containerHeight = component.size.height;
+          const containerWidth = component.size?.width ?? 0;
+          const containerHeight = component.size?.height ?? 0;
   
           // Calculate scale ratio
           const widthRatio = containerWidth / imageWidth;
@@ -705,8 +705,8 @@ const handleSelectChange = (event:any) => {
           position: 'absolute',
           top: component.position.top,
           left: component.position.left,
-          width: component.size.width,
-          height: component.size.height,
+          width: component.size?.width,
+          height: component.size?.height,
           border: selectedId === component.id ? '1px solid red' : 'none',
           fontSize: `${component.fontSize}px`,
           userSelect: 'none',
@@ -788,8 +788,8 @@ const handleSelectChange = (event:any) => {
 
           const component = components.find((c) => c.id === selectedId);
           if (component) {
-            const newWidth = Math.max(0, Math.min(component.size.width * e.scale[0], workspaceWidth));
-            const newHeight = Math.max(0, Math.min(component.size.height * e.scale[1], workspaceHeight));
+            const newWidth = Math.max(0, Math.min(component.size?.width ?? 1 * e.scale[0], workspaceWidth));
+            const newHeight = Math.max(0, Math.min(component.size?.height ?? 1 * e.scale[1], workspaceHeight));
             updateComponentSize(selectedId, newWidth, newHeight);
           }
         }}

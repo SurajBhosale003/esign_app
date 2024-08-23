@@ -1,22 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
-// import back canva from "./pdfsb";
+// import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
 import { MoveableManagerInterface, Renderer } from "react-moveable";
-import PdfRenderer from './pdfsb/PdfRenderer';
 import { PDFDocument, rgb } from 'pdf-lib';
+import { useDrag, useDrop, DragSourceMonitor} from 'react-dnd';
 // Helper Custom ---
+import PdfRenderer from './pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
 import { BlankDatapdf } from '../helper/BlankPDF'
 import { initialComponents , DexcissTemplete , HelloDexciss } from '../helper/TemplateMaping';
 import { ComponentData } from '../helper/Interface'
 import { splitPDF } from '../helper/GetPages';
 import { pdfToBase64 } from '../helper/PDFtoBase64';
-
-
+import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
 import './templete.css'
+
+type SelectedComponent = {
+  id: number;
+  type: ComponentType | string;
+} | null;
+
+type ComponentType = "text" | "image";
 
 interface TemplateUserDetails {
   name: string;
@@ -32,6 +39,15 @@ interface BasePDFInterface
   data: string;
 }
 
+interface DraggableButtonProps {
+  type: string;
+  onClick: () => void;
+  children: React.ReactNode;
+  title: string;
+}
+
+
+
 const TempleteEdit = () => {
   const [components, setComponents] = useState<ComponentData[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -41,7 +57,7 @@ const TempleteEdit = () => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
-
+  const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
   const textInputRef = useRef<HTMLInputElement | null>(null);
@@ -180,6 +196,43 @@ const addUserToComponent = () => {
     setUserInput('');
   }
 };
+const handleComponentChange = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+  const { type, value, files } = e.target;
+
+  setComponents(prevComponents =>
+    prevComponents.map(component => {
+      if (component.id !== id) return component;
+
+      switch (component.type) {
+        case 'text':
+          return { ...component, content: value, value };
+        case 'image':
+        case 'v_image':
+          if (files && files[0]) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setComponents(prevComponents =>
+                prevComponents.map(c =>
+                  c.id === id ? { ...c, content: reader.result as string } : c
+                )
+              );
+            };
+            reader.readAsDataURL(files[0]);
+          }
+          return component;
+        case 'checkbox':
+          return { ...component, checked: e.target.checked };
+        case 'm_date':
+        case 'live_date':
+        case 'fix_date':
+          return { ...component, content: value };
+        default:
+          return component;
+      }
+    })
+  );
+};
+
 
 const removeUserFromComponent = (user: string) => {
   if (selectedId !== null) {
@@ -196,27 +249,104 @@ const removeUserFromComponent = (user: string) => {
   }
 };
 
-const addComponent = (type: 'text' | 'image' | 'checkbox' |'m_date'|'live_date') => {
+function mergeRefs<T>(...refs: React.Ref<T>[]): React.RefCallback<T> {
+  return (value: T) => {
+    refs.forEach((ref) => {
+      if (typeof ref === 'function') {
+        ref(value);
+      } else if (ref && 'current' in ref) {
+        (ref as React.MutableRefObject<T | null>).current = value;
+      }
+    });
+  };
+}
+
+const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, children, title }) => {
+  const [{ isDragging }, dragRef] = useDrag(() => ({
+    type: 'component',
+    item: { type },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }), [type]);
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <button
+        ref={dragRef}
+        className={`flex justify-center items-center w-[100%] bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 ${isDragging ? 'opacity-50' : ''} cursor-grab`}
+        onClick={onClick}
+      >
+        {children}
+      </button>
+
+      {isHovered && (
+      <div className="absolute right-[-10px] top-[-30px] bg-opacity-50 backdrop-blur-sm text-[#000000] text-sm rounded px-2 py-1 z-10 shadow-lg">
+        {title}
+      </div>
+      )}
+    </div>
+  );
+};
+
+const [, drop] = useDrop(() => ({
+  accept: 'component',
+  drop: (item: { type: ButtonType}, monitor) => {
+    const offset = monitor.getClientOffset();
+    if (workspaceRef.current && offset) {
+      const workspaceRect = workspaceRef.current.getBoundingClientRect();
+      const newPosition = {
+        top: offset.y - workspaceRect.top - 20,
+        left: offset.x - workspaceRect.left - 50,
+      };
+      addComponent(item.type, newPosition);
+    }
+  },
+}));
+  
+const addComponent = (type: ButtonType, position: { top: number; left: number }) => {
+  // Define default sizes and properties for each type
+  const defaultSizes = {
+    text: { width: 100, height: 30 },
+    v_text: { width: 100, height: 30 }, 
+
+    signature: { width: 100, height: 50 },
+    v_signature: { width: 100, height: 50 }, 
+    
+    image: { width: 80, height: 80 },
+    v_image: { width: 80, height: 80 }, 
+    
+    checkbox: { width: 30, height: 30 },
+    m_date: { width: 100, height: 30 },
+    
+    live_date: { width: 100, height: 30 },
+    fix_date: { width: 100, height: 30 },
+  };
+  
+
   const newComponent: ComponentData = {
     id: Date.now(),
     type,
-    pageNo:currentPage,
+    pageNo: currentPage,
     name: `${type}-${Date.now()}`,
-    position: { top: 50, left: 50 },
-
-    ...(type === 'm_date' && { size: { width: 100, height: 30 } }),
-    ...(type === 'live_date' && { size: { width: 100, height: 30 } }),
-    ...(type === 'text' && { size: { width: 100, height: 30 } }),
-    ...(type === 'image' && { size: { width: 80, height: 80 } }),
-    ...(type === 'checkbox' && { size: { width: 30, height: 30 } }),
-    ...(!['text', 'image', 'checkbox','m_date','live_date'].includes(type) && { size: { width: 0, height: 0 } }),
-    ...(type === 'text' && { fontSize: 16 }),
-    value:  '',
+    position,
+    size: defaultSizes[type] || { width: 0, height: 0 },
+    fontSize: type === 'text' ? 14 : undefined,
+    value: '',
     assign: [],
     content: type === 'text' ? '' : undefined,
-   };
-  setComponents([...components, newComponent]);
+    checked: false,
+  };
+
+  setComponents(prevComponents => [...prevComponents, newComponent]);
 };
+
 
 const updateComponentPosition = (id: number, top: number, left: number) => {
   setComponents((prevComponents) =>
@@ -365,6 +495,17 @@ useEffect(() => {
   }
 }, [selectedId, components]);
 
+useEffect(() => {
+  if (selectedId !== null) {
+    const component = components.find(c => c.id === selectedId);
+    if (component) {
+      setSelectedComponent({ id: component.id, type: component.type });
+    } else {
+      setSelectedComponent(null);
+    }
+  }
+}, [selectedId, target, components]);
+
 const base64ToUint8Array = (base64:any) => {
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
 };
@@ -506,7 +647,7 @@ const handleSaveTemplete = async() => {
     // msg error
    return;
   }
-  const Componentdata = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
+  const Componentdata = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign , checked }) => ({
     id,
     type,
     pageNo,
@@ -517,6 +658,7 @@ const handleSaveTemplete = async() => {
     position,
     content,
     value,
+    checked,
   }));
   // // console.log(JSON.stringify(Componentdata, null, 2));
 
@@ -575,6 +717,7 @@ if (!templete) {
 //-------------------------------------------React UI part -------------------------------------------------
 return (
     <>
+    
     {/* <div>
       <h4>Name: {templete.name}</h4>
       <h4>Title: {templete.templete_title}</h4>
@@ -584,17 +727,19 @@ return (
     </div> */}
 
 <div className="text-xs flex gap-3 relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
-          <button
-            className="absolute top-4 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </button>
-          <h1 className="font-bold">{templete.templete_title}</h1>
-          <p>Created At: {new Date(templete.templete_created_at).toLocaleString()}</p>
-        </div>
+    <button
+      className="absolute top-4 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
+      onClick={() => navigate(-1)}
+    >
+      Back
+    </button>
+    <h1 className="font-bold">{templete.templete_title}</h1>
+    <p>Created At: {new Date(templete.templete_created_at).toLocaleString()}</p>
+</div>
 <div className='templete-main-div'>
-  <div className="control-buttons gap-2 text-xs">
+  <div className='left-area-div'>
+    <div className="control-buttons gap-2 text-xs">
+
       <input
         type="file"
         accept="application/pdf"
@@ -618,28 +763,23 @@ return (
       onClick={LoadBlankPage}>Load Blank Page</button>
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('text')}>Add Text</button>
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('image')}>Add Image</button>
-
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('checkbox')}>Add Checkbox</button>
-
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('m_date')}>Manual Date</button>
-
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('live_date')}>Current Date</button>
-{/* 
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={logComponentData}>Log Component Data</button> */}
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={handleSaveTemplete}>Save Templete</button>   
+    </div>
+    <div className="control-buttons-utilities gap-2 text-xs">
+      {buttonConfigs.map(({ type, icon , title }) => (
+        <DraggableButton
+          key={type}
+          type={type}
+          title={title}
+          onClick={() => addComponent(type, { top: 100, left: 100 })}
+        >
+          {icon}
+        </DraggableButton>
+      ))}
+    </div>
   </div>
 
   <div className="templete-app text-xs">
@@ -658,7 +798,7 @@ return (
           Next
         </button>
       </div>
-  <div className="workspace" ref={workspaceRef} onClick={handleDeselect}>
+  <div className="workspace" ref={mergeRefs(workspaceRef, drop)} onClick={handleDeselect}>
     <PdfRenderer pdfData={datapdf[currentPage].data} />
       {components
     .filter((component) => component.pageNo === currentPage) 
@@ -683,59 +823,64 @@ return (
           setSelectedId(component.id);
         }}
       >
-        {component.type === 'text' ? (
-          <div
-            style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
-          >
-            {component.content || 'Editable Text'}
-          </div>
-        ) : (
-          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-            {!component.content && component.type === 'image' &&(
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, component.id)}
-                  />
-                </div>
-            )}
-              {/* <input
-                type="date"
-                accept="image/*"
-                value={new Date().toISOString().split('T')[0]}
-                onChange={(e) => handleImageUpload(e, component.id)}
-              /> */}
-            {component.content  && component.type === 'image' && (
-              <div>
-                <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
-                {/* <button onClick={() => handleRemoveImage(component.id)}>Remove Image</button> */}
-              </div>
-            )}
-            {component.type === 'checkbox'&& (
-              <div>
-              <input
-                type="checkbox"
-                disabled
-              />
-              </div>
-            )}
-            {component.type === 'm_date'&& (
-              <div>
-                <input type="date" disabled/>
-              </div>
-            )}
-            {component.type === 'live_date'&& (
-              <div>
-             <input
-                type="date"
-                value={new Date().toISOString().split('T')[0]}
-                disabled
-              />
-              </div>
-            )}
-          </div>
-        )}
+        {component.type === 'text' && (
+      <div
+        // contentEditable
+        // // onChange={handleTextChange}
+        // onInput={() => handleTextChange}
+        style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
+      >
+        {component.value || 'Editable Text'}
+      </div>
+    )}
+    {component.type === 'image' && !component.content && (
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'v_image' && !component.content && (
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'image' && component.content && (
+      <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
+    )}
+    {component.type === 'checkbox' && (
+      <input
+        type="checkbox"
+        checked={component.checked || false}
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'm_date' && (
+      <input
+        type="date"
+        value={component.content || ''}
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'live_date' && (
+      <input
+        type="date"
+        value={new Date().toISOString().split('T')[0]}
+        readOnly
+      />
+    )}
+    {component.type === 'fix_date' && (
+      <input
+        type="date"
+        value={new Date().toISOString().split('T')[0]}
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'v_text' && (
+      <div>{component.content || 'Editable Text'}</div>
+    )}
       </div>
     ))}
 
@@ -795,72 +940,73 @@ return (
 
   <div className='right-templete'>
       <div className='templete-utility-btn mt-2 text-xs pr-20'>
-        {selectedId && (
-        <>
-          <button 
-          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-          onClick={() => changeTextSize(true)}
-          >Increase Text Size</button>
-          
-          <button 
-          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-          onClick={() => changeTextSize(false)}
-          >Decrease Text Size</button>
-          
-          <button 
-          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-          onClick={deleteComponent}
-          >Delete Component</button>
-    
-          <input
-            className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
-            ref={textInputRef}
-            type="text"
-            value={textFieldValue}
-            onChange={handleTextChange}
-            placeholder="Edit text here"
-          />
-        </>
-        )}
+      {selectedId && (selectedComponent?.type === 'text' || selectedComponent?.type === 'v_text') && (
+      <>
+        <button 
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+        onClick={() => changeTextSize(true)}
+        >Increase Text Size</button>
+        
+        <button 
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+        onClick={() => changeTextSize(false)}
+        >Decrease Text Size</button>
+        
+        <button 
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+        onClick={deleteComponent}
+        >Delete Component</button>
+  
+        <input
+          className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
+          ref={textInputRef}
+          type="text"
+          value={textFieldValue}
+          onChange={handleTextChange}
+          placeholder="Edit text here"
+        />
+      </>
+      )}
       </div>
-        {selectedId && (
-        <>
-          <div className='templete-utility-btn-add-user flex m-3 gap-3 text-xs pr-10 ml-0'>
-            <input
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
-              type="text"
-              value={userInput}
-              onChange={handleUserInputChange}
-              placeholder="Add user"
-            />
-            <button 
-            className=" bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-            onClick={addUserToComponent}
-            >Add</button>
-          </div>
-          <div>
-          <ul className="list-none p-0 m-0 pr-10">
-            {components
-              .find((component) => component.id === selectedId)
-              ?.assign?.map((user, index) => (
-                <li key={index} className="mr-3 flex items-center justify-between p-2 border-b border-gray-200 hover:bg-gray-100">
-                  <span className="text-xs text-gray-800 overflow-hidden ">{user}</span>
-                  <button
-                    onClick={() => removeUserFromComponent(user)}
-                    className="flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    aria-label="Remove user"
+      {selectedId && (
+     <>
+      <div className='templete-utility-btn-add-user flex m-3 gap-3 text-xs pr-10 ml-0'>
+        <input
+          className="mt-3 bg-[#d1e0e4]  text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
+          type="text"
+          value={userInput}
+          onChange={handleUserInputChange}
+          placeholder="Add user"
+        />
+        <button 
+        className="mt-3  bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+        onClick={addUserToComponent}>
+          Add
+        </button>
+      </div>
+      <div>
+        <ul className="list-none p-0 m-0 pr-10">
+          {components
+            .find((component) => component.id === selectedId)
+            ?.assign?.map((user, index) => (
+              <li key={index} className="mr-3 flex items-center justify-between p-2 border-b border-gray-200 hover:bg-gray-100">
+                <span className="text-xs text-gray-800 overflow-hidden ">{user}</span>
+                <button
+                  onClick={() => removeUserFromComponent(user)}
+                  className="flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  aria-label="Remove user"
+                >
+                  <svg
+                    viewBox="0 0 1024 1024"
+                    fill="currentColor"
+                    height="1em"
+                    width="1em"
                   >
-                    <svg
-                      viewBox="0 0 1024 1024"
-                      fill="currentColor"
-                      height="1em"
-                      width="1em"
-                    >
-                      <path d="M678.3 655.4c24.2-13 51.9-20.4 81.4-20.4h.1c3 0 4.4-3.6 2.2-5.6a371.67 371.67 0 00-103.7-65.8c-.4-.2-.8-.3-1.2-.5C719.2 518 759.6 444.7 759.6 362c0-137-110.8-248-247.5-248S264.7 225 264.7 362c0 82.7 40.4 156 102.6 201.1-.4.2-.8.3-1.2.5-44.7 18.9-84.8 46-119.3 80.6a373.42 373.42 0 00-80.4 119.5A373.6 373.6 0 00137 901.8a8 8 0 008 8.2h59.9c4.3 0 7.9-3.5 8-7.8 2-77.2 32.9-149.5 87.6-204.3C357 641.2 432.2 610 512.2 610c56.7 0 111.1 15.7 158 45.1a8.1 8.1 0 008.1.3zM512.2 534c-45.8 0-88.9-17.9-121.4-50.4A171.2 171.2 0 01340.5 362c0-45.9 17.9-89.1 50.3-121.6S466.3 190 512.2 190s88.9 17.9 121.4 50.4A171.2 171.2 0 01683.9 362c0 45.9-17.9 89.1-50.3 121.6C601.1 516.1 558 534 512.2 534zM880 772H640c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h240c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8z" />
-                    </svg>
-                  </button>
-                </li>
-              ))}
+                    <path d="M678.3 655.4c24.2-13 51.9-20.4 81.4-20.4h.1c3 0 4.4-3.6 2.2-5.6a371.67 371.67 0 00-103.7-65.8c-.4-.2-.8-.3-1.2-.5C719.2 518 759.6 444.7 759.6 362c0-137-110.8-248-247.5-248S264.7 225 264.7 362c0 82.7 40.4 156 102.6 201.1-.4.2-.8.3-1.2.5-44.7 18.9-84.8 46-119.3 80.6a373.42 373.42 0 00-80.4 119.5A373.6 373.6 0 00137 901.8a8 8 0 008 8.2h59.9c4.3 0 7.9-3.5 8-7.8 2-77.2 32.9-149.5 87.6-204.3C357 641.2 432.2 610 512.2 610c56.7 0 111.1 15.7 158 45.1a8.1 8.1 0 008.1.3zM512.2 534c-45.8 0-88.9-17.9-121.4-50.4A171.2 171.2 0 01340.5 362c0-45.9 17.9-89.1 50.3-121.6S466.3 190 512.2 190s88.9 17.9 121.4 50.4A171.2 171.2 0 01683.9 362c0 45.9-17.9 89.1-50.3 121.6C601.1 516.1 558 534 512.2 534zM880 772H640c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h240c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8z" />
+                  </svg>
+                </button>
+              </li>
+            ))}
           </ul>
           </div>
         </>
