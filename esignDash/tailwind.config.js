@@ -21,6 +21,10 @@ export default {
           '-webkit-text-stroke': '2px #283C42',
           'text-stroke': '2px #283C42',
         },
+        '.text-stroke-sm': {
+          '-webkit-text-stroke': '1px #283C42',
+          'text-stroke': '1px #283C42',
+        }
       });
     },
   ],
