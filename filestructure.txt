@@ -44,6 +44,7 @@
                 |-- sent.svg
                 |-- sign.svg
                 |-- templete.svg
+            |-- pdfassets
             |-- tailwind.css
         |-- components
             |-- Footer.tsx

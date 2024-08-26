@@ -280,19 +280,22 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, childr
     >
       <button
         ref={dragRef}
-        className={`flex justify-center items-center w-[100%] bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 ${isDragging ? 'opacity-50' : ''} cursor-grab`}
+        className={`flex justify-center items-center w-[100%] bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-grab ${isDragging ? ' shiny-button' : ''}`}
         onClick={onClick}
       >
         {children}
       </button>
-
+  
       {isHovered && (
-      <div className="absolute right-[-10px] top-[-30px] bg-opacity-50 backdrop-blur-sm text-[#000000] text-sm rounded px-2 py-1 z-10 shadow-lg">
-        {title}
-      </div>
+        <div className="absolute right-[-10px] top-[-30px] bg-opacity-50 backdrop-blur-sm text-[#000000] text-sm rounded px-2 py-1 z-10 shadow-lg">
+          <span className=''>{title}</span>
+        </div>
       )}
     </div>
   );
+  
+  
+  
 };
 
 const [, drop] = useDrop(() => ({
@@ -521,25 +524,16 @@ const mergeAndPrintPDF = async () => {
     pages.forEach(page => pdfDoc.addPage(page));
   }
 
-  // Group by page num ---- ( why show warning ??)
-  // const componentsByPage = components.reduce((acc, component) => {
-  //   if (!acc[component.pageNo]) acc[component.pageNo] = [];
-  //   acc[component.pageNo].push(component);
-  //   return acc;
-  // }, {});
-//  Warning Resolved coda-----------------------------------------------------------------------------
-const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
-  if (!acc[component.pageNo]) acc[component.pageNo] = [];
-  acc[component.pageNo].push(component);
-  return acc;
-}, {} as { [key: number]: ComponentData[] });//start from 0 page number 
+  const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
+    if (!acc[component.pageNo]) acc[component.pageNo] = [];
+    acc[component.pageNo].push(component);
+    return acc;
+  }, {} as { [key: number]: ComponentData[] });
 
-
-  // Apply components to their respective pages
   const pages = pdfDoc.getPages();
   
   for (const page of pages) {
-    const pageIndex = pages.indexOf(page); // 1-based index for page number==== here +1 or -1 if components needs adjustments on page.
+    const pageIndex = pages.indexOf(page);
     const pageComponents = componentsByPage[pageIndex] || [];
 
     for (const component of pageComponents) {
@@ -551,12 +545,12 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
         page.drawText(component.content || '', {
           x: left + 3,
           y: yPosition,
-          size: component.fontSize,
+          size: fontSize,
           color: rgb(0, 0, 0),
           lineHeight: fontSize * 1.2,
           maxWidth: component.size?.width ?? 0,
         });
-      } else if (component.type === 'image' && component.content) {
+      } else if ((component.type === 'image' || component.type === 'v_image') && component.content) {
         const imageData = component.content.split(',')[1];
         if (!imageData) {
           console.error('Invalid image data');
@@ -579,7 +573,6 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
         const containerWidth = component.size?.width ?? 0;
         const containerHeight = component.size?.height ?? 0;
 
-        // Calculate scale ratio
         const widthRatio = containerWidth / imageWidth;
         const heightRatio = containerHeight / imageHeight;
         const scaleRatio = Math.min(widthRatio, heightRatio);
@@ -587,7 +580,6 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
         const drawWidth = imageWidth * scaleRatio;
         const drawHeight = imageHeight * scaleRatio;
 
-        //container dimensions
         const x = left;
         const y = page.getHeight() - top - drawHeight;
 
@@ -597,14 +589,48 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
           width: drawWidth,
           height: drawHeight,
         });
+      } else if (component.type === 'checkbox') {
+        const size = 10; //=================================================================================== CheckBox
+        const yPosition = page.getHeight() - top - size - 5;
+
+        if (component.checked) {
+          page.drawRectangle({
+            x: left + 5,
+            y: yPosition,
+            width: size,
+            height: size,
+            color: rgb(0, 0, 0),
+          });
+        } else {
+          page.drawRectangle({
+            x: left + 5,
+            y: yPosition,
+            width: size,
+            height: size,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 1,
+            color: rgb(1, 1, 1),
+          });
+        }
+      } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
+        const fontSize = component.fontSize ?? 12;
+        const yPosition = page.getHeight() - top - fontSize - 3;
+        const dateValue = component.content || new Date().toLocaleDateString();
+
+        page.drawText(dateValue, {
+          x: left + 3,
+          y: yPosition,
+          size: fontSize,
+          color: rgb(0, 0, 0),
+        });
       }
     }
   }
-  // download ---------------------------------------------
+
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
-  const varName = `esignTemplate-${templete?templete.templete_title:'eSignTemplate'}`;
+  const varName = `esignTemplate-${templete ? templete.templete_title : 'eSignTemplate'}`;
   const link = document.createElement('a');
   link.href = url;
   link.download = `${varName}.pdf`;
@@ -613,6 +639,9 @@ const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
+
+
+
 
 const handleRemoveImage = (componentId: number) => {
   setComponents((prevComponents) =>
@@ -868,14 +897,16 @@ return (
       <input
         type="date"
         value={new Date().toISOString().split('T')[0]}
-        readOnly
+        onChange={(e) => handleComponentChange(e, component.id)}
+        // readOnly
+        
       />
     )}
     {component.type === 'fix_date' && (
       <input
         type="date"
         value={new Date().toISOString().split('T')[0]}
-        onChange={(e) => handleComponentChange(e, component.id)}
+        readOnly
       />
     )}
     {component.type === 'v_text' && (

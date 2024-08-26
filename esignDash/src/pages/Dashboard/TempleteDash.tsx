@@ -1,4 +1,4 @@
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import TempleteAdd from './templete/TempleteAdd';
 import TempleteAllList from './templete/TempleteAllList';
 
