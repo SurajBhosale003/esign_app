@@ -474,3 +474,43 @@
   animation: shine 2s infinite;
 }
 
+
+/* .transition-expand {
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  height: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.transition-expand.open {
+  max-height: 200px;
+  opacity: 1;
+  height: 400px;
+  font-size: 12px;
+}
+
+.delay-enter {
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+  animation-delay: 0.3s; 
+}
+
+.fade-in {
+  animation: fadeIn 0.3s forwards;
+}
+
+.opendiv{
+  height: 200px;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+} */

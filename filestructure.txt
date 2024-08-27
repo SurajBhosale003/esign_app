@@ -70,6 +70,8 @@
                 |-- Documents.tsx
                 |-- Inbox.tsx
                 |-- Profile.tsx
+                |-- Sent
+                    |-- SentModal.tsx
                 |-- Sent.tsx
                 |-- Sign
                     |-- AllSignatures.tsx
@@ -88,6 +90,7 @@
                     |-- PDFtoBase64.ts
                     |-- TemplateMaping.ts
                     |-- color.css
+                    |-- dayjsConfig.ts
                     |-- extractUniqueElements.ts
                 |-- templete
                     |-- TempleteAdd.tsx

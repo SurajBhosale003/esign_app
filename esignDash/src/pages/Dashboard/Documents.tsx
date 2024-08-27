@@ -153,6 +153,7 @@ function Documents() {
       <div className="mb-5">
         <button
           onClick={() => setVisible(true)}
+          // onDoubleClick={() => setVisible(true)}
           className=" mt-2 mr-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
         >
           Create Document
