@@ -309,3 +309,16 @@ def get_documents_by_user(user_mail):
         return {'status': 200, 'data': documents_list}
     except Exception as e:
         return {'status': 500, 'message': str(e)}
+
+# get List for Sent Data Box +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+@frappe.whitelist(allow_guest=True)
+def sent_doc_by_user(user_mail):
+    try:
+        documents_list = frappe.get_all(
+            'DocumentList',
+            filters={'isnoteditable': 1, 'owner_email': user_mail},
+            fields=['document_subject','name', 'document_title', 'owner_email', 'document_created_at', 'assigned_users', 'description' ]
+        )
+        return {'status': 200, 'data': documents_list}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
