@@ -36,6 +36,7 @@ interface Mail {
   subject: string;
   timestamp: string;
   description: string;
+  assigned_users:string;
 }
 
 const Sent: React.FC = () => {
@@ -93,7 +94,8 @@ const Sent: React.FC = () => {
               subject: doc.document_subject,
               description: doc.description,
               timestamp: dayjs(doc.document_created_at).toISOString(),
-            };
+              assigned_users :doc.assigned_users,
+            };  
           });
 
           setMails(processedMails);

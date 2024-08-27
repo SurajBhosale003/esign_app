@@ -273,24 +273,27 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, childr
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+     <div
       className="relative inline-block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <button
         ref={dragRef}
-        className={`flex justify-center items-center w-[100%] bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-grab ${isDragging ? ' shiny-button' : ''}`}
+        className={`flex justify-center items-center w-[100%] h-[50px] bg-[#283C42] text-white px-4 py-2 cursor-grab rounded border-2 border-transparent transition-transform duration-500 ease-in-out ${isDragging ? 'shiny-button' : ''}`}
         onClick={onClick}
       >
-        {children}
-      </button>
-  
-      {isHovered && (
-        <div className="absolute right-[-10px] top-[-30px] bg-opacity-50 backdrop-blur-sm text-[#000000] text-sm rounded px-2 py-1 z-10 shadow-lg">
-          <span className=''>{title}</span>
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div className={`flip-container ${isHovered ? 'hovered' : ''}`}>
+            <div className="flip-front">
+              {children}
+            </div>
+            <div className="flip-back">
+              <span>{title}</span>
+            </div>
+          </div>
         </div>
-      )}
+      </button>
     </div>
   );
   

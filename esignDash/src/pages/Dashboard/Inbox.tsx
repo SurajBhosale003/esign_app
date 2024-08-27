@@ -20,12 +20,12 @@ interface ApiResponse {
   };
 }
 
-interface AllDocumentsProps {
-  refreshDocuments: boolean;
-  setRefreshDocuments: Dispatch<SetStateAction<boolean>>;
-}
+// interface AllDocumentsProps {
+//   refreshDocuments: boolean;
+//   setRefreshDocuments: Dispatch<SetStateAction<boolean>>;
+// }
 
-const Inbox: React.FC<AllDocumentsProps> = () => {
+const Inbox = () => {
   const navigate = useNavigate();
   const email = useSelector(selectEmail);
   const [documents, setDocuments] = useState<Document[]>([]);

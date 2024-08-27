@@ -79,6 +79,10 @@
                 |-- Signature.tsx
                 |-- Templete.tsx
                 |-- TempleteDash.tsx
+                |-- doc_signer
+                    |-- Signer.tsx
+                |-- doc_viewer
+                    |-- Viewer.tsx
                 |-- fonts
                     |-- Montserrat-Light.ttf
                 |-- helper

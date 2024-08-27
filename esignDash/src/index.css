@@ -474,6 +474,64 @@
   animation: shine 2s infinite;
 }
 
+.flip-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease-in-out;
+}
+
+.hovered {
+  transform: rotateY(180deg);
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flip-front {
+  transform: rotateY(0deg);
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+
+.tooltip-trigger:hover + .tooltip-content {
+  display: block;
+}
+.tooltip-content {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateX(10px) translateY(-50%);
+  white-space: nowrap;
+}
+.tooltip-arrow {
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent gray-700 transparent transparent;
+}
+
+
+/* .flip-button {
+  transform: rotateX(180deg);
+}
+.flip-button > span {
+  transform: rotateX(180deg);
+} */
 
 /* .transition-expand {
   transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
