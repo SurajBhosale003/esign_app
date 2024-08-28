@@ -21,6 +21,8 @@ import './templete.css'
 type SelectedComponent = {
   id: number;
   type: ComponentType | string;
+  checked:boolean;
+  content:any;
 } | null;
 
 type ComponentType = "text" | "image";
@@ -131,6 +133,7 @@ const TempleteEdit = () => {
         return <EditableViewer key={"editable-viewer"} className={"moveable-editable"} style={{
             transform: `translate(${pos2[0]}px, ${pos2[1]}px) rotate(${rect.rotation}deg) translate(10px)`,
         }}>
+     
             <button className="w-6 h-6 mb-1 p-1 bg-[#283C42] rounded border-none text-white font-bold" onClick={deleteComponent} >
               <svg
                 viewBox="0 0 1024 1024"
@@ -260,6 +263,23 @@ function mergeRefs<T>(...refs: React.Ref<T>[]): React.RefCallback<T> {
     });
   };
 }
+const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
+  const isChecked = e.target.checked;
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === componentId ? { ...component, checked: isChecked } : component
+    )
+  );
+};
+const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
+  const newDate = e.target.value;
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === componentId ? { ...component, content: newDate, value: newDate } : component
+    )
+  );
+};
+
 
 const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, children, title }) => {
   const [{ isDragging }, dragRef] = useDrag(() => ({
@@ -505,12 +525,18 @@ useEffect(() => {
   if (selectedId !== null) {
     const component = components.find(c => c.id === selectedId);
     if (component) {
-      setSelectedComponent({ id: component.id, type: component.type });
+      setSelectedComponent({
+        id: component.id,
+        type: component.type,
+        checked: component.checked || false,
+        content: component.content || '',
+      });
     } else {
       setSelectedComponent(null);
     }
   }
 }, [selectedId, target, components]);
+
 
 const base64ToUint8Array = (base64:any) => {
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
@@ -692,7 +718,7 @@ const handleSaveTemplete = async() => {
     value,
     checked,
   }));
-  // // console.log(JSON.stringify(Componentdata, null, 2));
+  console.log(JSON.stringify(Componentdata, null, 2));
 
   const templeteObject = {
     templete_name: templete.name,
@@ -866,11 +892,13 @@ return (
       </div>
     )}
     {component.type === 'image' && !component.content && (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleComponentChange(e, component.id)}
-      />
+      // <input
+      //   type="file"
+      //   accept="image/*"
+      //   onChange={(e) => handleComponentChange(e, component.id)}
+       
+      // />
+      <div></div>
     )}
     {component.type === 'v_image' && !component.content && (
       <input
@@ -908,8 +936,8 @@ return (
     {component.type === 'fix_date' && (
       <input
         type="date"
-        value={new Date().toISOString().split('T')[0]}
-        readOnly
+        value={component.content || ''}
+        onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
     {component.type === 'v_text' && (
@@ -974,6 +1002,25 @@ return (
 
   <div className='right-templete'>
       <div className='templete-utility-btn mt-2 text-xs pr-20'>
+      {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_image') && (
+       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300">Add Signature</button>
+      )}
+
+      {selectedId && (selectedComponent?.type === 'image' || selectedComponent?.type === 'v_image') && (
+        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, selectedId)} />
+      )} 
+      {selectedId && selectedComponent?.type === 'checkbox' && (
+      <input type="checkbox" checked={selectedComponent.checked || false} onChange={(e) => handleCheckboxChange(e, selectedId)} />
+      )}
+      {selectedId && selectedComponent?.type === 'm_date' && (
+        <input type="date" value={selectedComponent.content || ''} onChange={(e) => handleDateChange(e, selectedId)} />
+      )}
+      {selectedId && selectedComponent?.type === 'live_date' && (
+        <input type="date" value={new Date().toISOString().split('T')[0]} readOnly />
+      )}
+      {selectedId && selectedComponent?.type === 'fix_date' && (
+        <input type="date" value={selectedComponent.content || ''} onChange={(e) => handleDateChange(e, selectedId)} />
+      )}
       {selectedId && (selectedComponent?.type === 'text' || selectedComponent?.type === 'v_text') && (
       <>
         <button 
@@ -1001,8 +1048,10 @@ return (
         />
       </>
       )}
+
+
       </div>
-      {selectedId && (
+      {selectedId && selectedComponent?.type !== 'v_text' && selectedComponent?.type !== 'v_signature' && selectedComponent?.type !== 'v_image' && selectedComponent?.type !== 'fix_date' && (
      <>
       <div className='templete-utility-btn-add-user flex m-3 gap-3 text-xs pr-10 ml-0'>
         <input

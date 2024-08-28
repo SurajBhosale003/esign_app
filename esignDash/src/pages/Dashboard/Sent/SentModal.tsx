@@ -10,13 +10,6 @@ const getStatusClasses = (status: string) => {
       return 'bg-yellow-100 text-yellow-800';
     case 'Completed':
       return 'bg-green-100 text-green-800';
-    default:
-      return '';
-  }
-};
-
-const statusColor = (status: string) => {
-  switch (status) {
     case 'unseen':
       return 'bg-red-500';
     case 'open':
@@ -24,7 +17,7 @@ const statusColor = (status: string) => {
     case 'close':
       return 'bg-green-500';
     default:
-      return 'bg-gray-500';
+      return '';
   }
 };
 
@@ -55,13 +48,12 @@ const SentModal: React.FC<{ modalContent: any; isModalVisible: boolean; handleMo
             {modalContent?.status}
           </p>
 
-          {/* Tooltip for assigned users with email, status, and colored circle */}
           <Tooltip
             title={
               <div className='bg-[#283C42] rounded-md'>
                 {userList.map((user, index) => (
                   <div key={index} className="flex bg-[#283C42] items-center space-x-2 text-white pl-2 pr-2 ">
-                    <div className={`w-2.5 h-2.5 rounded-full ${statusColor(user.status)}`}></div>
+                    <div className={`w-2.5 h-2.5 rounded-full ${getStatusClasses(user.status)}`}></div>
                     <span>{user.email} : {user.status}</span>
                   </div>
                 ))}
