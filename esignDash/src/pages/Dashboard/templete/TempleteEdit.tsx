@@ -17,6 +17,7 @@ import { splitPDF } from '../helper/GetPages';
 import { pdfToBase64 } from '../helper/PDFtoBase64';
 import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
 import './templete.css'
+import SignInput from '../helper/SignInput';
 
 type SelectedComponent = {
   id: number;
@@ -57,6 +58,7 @@ const TempleteEdit = () => {
   const [textFieldValue, setTextFieldValue] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
 
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
@@ -263,6 +265,23 @@ function mergeRefs<T>(...refs: React.Ref<T>[]): React.RefCallback<T> {
     });
   };
 }
+
+const handleSelectSignComp = (SelectedDataUrl: string) => {
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === selectedId ? { ...component, content: SelectedDataUrl, value: SelectedDataUrl } : component
+    )
+  );
+  setTarget(null);
+  setSelectedId(null);
+  setSelectedComponent(null);
+  // setSelectSignatureData(SelectedDataUrl);
+  // console.log(selectSignatureData,"orrrrr",SelectedDataUrl);
+};
+const handleModelSignComp = () => {
+  setTarget(null);
+};
+
 const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
   const isChecked = e.target.checked;
   setComponents((prevComponents) =>
@@ -568,7 +587,7 @@ const mergeAndPrintPDF = async () => {
     for (const component of pageComponents) {
       const { left, top } = component.position;
 
-      if (component.type === 'text') {
+      if (component.type === 'text' || component.type === 'v_text') {
         const fontSize = component.fontSize ?? 12;
         const yPosition = page.getHeight() - top - fontSize - 3;
         page.drawText(component.content || '', {
@@ -579,7 +598,7 @@ const mergeAndPrintPDF = async () => {
           lineHeight: fontSize * 1.2,
           maxWidth: component.size?.width ?? 0,
         });
-      } else if ((component.type === 'image' || component.type === 'v_image') && component.content) {
+      } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
         const imageData = component.content.split(',')[1];
         if (!imageData) {
           console.error('Invalid image data');
@@ -901,13 +920,14 @@ return (
       <div></div>
     )}
     {component.type === 'v_image' && !component.content && (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleComponentChange(e, component.id)}
-      />
+      // <input
+      //   type="file"
+      //   accept="image/*"
+      //   onChange={(e) => handleComponentChange(e, component.id)}
+      // />
+      <div></div>
     )}
-    {component.type === 'image' && component.content && (
+    {(component.type === 'image'|| component.type === 'v_image' || component.type === 'signature' || component.type === 'v_signature') && component.content && (
       <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
     )}
     {component.type === 'checkbox' && (
@@ -915,6 +935,7 @@ return (
         type="checkbox"
         checked={component.checked || false}
         onChange={(e) => handleComponentChange(e, component.id)}
+    
       />
     )}
     {component.type === 'm_date' && (
@@ -1002,8 +1023,8 @@ return (
 
   <div className='right-templete'>
       <div className='templete-utility-btn mt-2 text-xs pr-20'>
-      {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_image') && (
-       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300">Add Signature</button>
+      {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_signature') && (
+        <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp}/>
       )}
 
       {selectedId && (selectedComponent?.type === 'image' || selectedComponent?.type === 'v_image') && (

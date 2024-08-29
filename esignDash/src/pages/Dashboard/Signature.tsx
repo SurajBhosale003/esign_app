@@ -10,7 +10,7 @@ function Signature() {
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [signName, setSignName] = useState<string | null>(null);
-  const [refreshSignatures, setRefreshSignatures] = useState<boolean>(false); // State to trigger refresh
+  const [refreshSignatures, setRefreshSignatures] = useState<boolean>(false); 
   const fullName = useSelector(selectFullName);
   const email = useSelector(selectEmail);
 
