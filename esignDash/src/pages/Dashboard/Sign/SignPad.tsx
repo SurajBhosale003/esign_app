@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Modal, Button, Tabs } from 'antd';
+import { Modal, Tabs } from 'antd';
 import SignatureCanvas from 'react-signature-canvas';
 
 interface SignatureProps {
@@ -19,6 +19,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
     if (signatureRef.current) {
       const dataUrl = signatureRef.current.toDataURL();
       onSave(dataUrl);
+      handleClear();
       setModalVisible(false);
     }
   };
@@ -59,6 +60,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
       };
       reader.readAsDataURL(file);
     }
+    closeModal();
   };
 
   const showModal = () => {
@@ -88,7 +90,7 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
             <SignatureCanvas
               ref={signatureRef}
               penColor="black"
-              canvasProps={{ width: 470, height: 200, className: 'sigCanvas' }}
+              canvasProps={{ width: 470, height: 250, className: 'sigCanvas' }}
             />
             <button className='bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300' key="clear" onClick={handleClear}>
             Clear Signature
