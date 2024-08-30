@@ -61,6 +61,7 @@
                 |-- Dashboard.tsx
                 |-- Document
                     |-- DocBody.tsx
+                    |-- DocEdit.tsx
                     |-- DocumentAllList.tsx
                     |-- document.css
                     |-- pdfsb

@@ -26,6 +26,7 @@ const Sent = React.lazy(() => import('./pages/Dashboard/Sent'));
 const Signature = React.lazy(() => import('./pages/Dashboard/Signature'));
 const Templete = React.lazy(() => import('./pages/Dashboard/Templete'));
 const DocBody = React.lazy(() => import('./pages/Dashboard/Document/DocBody'));
+const DocEdit = React.lazy(() => import('./pages/Dashboard/Document/DocEdit'));
 const TempleteDash = React.lazy(() => import('./pages/Dashboard/TempleteDash'));
 const TempleteEdit = React.lazy(() => import('./pages/Dashboard/templete/TempleteEdit'));
 
@@ -64,7 +65,7 @@ function App() {
         <Route path="/loading" element={<BookAnimation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/document/:id" element={<DocBody/>} />
+        <Route path="/document/:id" element={<DocEdit/>} />
         <Route path="/temp" element={<BookAnimation/>} />
         <Route path="/templete/:id" element={<TempleteEdit/>} />
 			</Routes>

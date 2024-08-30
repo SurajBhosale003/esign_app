@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
-// import back canva from "./pdfsb";
+// import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
 import { MoveableManagerInterface, Renderer } from "react-moveable";
 import { PDFDocument, rgb } from 'pdf-lib';
-
-
+import { useDrag, useDrop, DragSourceMonitor} from 'react-dnd';
+// Helper Custom ---
 import PdfRenderer from './pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
 import { BlankDatapdf } from '../helper/BlankPDF'
@@ -15,56 +15,76 @@ import { initialComponents , DexcissTemplete , HelloDexciss } from '../helper/Te
 import { ComponentData } from '../helper/Interface'
 import { splitPDF } from '../helper/GetPages';
 import { pdfToBase64 } from '../helper/PDFtoBase64';
-
+import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
 import './document.css'
-
-// Utility Functoions --------------------------------
+import SignInput from '../helper/SignInput';
 import SendDoc from './utility/SendDoc'
 import { extractUniqueElements } from '../helper/extractUniqueElements';
 
+type SelectedComponent = {
+  id: number;
+  type: ComponentType | string;
+  checked:boolean;
+  content:any;
+} | null;
+
+type ComponentType = "text" | "image";
+
+interface DocumentList {
+    name: string;
+    document_title: string;
+    template_title: string;
+    owner_email: string;
+    document_created_at: string;
+  }
 
 interface BasePDFInterface
 {
   page: number;
   data: string;
 }
-type SelectedComponent = {
-  id: number;
-  type: ComponentType | string;
-} | null;
 
-type ComponentType = "text" | "image";
-function DocBody() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [assignedUser , setAssignedUser] = useState<String[]>([])
+interface DraggableButtonProps {
+  type: string;
+  onClick: () => void;
+  children: React.ReactNode;
+  title: string;
+}
+
+
+
+const DocEdit = () => {
+    
   const [components, setComponents] = useState<ComponentData[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<HTMLElement | null>(null);
-  const [userInput, setUserInput] = useState<string>('');
   const [textFieldValue, setTextFieldValue] = useState<string>('');
+  const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
+  const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
   const textInputRef = useRef<HTMLInputElement | null>(null);
+  const location = useLocation();
+  const [assignedUser , setAssignedUser] = useState<String[]>([])
   const { documentData } = location.state as { documentData?: DocumentList } || {};
+  const navigate = useNavigate();
   if (!documentData) {
-    // // // console.log("Data State",documentData);
+
     return <p>Document not found</p>;
   }
   useEffect(() => {
     if (selectedId !== null) {
       const component = components.find(c => c.id === selectedId);
       if (component) {
-        setSelectedComponent({ id: component.id, type: component.type });
+        setSelectedComponent({ id: component.id, type: component.type,checked : component.checked ?? false , content: component.content  });
       } else {
         setSelectedComponent(null);
       }
     }
   }, [selectedId, target, components]);
-
   useEffect(() => {
     const fetchTemplateData = async () => {
       try {
@@ -102,8 +122,6 @@ function DocBody() {
     fetchTemplateData();
     addAssignUser();
   }, []);
-
-
   const addAssignUser = () =>{
     const AssignedUsers: string[] = extractUniqueElements(components);
     setAssignedUser(AssignedUsers);
@@ -143,9 +161,8 @@ function DocBody() {
         return <EditableViewer key={"editable-viewer"} className={"moveable-editable"} style={{
             transform: `translate(${pos2[0]}px, ${pos2[1]}px) rotate(${rect.rotation}deg) translate(10px)`,
         }}>
-            <button className="w-6 h-6 mb-1 p-1 bg-[#283C42] rounded border-none text-white font-bold" 
-            onClick={deleteComponent}
-             >
+     
+            <button className="w-6 h-6 mb-1 p-1 bg-[#283C42] rounded border-none text-white font-bold" onClick={deleteComponent} >
               <svg
                 viewBox="0 0 1024 1024"
                 fill="currentColor"
@@ -160,7 +177,7 @@ function DocBody() {
                       handleRemoveImage(selectedId);
                   }else
                   {
-                    // setTextFieldValue("")
+                    setTextFieldValue("")
                   }
               }}><svg
                     viewBox="0 0 1024 1024"
@@ -179,7 +196,6 @@ function DocBody() {
         </EditableViewer>;
     },
 } as const;
-
 const handleNextPage = () => {
   if (currentPage < datapdf.length - 1) {
     setCurrentPage(currentPage + 1); setTarget(null); setSelectedId(null);
@@ -211,6 +227,44 @@ const addUserToComponent = () => {
     setUserInput('');
   }
 };
+const handleComponentChange = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+  const { type, value, files } = e.target;
+
+  setComponents(prevComponents =>
+    prevComponents.map(component => {
+      if (component.id !== id) return component;
+
+      switch (component.type) {
+        case 'text':
+          return { ...component, content: value, value };
+        case 'image':
+        case 'v_image':
+          if (files && files[0]) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setComponents(prevComponents =>
+                prevComponents.map(c =>
+                  c.id === id ? { ...c, content: reader.result as string } : c
+                )
+              );
+            };
+            reader.readAsDataURL(files[0]);
+          }
+          return component;
+        case 'checkbox':
+          return { ...component, checked: e.target.checked };
+        case 'm_date':
+        case 'live_date':
+        case 'fix_date':
+          return { ...component, content: value };
+        default:
+          return component;
+      }
+    })
+  );
+};
+
+
 const removeUserFromComponent = (user: string) => {
   if (selectedId !== null) {
     setComponents((prevComponents) =>
@@ -226,25 +280,144 @@ const removeUserFromComponent = (user: string) => {
   }
 };
 
-const addComponent = (type: 'text' | 'image') => {
+function mergeRefs<T>(...refs: React.Ref<T>[]): React.RefCallback<T> {
+  return (value: T) => {
+    refs.forEach((ref) => {
+      if (typeof ref === 'function') {
+        ref(value);
+      } else if (ref && 'current' in ref) {
+        (ref as React.MutableRefObject<T | null>).current = value;
+      }
+    });
+  };
+}
+
+const handleSelectSignComp = (SelectedDataUrl: string) => {
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === selectedId ? { ...component, content: SelectedDataUrl, value: SelectedDataUrl } : component
+    )
+  );
+  setTarget(null);
+  setSelectedId(null);
+  setSelectedComponent(null);
+  // setSelectSignatureData(SelectedDataUrl);
+  // console.log(selectSignatureData,"orrrrr",SelectedDataUrl);
+};
+const handleModelSignComp = () => {
+  setTarget(null);
+};
+
+const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
+  const isChecked = e.target.checked;
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === componentId ? { ...component, checked: isChecked } : component
+    )
+  );
+};
+const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
+  const newDate = e.target.value;
+  setComponents((prevComponents) =>
+    prevComponents.map((component) =>
+      component.id === componentId ? { ...component, content: newDate, value: newDate } : component
+    )
+  );
+};
+
+
+const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, children, title }) => {
+  const [{ isDragging }, dragRef] = useDrag(() => ({
+    type: 'component',
+    item: { type },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }), [type]);
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+     <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <button
+        ref={dragRef}
+        className={`flex justify-center items-center w-[100%] h-[50px] bg-[#283C42] text-white px-4 py-2 cursor-grab rounded border-2 border-transparent transition-transform duration-500 ease-in-out ${isDragging ? 'shiny-button' : ''}`}
+        onClick={onClick}
+      >
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div className={`flip-container ${isHovered ? 'hovered' : ''}`}>
+            <div className="flip-front">
+              {children}
+            </div>
+            <div className="flip-back">
+              <span>{title}</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+  );
+  
+  
+  
+};
+
+const [, drop] = useDrop(() => ({
+  accept: 'component',
+  drop: (item: { type: ButtonType}, monitor) => {
+    const offset = monitor.getClientOffset();
+    if (workspaceRef.current && offset) {
+      const workspaceRect = workspaceRef.current.getBoundingClientRect();
+      const newPosition = {
+        top: offset.y - workspaceRect.top - 20,
+        left: offset.x - workspaceRect.left - 50,
+      };
+      addComponent(item.type, newPosition);
+    }
+  },
+}));
+  
+const addComponent = (type: ButtonType, position: { top: number; left: number }) => {
+  // Define default sizes and properties for each type
+  const defaultSizes = {
+    text: { width: 100, height: 30 },
+    v_text: { width: 100, height: 30 }, 
+
+    signature: { width: 100, height: 50 },
+    v_signature: { width: 100, height: 50 }, 
+    
+    image: { width: 80, height: 80 },
+    v_image: { width: 80, height: 80 }, 
+    
+    checkbox: { width: 30, height: 30 },
+    m_date: { width: 100, height: 30 },
+    
+    live_date: { width: 100, height: 30 },
+    fix_date: { width: 100, height: 30 },
+  };
+  
+
   const newComponent: ComponentData = {
     id: Date.now(),
     type,
-    pageNo:currentPage,
+    pageNo: currentPage,
     name: `${type}-${Date.now()}`,
-    position: { top: 50, left: 50 },
-    size: { width: 100, height: 100 },
-    fontSize: 16,
-    value: '', 
+    position,
+    size: defaultSizes[type] || { width: 0, height: 0 },
+    fontSize: type === 'text' ? 14 : undefined,
+    value: '',
     assign: [],
     content: type === 'text' ? '' : undefined,
-    // For image default Image When Upload an image.
-    // value: type === 'image' ? `data:image/png;base64,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` : undefined, 
-    // assign: [],
-    // content: type === 'text' ? '' : `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFoBAMAAACIy3zmAAAAG1BMVEXu7u7///8AAABcXFzR0dE8PDx8fHwbGxunp6f15mvAAAALWUlEQVR42u3dy5vbtBYAcGt4tEupcTJezjhxnCUTuKyJKTBLkq+ddptwCyxJKHwsJ7nl6/2zbzJ5SbZsS8nRyRHXWtV1mf5QZfno6OFAbAsPtkXsr+9/erOIL1jSP77+wIRQVHtkoEWH7y4KPsAfvtnCTNB/x2TKWyaM0NEkJlSSR2GA/jwmVv4tatHfxuTKK1GNFt/FMV21Hi0+iUmWLyrQrBMTLdNSNAsnVNHJqAwtZjHZ0i9Bs89iwmWsR4cLyuh0pEOLVUy6DDRouj3HsQc5oHeFiSF1dFewXQ0f0K2YfLkTOTT9it5UtYqm36Llqt6jZz6g+yo6ir0oSxnNMl13/vrLC5bXulddT0bz4p94eBQXLvfvivUooVm7EFUt1SYv8C/Xv3w+0UUge3T+MfzzEsripeC/aB/Fp5th7tZfQpBAry8/5mij/d186+ivIxEq6HyMPz6gZ7lRAg/ooPkkH+tt7/JcNMUDQmiRe1ez3d1Wri8MSKFFVniVB/nfTZkmiXrRS/Ul0uPb25NiT0gJrfYTyRatdHiJIIcO1FodPd1WmvScIJpdK4366fZV/uGkhla7t02jVrvvnqCIVoLQ/hO6mDOjhg6UvnqTZI+KjyE5tPIoLtfXbaW9EEXLz904dz0NiKLl9nGjZsNSQRUtpLfigCvNZXNJFL1S3oly5zGni36hdB+h0qTJojvKi1y+YnTRXKnbttpLUwigdZdsIvd51+pQhixaehLngdRN31JGS86bIFPjf6pouRn3gpUaLZFFSx3GIJipOUmyaCmu6wfD4uicJFp6n3QDqSsRlNHSmzsJFmoelSyaSVAJndBGTyR07B86DnIzXnTRwwbdoK3RPKAbTwvRoBt0g27QDbpBN+gG3aD/j9DNIKBBN+gG3aAbdIO2Qq/fry8Dv9BMfP9mkyV+GAlv0Czc/+fpV8ITtLL/75XwA82VDTFfcC+ypqvifgjyg4CWZpcPebRuawF1dLu4+5U+eqLbR0oc3dLuXaONZtodrUvaaK7dBXZDG93Wb0QnjdbupdsteKeLLjl1YEwZHZZsbexxwuiyDc/dE9AMCc1elO0iFfboaISEzsrQI2s0u7pDyprOqo8MsQqRJ3OkQcCk6hgLO3Rn//Q6R5fujL61Rq/2T69H6HU8kOKgeSn6xhZ9fXh6XaPDUnTPFj3cbRzzCR1tl277hc6OL39/2vRht5tHvcc2LE/9Qs+kl78vb8TouBUIAQ0Ue1wddn5goMujPCv0Qh47OEeXx9M26Ja8WdZ91hRk5HJMu6b+jBFDtVX5MRq/Vp9f9+iSc96WNuiJehqAezRAhqmTC1ncp8XC83N5q9ypOT5kTXn+VCUf8tPX+ZfShWYC5jboYf71j4G+1p2cZf4XR/n/3wvNbln9xVlhxOPBPOKicOgWzgrIWTEqNf6L2+c0rXPQ6glUP1oFPYWAnGGtNY2kf+P3VpnPUDN6QFprKg7rPWK79R7sqthd4q2s4f95aiK2K2s0nXyPo61hWl99+vIls12zoXmd9vHQp13qApeUOlobIo6Io59pkw/E0drDgOe00Z2qfCtVdFZ5+i5NdEmeOCGNbldn1GiiZ9W5S5LoqCZLTBJ9VTPzQRK9MDy829Fa01MuK47GTzjKIOAU9Kz8xHFGFR1WHJM+JYpmzyrQY6Lo8mmxY/qSHLrywwl9muiyXLzSfVBDh9UfLGAU0Zqkpab7oIYeVqPHFNF1n9XYdh/E0FkNuk8RvahBJwTR7biuMHroWS16iZA1tbs0+LrNmNoggGX16Btq6MpYSToDlhTa5GteCTF0daxkdconHjo0MZudpwqNFr+W3K0csqjdBzo6ikvumjyGu+4DG71uuFP9XcNvvfUugI72eaLCHNzKDD3AR29oifYuNzObnTAOi44OGdv8dFbbEB2jo7dtYK5DD03RI2x0dMwj5u6afwnwDhm9X/6leatlxug5ctZ0X513hbt8YYzucdxBwEpab6quPLT48mkfFx0dF8nk0TNzdIKLXsk5F6MlwCXDRER0pKQv5Lvsyga9xESvlP9avmsYKx0eYzx0pG7/lO/afRcXEa0eUDKWP8pkGisd1kKhodVX3kBGWz2GrwResiZfm0yazrq2MPcFYoYpKpnm5nafp05HHA9d+BK89B06m8fwDjMBGZWt3eBGeSWlcWChNbDl/q5FrLRfnI+DDrUR5nY6q21uHpw7N24VT2elU4JMWMRKS8ylE/qlgdu7kU2LxkRn+rexbax0h4kOKxqoMH8MU4G5mDArMVgOWRCXIgcsrJh9tYmVpgEiOquYyLSIlRKBiC51dblpenc/GsZbqV7+lh5ZDVnu8j+Zu0NXNIA5t4mVRrlZpWOB38iQVWVtLR7DTdwgJ6uev4l/XzpCVz5pPLZq0vJcx9O/Ubp0gq6OO/9lgR4rP3m3VSlxgrYa/tVOih+nDZ5VzzqfdxhrBoZm2q07XQdZUw5mTpSf3FH+AYAHAVdg6L7yk18oTR0WbTOSMll9oMmwFbLGZ6OfgZnjW+UnD5UBECgasKK33cThJy8UBygasKK3oxYNOgFGQ1b0dkzrHs0gKxoLDVrR21le52jYit5mWZ2jYSsaBw1c0Tho4IpGQUNXNAoauqKB0NXx9HUMjVYWhyxqFtqcNghYeIgGr2gM9MJDdDv2ED0hhE4N0Q4q2hZ9nMhJzNAuKlpFi1r0cRDZN0I7qWjbmj6mAXpGaCcVbYmWpq7HJmg3FW2LPoYRIxO0m4q2RR/ycX1hgHZU0bbowwqCqQnaUUVbo9kPu7y9AdpVRVujA/FxlwE0iKcnrtB28fSm3P/84en3atGuKvoENN9Xei16Qgi9u6xFA1b077/Ks265vwgUDVbR3Uclw+YS3YIyv63Jx0Kih0DmrwQamrXAzAEaGqqi39evJgVDQ1W0yWpSMDRQRRutJoVCQ1X0jyarSaHQQBVttpoUCA1V0VOOiIataFfoXDwNVdFGS6tM4unjZTkapqK7AhMNVNFjVHT4EqQwhto8YEqAj0a7bNBYl6Kp6QbdoBv0Pwxd9eZU0TVvWZs1TOdeBuWFqfF0adn+EDz05xAZtuRRIKJZJ4YbvWGhwda4JAwNDbiYaMzR0HC5+S4aOorhyggLDbkwZ4yEBtz+EMc3WOgZIHqAhR4CovtYaMiJva6P6L6PzQOtTa8A0T2sePoFIHqOhW4BoqcX/jTKSfNOeMMtuEbdw0PDRUxLxIEtVFW/xxyN819AzH+hphCYuP+5okgPWtUf+4Cd9xAu8h5NhqlBN+gGfRraedYUa4lbg27QUgbeD/TCb3TqD1rKoghv0EM57+sLWkpnLr1Br+R8gi/oTM6w+4K+kjLs3Be0NBky8Abdji3+NBV0R90u40c8HaprWf1AMznx6w1aeo8PvEGv5MyvL+grpVH7gZb7vPjGF7Sc7U48WWuqdB/7jw6Tr2llXrLHPUFnhS3G9NHql/Xm3A+0cubn7lEkj1ZXCIy5H2ilUafMA3Rh3rrnQTxdnLeeeoHOTaYmzAt0O78Zzwd0WJjK9QBd+FjFn0zQR7c1a6sFJ47WHHf28CjcFRi0bilo+vpLN+XrDwIEDblS2GjRBgTa5rsxMPvfIdAtXHQ6gkCDHeRhWH4DQSNXdRcCzbGrenQO+hCqdnDRd+cNAvbXK1T0LQw6XGCiexwE7e5ALpdo1DfMIIeeyOG8DZpPLlfTMzlLboPGDEFucuhjyHZriRafoKHHOUdLGVhbocW3WOhl2YRVKqzRWOpUlE2j9OzRgfge8znUJPeXJ6ADEU3wWoeccv64X4h+AjoQ/G/3vbQmTy42S9nfitPQ61+H79y+0pORLhEqnv/3G3EqenPF73964wz+MCo5X1cerleg/wemVWYkoKU/DgAAAABJRU5ErkJggg==`,
+    checked: false,
   };
-  setComponents([...components, newComponent]);
+
+  setComponents(prevComponents => [...prevComponents, newComponent]);
 };
+
 
 const updateComponentPosition = (id: number, top: number, left: number) => {
   setComponents((prevComponents) =>
@@ -310,12 +483,6 @@ const deleteComponent = () => {
   }
 };
 
-const logAssignUserData = () =>
-{ 
-  // const AssignedUsers: string[] = extractUniqueElements(components);
-  // // console.log("Assigned Unique list: " ,assignedUser);
-}
-
 const logComponentData = () => {
   const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
     id,
@@ -362,7 +529,6 @@ const handleSelectChange = (event:any) => {
     } catch (error) {
       console.error("Error loading data:", error);
     }
-    setTarget(null);
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -373,175 +539,231 @@ const handleSelectChange = (event:any) => {
       const result = await splitPDF(base64String);
       setdatapdf(result);
       setCurrentPage(0);
-      setTarget(null);
     }
   };
-  useEffect(() => {
-    if (selectedId !== null) {
-      const selectedElement = document.querySelector(`[data-id="${selectedId}"]`);
-      setTarget(selectedElement as HTMLElement);
-      const selectedComponent = components.find((c) => c.id === selectedId);
-      if (selectedComponent?.type === 'text') {
-        setTextFieldValue(selectedComponent.content || '');
-      }
+
+// const loadComponents = () => {
+//   setComponents(initialComponents);
+// };
+
+// const loadDexcissComponents = () => {
+//   setComponents(DexcissTemplete);
+// };
+// const loadHelloDexcissComponents = () => {
+//   setComponents(HelloDexciss);
+// };
+
+// sel the cmpt, set target , 
+useEffect(() => {
+  if (selectedId !== null) {
+    const selectedElement = document.querySelector(`[data-id="${selectedId}"]`);
+    setTarget(selectedElement as HTMLElement);
+    const selectedComponent = components.find((c) => c.id === selectedId);
+    if (selectedComponent?.type === 'text') {
+      setTextFieldValue(selectedComponent.content || '');
+      // textInputRef.current?.focus();
     }
-  }, [selectedId, components]);
-  const base64ToUint8Array = (base64:any) => {
-    return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
-  };
-  
-  const mergeAndPrintPDF = async () => {
-    const pdfDoc = await PDFDocument.create(); // Create a new PDF document
-    
-    // Merge all
-    for (let i = 0; i < datapdf.length; i++) {
-      const pdfBytes = base64ToUint8Array(datapdf[i].data);
-      const pdfToMerge = await PDFDocument.load(pdfBytes);
-  
-      // Copy pagas to pdf
-      const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
-      pages.forEach(page => pdfDoc.addPage(page));
+  }
+}, [selectedId, components]);
+
+useEffect(() => {
+  if (selectedId !== null) {
+    const component = components.find(c => c.id === selectedId);
+    if (component) {
+      setSelectedComponent({
+        id: component.id,
+        type: component.type,
+        checked: component.checked || false,
+        content: component.content || '',
+      });
+    } else {
+      setSelectedComponent(null);
     }
+  }
+}, [selectedId, target, components]);
+
+
+const base64ToUint8Array = (base64:any) => {
+  return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
+};
+
+const mergeAndPrintPDF = async () => {
+  const pdfDoc = await PDFDocument.create(); // Create a new PDF document
   
-    // Group by page num ---- ( why show warning ??)
-    // const componentsByPage = components.reduce((acc, component) => {
-    //   if (!acc[component.pageNo]) acc[component.pageNo] = [];
-    //   acc[component.pageNo].push(component);
-    //   return acc;
-    // }, {});
-  //  Warning Resolved coda-----------------------------------------------------------------------------
+  for (let i = 0; i < datapdf.length; i++) {
+    const pdfBytes = base64ToUint8Array(datapdf[i].data);
+    const pdfToMerge = await PDFDocument.load(pdfBytes);
+
+    const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
+    pages.forEach(page => pdfDoc.addPage(page));
+  }
+
   const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
     if (!acc[component.pageNo]) acc[component.pageNo] = [];
     acc[component.pageNo].push(component);
     return acc;
-  }, {} as { [key: number]: ComponentData[] });//start from 0 page number 
+  }, {} as { [key: number]: ComponentData[] });
+
+  const pages = pdfDoc.getPages();
   
-  
-    // Apply components to their respective pages
-    const pages = pdfDoc.getPages();
-    
-    for (const page of pages) {
-      const pageIndex = pages.indexOf(page); // 1-based index for page number==== here +1 or -1 if components needs adjustments on page.
-      const pageComponents = componentsByPage[pageIndex] || [];
-  
-      for (const component of pageComponents) {
-        const { left, top } = component.position;
-  
-        if (component.type === 'text') {
-          const fontSize = component.fontSize ?? 12;
-          const yPosition = page.getHeight() - top - fontSize - 3;
-          page.drawText(component.content || '', {
-            x: left + 3,
+  for (const page of pages) {
+    const pageIndex = pages.indexOf(page);
+    const pageComponents = componentsByPage[pageIndex] || [];
+
+    for (const component of pageComponents) {
+      const { left, top } = component.position;
+
+      if (component.type === 'text' || component.type === 'v_text') {
+        const fontSize = component.fontSize ?? 12;
+        const yPosition = page.getHeight() - top - fontSize - 3;
+        page.drawText(component.content || '', {
+          x: left + 3,
+          y: yPosition,
+          size: fontSize,
+          color: rgb(0, 0, 0),
+          lineHeight: fontSize * 1.2,
+          maxWidth: component.size?.width ?? 0,
+        });
+      } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
+        const imageData = component.content.split(',')[1];
+        if (!imageData) {
+          console.error('Invalid image data');
+          continue;
+        }
+
+        const imageBytes = base64ToUint8Array(imageData);
+        let embeddedImage;
+
+        if (component.content.startsWith('data:image/png')) {
+          embeddedImage = await pdfDoc.embedPng(imageBytes);
+        } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
+          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+        } else {
+          console.error('Unsupported image format');
+          continue;
+        }
+
+        const { width: imageWidth, height: imageHeight } = embeddedImage;
+        const containerWidth = component.size?.width ?? 0;
+        const containerHeight = component.size?.height ?? 0;
+
+        const widthRatio = containerWidth / imageWidth;
+        const heightRatio = containerHeight / imageHeight;
+        const scaleRatio = Math.min(widthRatio, heightRatio);
+
+        const drawWidth = imageWidth * scaleRatio;
+        const drawHeight = imageHeight * scaleRatio;
+
+        const x = left;
+        const y = page.getHeight() - top - drawHeight;
+
+        page.drawImage(embeddedImage, {
+          x: x,
+          y: y,
+          width: drawWidth,
+          height: drawHeight,
+        });
+      } else if (component.type === 'checkbox') {
+        const size = 10; //=================================================================================== CheckBox
+        const yPosition = page.getHeight() - top - size - 5;
+
+        if (component.checked) {
+          page.drawRectangle({
+            x: left + 5,
             y: yPosition,
-            size: component.fontSize,
+            width: size,
+            height: size,
             color: rgb(0, 0, 0),
-            lineHeight: fontSize * 1.2,
-            maxWidth: component.size?.width,
           });
-        } else if (component.type === 'image' && component.content) {
-          const imageData = component.content.split(',')[1];
-          if (!imageData) {
-            console.error('Invalid image data');
-            continue;
-          }
-  
-          const imageBytes = base64ToUint8Array(imageData);
-          let embeddedImage;
-  
-          if (component.content.startsWith('data:image/png')) {
-            embeddedImage = await pdfDoc.embedPng(imageBytes);
-          } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
-            embeddedImage = await pdfDoc.embedJpg(imageBytes);
-          } else {
-            console.error('Unsupported image format');
-            continue;
-          }
-  
-          const { width: imageWidth, height: imageHeight } = embeddedImage;
-          const containerWidth = component.size?.width ?? 0;
-          const containerHeight = component.size?.height ?? 0;
-  
-          // Calculate scale ratio
-          const widthRatio = containerWidth / imageWidth;
-          const heightRatio = containerHeight / imageHeight;
-          const scaleRatio = Math.min(widthRatio, heightRatio);
-  
-          const drawWidth = imageWidth * scaleRatio;
-          const drawHeight = imageHeight * scaleRatio;
-  
-          //container dimensions
-          const x = left;
-          const y = page.getHeight() - top - drawHeight;
-  
-          page.drawImage(embeddedImage, {
-            x: x,
-            y: y,
-            width: drawWidth,
-            height: drawHeight,
+        } else {
+          page.drawRectangle({
+            x: left + 5,
+            y: yPosition,
+            width: size,
+            height: size,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 1,
+            color: rgb(1, 1, 1),
           });
         }
+      } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
+        const fontSize = component.fontSize ?? 12;
+        const yPosition = page.getHeight() - top - fontSize - 3;
+        const dateValue = component.content || new Date().toLocaleDateString();
+
+        page.drawText(dateValue, {
+          x: left + 3,
+          y: yPosition,
+          size: fontSize,
+          color: rgb(0, 0, 0),
+        });
       }
     }
-    // download ---------------------------------------------
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const varName = `esignDoc-${documentData.document_title}`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${varName}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setTarget(null);
-  };
-  
-  const handleRemoveImage = (componentId: number) => {
-    setComponents((prevComponents) =>
-      prevComponents.map((c) =>
-        c.id === componentId
-          ? { ...c, content: undefined, value: undefined }
-          : c
-      )
-    );
-  };
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setComponents(prevComponents =>
-          prevComponents.map(component =>
-            component.id === componentId
-              ? { ...component, content: base64String }
-              : component
-          )
-        );
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  }
 
-  const handleSaveDocument = async() => {
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+ const varName = `esignDoc-${documentData.document_title}`;
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${varName}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+
+
+
+const handleRemoveImage = (componentId: number) => {
+  setComponents((prevComponents) =>
+    prevComponents.map((c) =>
+      c.id === componentId
+        ? { ...c, content: undefined, value: undefined }
+        : c
+    )
+  );
+};
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setComponents(prevComponents =>
+        prevComponents.map(component =>
+          component.id === componentId
+            ? { ...component, content: base64String }
+            : component
+        )
+      );
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+
+const handleSaveDocument = async() => {
     if (!documentData || !documentData.document_title) {
       // msg error
      return;
     }
-    const Componentdata = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
-      id,
-      type,
-      pageNo,
-      assign,
-      size,
-      name,
-      fontSize,
-      position,
-      content,
-      value,
-      checked,
-    }));
+    const Componentdata = components.map(({ id, type, content, pageNo, value, position, size, name, fontSize, assign, checked }) => ({
+        id,
+        type,
+        pageNo,
+        assign,
+        size,
+        name,
+        fontSize,
+        position,
+        content,
+        value,
+        checked, 
+      }));
+      
     // // // console.log(JSON.stringify(Componentdata, null, 2));
   
     const formattedEmails = assignedUser.reduce((acc, email, index) => {
@@ -600,12 +822,18 @@ const handleSelectChange = (event:any) => {
     setTarget(null);
    }
   
-  
-  return (
+
+if (!documentData) {
+  return <div>No Doc data available</div>;
+}
+//-------------------------------------------React UI part -------------------------------------------------
+return (
     <>
-      <div className='overflow-hidden'>
-        <div className="relative p-2 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
-          <button
+    
+
+
+<div className="text-xs flex gap-3 relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
+   <button
             className="absolute top-2 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
             onClick={() => {setTarget(null); navigate(-1);  }}
           >
@@ -615,13 +843,11 @@ const handleSelectChange = (event:any) => {
           <p className='text-sm'>{documentData.template_title}</p>
           <p className='text-sm'>Email: {documentData.owner_email}</p>
           <p className='text-sm'>Created At: {documentData.document_created_at}</p>
-        </div>  
-
-
-        <div className='document-main-drag-class'>
-    
+</div>
 <div className='templete-main-div'>
-  <div className="control-buttons gap-2 text-xs">
+  <div className='left-area-div'>
+    <div className="control-buttons gap-2 text-xs">
+
       <input
         type="file"
         accept="application/pdf"
@@ -634,25 +860,24 @@ const handleSelectChange = (event:any) => {
       onClick={LoadBlankPage}>Load Blank Page</button>
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('text')}>Add Text</button>
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={() => addComponent('image')}>Add Image</button>
-
-      {/* <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={logComponentData}>Log Component Data</button>
-
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={logAssignUserData}>Log Assign User Data</button> */}
-      
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={handleSaveDocument}
-      >Save Document</button>   
-
-      <SendDoc setTarget={setTarget} owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
+       onClick={handleSaveDocument}>Save Document</button>   
+        <SendDoc setTarget={setTarget} owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
+    </div>
+    <div className="control-buttons-utilities gap-2 text-xs">
+      {buttonConfigs.map(({ type, icon , title }) => (
+        <DraggableButton
+          key={type}
+          type={type}
+          title={title}
+          onClick={() => addComponent(type, { top: 100, left: 100 })}
+        >
+          {icon}
+        </DraggableButton>
+      ))}
+    </div>
   </div>
 
   <div className="templete-app text-xs">
@@ -671,13 +896,9 @@ const handleSelectChange = (event:any) => {
           Next
         </button>
       </div>
-  <div className="workspace" ref={workspaceRef} onClick={handleDeselect}>
-    {/* BASE PDF Code -------- Where PDF can be renderd Layer 0 */}
+  <div className="workspace" ref={mergeRefs(workspaceRef, drop)} onClick={handleDeselect}>
     <PdfRenderer pdfData={datapdf[currentPage].data} />
-    {/* end */}
-
-    {/* Components Layer 1 ------ Where we can render the components on the wiorkspace ---- using div s */}
-    {components
+      {components
     .filter((component) => component.pageNo === currentPage) 
     .map((component) => (
       <div
@@ -688,8 +909,8 @@ const handleSelectChange = (event:any) => {
           position: 'absolute',
           top: component.position.top,
           left: component.position.left,
-          width: component.size?.width,
-          height: component.size?.height,
+          width: component.size?.width ?? 0,
+          height: component.size?.height ?? 0,
           border: selectedId === component.id ? '1px solid red' : 'none',
           fontSize: `${component.fontSize}px`,
           userSelect: 'none',
@@ -700,29 +921,70 @@ const handleSelectChange = (event:any) => {
           setSelectedId(component.id);
         }}
       >
-        {component.type === 'text' ? (
-          <div
-            style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
-          >
-            {component.content || 'Editable Text'}
-          </div>
-        ) : (
-          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-            {!component.content && (
-              // here we can display the priview and give the control to upload the image or sign from diffrent com[ponet ]
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e, component.id)}
-              />
-            )}
-            {component.content && (
-              <div>
-                <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
-              </div>
-            )}
-          </div>
-        )}
+        {component.type === 'text' && (
+      <div
+        // contentEditable
+        // // onChange={handleTextChange}
+        // onInput={() => handleTextChange}
+        style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
+      >
+        {component.value || 'Editable Text'}
+      </div>
+    )}
+    {component.type === 'image' && !component.content && (
+      // <input
+      //   type="file"
+      //   accept="image/*"
+      //   onChange={(e) => handleComponentChange(e, component.id)}
+       
+      // />
+      <div></div>
+    )}
+    {component.type === 'v_image' && !component.content && (
+      // <input
+      //   type="file"
+      //   accept="image/*"
+      //   onChange={(e) => handleComponentChange(e, component.id)}
+      // />
+      <div></div>
+    )}
+    {(component.type === 'image'|| component.type === 'v_image' || component.type === 'signature' || component.type === 'v_signature') && component.content && (
+      <img src={component.content} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
+    )}
+    {component.type === 'checkbox' && (
+      <input
+        type="checkbox"
+        checked={component.checked || false}
+        onChange={(e) => handleComponentChange(e, component.id)}
+    
+      />
+    )}
+    {component.type === 'm_date' && (
+      <input
+        type="date"
+        value={component.content || ''}
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'live_date' && (
+      <input
+        type="date"
+        value={new Date().toISOString().split('T')[0]}
+        onChange={(e) => handleComponentChange(e, component.id)}
+        // readOnly
+        
+      />
+    )}
+    {component.type === 'fix_date' && (
+      <input
+        type="date"
+        value={component.content || ''}
+        onChange={(e) => handleComponentChange(e, component.id)}
+      />
+    )}
+    {component.type === 'v_text' && (
+      <div>{component.content || 'Editable Text'}</div>
+    )}
       </div>
     ))}
 
@@ -781,8 +1043,27 @@ const handleSelectChange = (event:any) => {
   </div>
 
   <div className='right-templete'>
-    <div className='templete-utility-btn mt-2 text-xs pr-20'>
-      {selectedId && selectedComponent?.type === 'text' && (
+      <div className='templete-utility-btn mt-2 text-xs pr-20'>
+      {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_signature') && (
+        <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp}/>
+      )}
+
+      {selectedId && (selectedComponent?.type === 'image' || selectedComponent?.type === 'v_image') && (
+        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, selectedId)} />
+      )} 
+      {selectedId && selectedComponent?.type === 'checkbox' && (
+      <input type="checkbox" checked={selectedComponent.checked || false} onChange={(e) => handleCheckboxChange(e, selectedId)} />
+      )}
+      {selectedId && selectedComponent?.type === 'm_date' && (
+        <input type="date" value={selectedComponent.content || ''} onChange={(e) => handleDateChange(e, selectedId)} />
+      )}
+      {selectedId && selectedComponent?.type === 'live_date' && (
+        <input type="date" value={new Date().toISOString().split('T')[0]} readOnly />
+      )}
+      {selectedId && selectedComponent?.type === 'fix_date' && (
+        <input type="date" value={selectedComponent.content || ''} onChange={(e) => handleDateChange(e, selectedId)} />
+      )}
+      {selectedId && (selectedComponent?.type === 'text' || selectedComponent?.type === 'v_text') && (
       <>
         <button 
         className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
@@ -809,8 +1090,10 @@ const handleSelectChange = (event:any) => {
         />
       </>
       )}
-    </div>
-    {selectedId && (
+
+
+      </div>
+      {selectedId && selectedComponent?.type !== 'v_text' && selectedComponent?.type !== 'v_signature' && selectedComponent?.type !== 'v_image' && selectedComponent?.type !== 'fix_date' && (
      <>
       <div className='templete-utility-btn-add-user flex m-3 gap-3 text-xs pr-10 ml-0'>
         <input
@@ -856,11 +1139,8 @@ const handleSelectChange = (event:any) => {
       </div>  
 </div>
 <ToastContainer limit={1} />
-
-        </div>
-      </div>
     </>
   );
-}
+};
 
-export default DocBody;
+export default DocEdit;
