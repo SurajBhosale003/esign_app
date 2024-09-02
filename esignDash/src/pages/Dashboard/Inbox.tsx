@@ -28,14 +28,18 @@ interface ApiResponse {
 const Inbox = () => {
   const navigate = useNavigate();
   const email = useSelector(selectEmail);
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documentData, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'opened' | 'completed' | 'unseen'>('all');
 
+  const handleEdit = (documentData:Document) => {
+    navigate(`/signer/${documentData.name}`, { state: { documentData } });
+  };
+
   useEffect(() => {
     const fetchDocuments = async () => {
-      // // // console.log("Fetching documents...");
+      // // // console.log("Fetching documentData...");
       try {
         const response = await fetch(`/api/method/esign_app.api.get_documents_by_user?user_mail=${email}`, {
           method: 'GET',
@@ -51,13 +55,13 @@ const Inbox = () => {
           if (result.message.data.length > 0) {
             setDocuments(result.message.data);
           } else {
-            setError('No documents found');
+            setError('No documentData found');
           }
         } else {
-          setError('Failed to fetch documents');
+          setError('Failed to fetch documentData');
         }
       } catch (error) {
-        setError('An error occurred while fetching documents');
+        setError('An error occurred while fetching documentData');
       } finally {
         setLoading(false);
       }
@@ -86,8 +90,8 @@ const Inbox = () => {
     }
   };
 
-  // Filter documents based on the selected status
-  const filteredDocuments = documents.filter((document) => {
+  // Filter documentData based on the selected status
+  const filteredDocuments = documentData.filter((document) => {
     const assignedUsers = parseAssignedUsers(document.assigned_users);
     const userStatus = Object.values(assignedUsers).find(user => user.email === email)?.status;
 
@@ -147,6 +151,7 @@ const Inbox = () => {
               <div
                 className={`p-4 rounded border-2 transition-colors duration-300 cursor-pointer ${themeClass}`}
                 style={{ width: '350px', height: '100px' }}
+                onClick={() => handleEdit(document)}
               >
                 <h3 className={`mt-2 font-bold ${userStatus === "close" ? "line-through" : ""}`}>{document.document_title}</h3>
                 <p className="text-sm">{new Date(document.document_created_at).toLocaleString()}</p>
