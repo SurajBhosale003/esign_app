@@ -64,8 +64,6 @@
                     |-- DocEdit.tsx
                     |-- DocumentAllList.tsx
                     |-- document.css
-                    |-- pdfsb
-                        |-- PdfRenderer.tsx
                     |-- utility
                         |-- SendDoc.tsx
                 |-- Documents.tsx
@@ -82,6 +80,7 @@
                 |-- TempleteDash.tsx
                 |-- doc_signer
                     |-- Signer.tsx
+                    |-- document.css
                 |-- doc_viewer
                     |-- Viewer.tsx
                 |-- fonts
@@ -98,12 +97,12 @@
                     |-- color.css
                     |-- dayjsConfig.ts
                     |-- extractUniqueElements.ts
+                    |-- pdfsb
+                        |-- PdfRenderer.tsx
                 |-- templete
                     |-- TempleteAdd.tsx
                     |-- TempleteAllList.tsx
                     |-- TempleteEdit.tsx
-                    |-- pdfsb
-                        |-- PdfRenderer.tsx
                     |-- templete.css
             |-- Home.tsx
             |-- auth

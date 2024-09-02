@@ -33,6 +33,14 @@ type SelectedComponent = {
   type: ComponentType | string;
 } | null;
 
+interface DocumentList {
+  name: string;
+  document_title: string;
+  template_title: string;
+  owner_email: string;
+  document_created_at: string;
+}
+
 type ComponentType = "text" | "image";
 function DocBody() {
   const navigate = useNavigate();
@@ -529,7 +537,7 @@ const handleSelectChange = (event:any) => {
       // msg error
      return;
     }
-    const Componentdata = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
+    const Componentdata = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign , checked }) => ({
       id,
       type,
       pageNo,

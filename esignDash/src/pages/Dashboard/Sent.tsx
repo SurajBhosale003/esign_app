@@ -49,6 +49,8 @@ const Sent: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<Mail | null>(null);
 
+
+
   useEffect(() => {
     const fetchDocuments = async () => {
       try {

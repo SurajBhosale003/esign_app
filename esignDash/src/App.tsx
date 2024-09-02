@@ -30,6 +30,8 @@ const DocEdit = React.lazy(() => import('./pages/Dashboard/Document/DocEdit'));
 const TempleteDash = React.lazy(() => import('./pages/Dashboard/TempleteDash'));
 const TempleteEdit = React.lazy(() => import('./pages/Dashboard/templete/TempleteEdit'));
 
+const Signer = React.lazy(() => import('./pages/Dashboard/doc_signer/Signer'));
+
 function App() {
   const getSiteName = () => {
 		// @ts-ignore
@@ -68,6 +70,7 @@ function App() {
         <Route path="/document/:id" element={<DocEdit/>} />
         <Route path="/temp" element={<BookAnimation/>} />
         <Route path="/templete/:id" element={<TempleteEdit/>} />
+        <Route path="/signer/:id" element={<Signer/>} />
 			</Routes>
       </Suspense>
       </DndProvider>

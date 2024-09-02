@@ -8,7 +8,7 @@ import { MoveableManagerInterface, Renderer } from "react-moveable";
 import { PDFDocument, rgb } from 'pdf-lib';
 import { useDrag, useDrop, DragSourceMonitor} from 'react-dnd';
 // Helper Custom ---
-import PdfRenderer from './pdfsb/PdfRenderer';
+import PdfRenderer from '../helper/pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
 import { BlankDatapdf } from '../helper/BlankPDF'
 import { initialComponents , DexcissTemplete , HelloDexciss } from '../helper/TemplateMaping';
