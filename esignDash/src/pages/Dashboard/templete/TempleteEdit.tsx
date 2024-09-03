@@ -799,16 +799,35 @@ return (
       <h4>Created At: {new Date(templete.templete_created_at).toLocaleString()}</h4>
     </div> */}
 
-<div className="text-xs flex gap-3 relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
-    <button
-      className="absolute top-4 right-2 bg-[#551116] text-white px-5 py-1 rounded border-2 border-transparent hover:border-[#551116] hover:bg-white hover:text-[#551116] transition-colors duration-300"
-      onClick={() => navigate(-1)}
-    >
-      Back
-    </button>
-    <h1 className="font-bold">{templete.templete_title}</h1>
-    <p>Created At: {new Date(templete.templete_created_at).toLocaleString()}</p>
+<div className="text-xs flex gap-3 items-center relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
+
+<div>
+  <button className="button" onClick={() => navigate(-1)}>
+  <div className="button-box">
+    <span className="button-elem">
+      <svg viewBox="0 0 46 40" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z"
+        ></path>
+      </svg>
+    </span>
+    <span className="button-elem">
+      <svg viewBox="0 0 46 40">
+        <path
+          d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z"
+        ></path>
+      </svg>
+    </span>
+  </div>
+</button>
+      </div>
+      <div>
+    <h1 className="font-bold text-lg">{templete.templete_title}</h1>
+    <p className='text-sm'>Created At: {new Date(templete.templete_created_at).toLocaleString()}</p>
+      </div>
 </div>
+
+
 <div className='templete-main-div'>
   <div className='left-area-div'>
     <div className="control-buttons gap-2 text-xs">
