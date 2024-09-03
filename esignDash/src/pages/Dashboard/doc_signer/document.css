@@ -226,8 +226,8 @@
     box-sizing: border-box;
     z-index: 1000;
   }
-  .templete-main-div
+  .templete-main-div-signer
   {
     display: grid;
-    grid-template-columns: 25% 50% 25%;
+    grid-template-columns: 50% 50%;
   }
