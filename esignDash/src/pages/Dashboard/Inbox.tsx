@@ -10,7 +10,8 @@ interface Document {
   document_title: string;
   owner_email: string;
   document_created_at: string;
-  assigned_users: string; // JSON string
+  assigned_users: string; 
+  template_title:string;
 }
 
 interface ApiResponse {
