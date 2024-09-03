@@ -368,7 +368,7 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, childr
 
 const [, drop] = useDrop(() => ({
   accept: 'component',
-  drop: (item: { type: ButtonType}, monitor) => {
+  drop: (item: { type: ButtonType }, monitor) => {
     const offset = monitor.getClientOffset();
     if (workspaceRef.current && offset) {
       const workspaceRect = workspaceRef.current.getBoundingClientRect();
@@ -376,35 +376,32 @@ const [, drop] = useDrop(() => ({
         top: offset.y - workspaceRect.top - 20,
         left: offset.x - workspaceRect.left - 50,
       };
-      addComponent(item.type, newPosition);
+      setCurrentPage(prevPage => {
+        console.log(prevPage, "WWWWWW");  
+        addComponent(item.type, newPosition, prevPage);
+        return prevPage;  });
     }
   },
 }));
   
-const addComponent = (type: ButtonType, position: { top: number; left: number }) => {
-  // Define default sizes and properties for each type
+const addComponent = (type: ButtonType, position: { top: number; left: number }, pageNo: number) => {
   const defaultSizes = {
     text: { width: 100, height: 30 },
     v_text: { width: 100, height: 30 }, 
-
     signature: { width: 100, height: 50 },
     v_signature: { width: 100, height: 50 }, 
-    
     image: { width: 80, height: 80 },
     v_image: { width: 80, height: 80 }, 
-    
     checkbox: { width: 30, height: 30 },
     m_date: { width: 100, height: 30 },
-    
     live_date: { width: 100, height: 30 },
     fix_date: { width: 100, height: 30 },
   };
-  
 
   const newComponent: ComponentData = {
     id: Date.now(),
     type,
-    pageNo: currentPage,
+    pageNo,  // Use the pageNo passed as an argument
     name: `${type}-${Date.now()}`,
     position,
     size: defaultSizes[type] || { width: 0, height: 0 },
@@ -417,7 +414,6 @@ const addComponent = (type: ButtonType, position: { top: number; left: number })
 
   setComponents(prevComponents => [...prevComponents, newComponent]);
 };
-
 
 const updateComponentPosition = (id: number, top: number, left: number) => {
   setComponents((prevComponents) =>
@@ -872,7 +868,7 @@ return (
           key={type}
           type={type}
           title={title}
-          onClick={() => addComponent(type, { top: 100, left: 100 })}
+          onClick={() => addComponent(type, { top: 100, left: 100 },currentPage)}
         >
           {icon}
         </DraggableButton>
