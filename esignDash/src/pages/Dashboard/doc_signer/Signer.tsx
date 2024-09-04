@@ -4,18 +4,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 // import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
-import { MoveableManagerInterface, Renderer } from "react-moveable";
-import { PDFDocument, rgb } from 'pdf-lib';
-import { useDrag, useDrop, DragSourceMonitor} from 'react-dnd';
 // Helper Custom ---
 import PdfRenderer from '../helper/pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
-import { BlankDatapdf } from '../helper/BlankPDF'
-import { initialComponents , DexcissTemplete , HelloDexciss } from '../helper/TemplateMaping';
 import { ComponentData } from '../helper/Interface'
 import { splitPDF } from '../helper/GetPages';
 import { pdfToBase64 } from '../helper/PDFtoBase64';
-import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
+
 import SignInput from '../helper/SignInput';
 import './document.css' 
 import { extractUniqueElements } from '../helper/extractUniqueElements';
@@ -243,34 +238,7 @@ const changeTextSize = (increment: boolean) => {
   }
 };
 
-const deleteComponent = () => {
-  if (selectedId !== null) {
-    setComponents((prevComponents) =>
-      prevComponents.filter((component) => component.id !== selectedId)
-    );
-    setSelectedId(null);
-    setTarget(null);
-  }
-};
 
-
-
-
-
-
-
-// const loadComponents = () => {
-//   setComponents(initialComponents);
-// };
-
-// const loadDexcissComponents = () => {
-//   setComponents(DexcissTemplete);
-// };
-// const loadHelloDexcissComponents = () => {
-//   setComponents(HelloDexciss);
-// };
-
-// sel the cmpt, set target , 
 useEffect(() => {
   if (selectedId !== null) {
     const selectedElement = document.querySelector(`[data-id="${selectedId}"]`);
@@ -278,7 +246,6 @@ useEffect(() => {
     const selectedComponent = components.find((c) => c.id === selectedId);
     if (selectedComponent?.type === 'text') {
       setTextFieldValue(selectedComponent.content || '');
-      // textInputRef.current?.focus();
     }
   }
 }, [selectedId, components]);
@@ -303,137 +270,6 @@ useEffect(() => {
 const base64ToUint8Array = (base64:any) => {
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
 };
-
-const mergeAndPrintPDF = async () => {
-  const pdfDoc = await PDFDocument.create(); // Create a new PDF document
-  
-  for (let i = 0; i < datapdf.length; i++) {
-    const pdfBytes = base64ToUint8Array(datapdf[i].data);
-    const pdfToMerge = await PDFDocument.load(pdfBytes);
-
-    const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
-    pages.forEach(page => pdfDoc.addPage(page));
-  }
-
-  const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
-    if (!acc[component.pageNo]) acc[component.pageNo] = [];
-    acc[component.pageNo].push(component);
-    return acc;
-  }, {} as { [key: number]: ComponentData[] });
-
-  const pages = pdfDoc.getPages();
-  
-  for (const page of pages) {
-    const pageIndex = pages.indexOf(page);
-    const pageComponents = componentsByPage[pageIndex] || [];
-
-    for (const component of pageComponents) {
-      const { left, top } = component.position;
-
-      if (component.type === 'text' || component.type === 'v_text') {
-        const fontSize = component.fontSize ?? 12;
-        const yPosition = page.getHeight() - top - fontSize - 3;
-        page.drawText(component.content || '', {
-          x: left + 3,
-          y: yPosition,
-          size: fontSize,
-          color: rgb(0, 0, 0),
-          lineHeight: fontSize * 1.2,
-          maxWidth: component.size?.width ?? 0,
-        });
-      } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
-        const imageData = component.content.split(',')[1];
-        if (!imageData) {
-          console.error('Invalid image data');
-          continue;
-        }
-
-        const imageBytes = base64ToUint8Array(imageData);
-        let embeddedImage;
-
-        if (component.content.startsWith('data:image/png')) {
-          embeddedImage = await pdfDoc.embedPng(imageBytes);
-        } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
-        } else {
-          console.error('Unsupported image format');
-          continue;
-        }
-
-        const { width: imageWidth, height: imageHeight } = embeddedImage;
-        const containerWidth = component.size?.width ?? 0;
-        const containerHeight = component.size?.height ?? 0;
-
-        const widthRatio = containerWidth / imageWidth;
-        const heightRatio = containerHeight / imageHeight;
-        const scaleRatio = Math.min(widthRatio, heightRatio);
-
-        const drawWidth = imageWidth * scaleRatio;
-        const drawHeight = imageHeight * scaleRatio;
-
-        const x = left;
-        const y = page.getHeight() - top - drawHeight;
-
-        page.drawImage(embeddedImage, {
-          x: x,
-          y: y,
-          width: drawWidth,
-          height: drawHeight,
-        });
-      } else if (component.type === 'checkbox') {
-        const size = 10; //=================================================================================== CheckBox
-        const yPosition = page.getHeight() - top - size - 5;
-
-        if (component.checked) {
-          page.drawRectangle({
-            x: left + 5,
-            y: yPosition,
-            width: size,
-            height: size,
-            color: rgb(0, 0, 0),
-          });
-        } else {
-          page.drawRectangle({
-            x: left + 5,
-            y: yPosition,
-            width: size,
-            height: size,
-            borderColor: rgb(0, 0, 0),
-            borderWidth: 1,
-            color: rgb(1, 1, 1),
-          });
-        }
-      } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
-        const fontSize = component.fontSize ?? 12;
-        const yPosition = page.getHeight() - top - fontSize - 3;
-        const dateValue = component.content || new Date().toLocaleDateString();
-
-        page.drawText(dateValue, {
-          x: left + 3,
-          y: yPosition,
-          size: fontSize,
-          color: rgb(0, 0, 0),
-        });
-      }
-    }
-  }
-
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
- const varName = `esignDoc-${documentData.document_title}`;
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${varName}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
-
-
-
 
 const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: number) => {
   const file = e.target.files?.[0];
@@ -538,29 +374,15 @@ return (
       >
         {component.type === 'text' && (
       <div
-        // contentEditable
-        // // onChange={handleTextChange}
-        // onInput={() => handleTextChange}
         style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
       >
-        {component.value || 'Editable Text'}
+        {component.value || 'Text Here'}
       </div>
     )}
     {component.type === 'image' && !component.content && (
-      // <input
-      //   type="file"
-      //   accept="image/*"
-      //   onChange={(e) => handleComponentChange(e, component.id)}
-       
-      // />
       <div></div>
     )}
     {component.type === 'v_image' && !component.content && (
-      // <input
-      //   type="file"
-      //   accept="image/*"
-      //   onChange={(e) => handleComponentChange(e, component.id)}
-      // />
       <div></div>
     )}
     {(component.type === 'image'|| component.type === 'v_image' || component.type === 'signature' || component.type === 'v_signature') && component.content && (
@@ -570,7 +392,7 @@ return (
       <input
         type="checkbox"
         checked={component.checked || false}
-        onChange={(e) => handleComponentChange(e, component.id)}
+        // onChange={(e) => handleComponentChange(e, component.id)}
     
       />
     )}
@@ -578,14 +400,14 @@ return (
       <input
         type="date"
         value={component.content || ''}
-        onChange={(e) => handleComponentChange(e, component.id)}
+        // onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
     {component.type === 'live_date' && (
       <input
         type="date"
         value={new Date().toISOString().split('T')[0]}
-        onChange={(e) => handleComponentChange(e, component.id)}
+        // onChange={(e) => handleComponentChange(e, component.id)}
         // readOnly
         
       />
@@ -594,7 +416,7 @@ return (
       <input
         type="date"
         value={component.content || ''}
-        onChange={(e) => handleComponentChange(e, component.id)}
+        // onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
     {component.type === 'v_text' && (
@@ -615,6 +437,10 @@ return (
    
       />
     </div>
+  </div>
+
+  <div className='right-div-signer'>
+{/* Here Code To render Components  */}
   </div>
 
 </div>
