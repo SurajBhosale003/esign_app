@@ -5,8 +5,10 @@ import { PdfRendererProps } from '../Interface'
   
   const PdfRenderer: React.FC<PdfRendererProps> = ({ pdfData }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const isMounted = useRef(true);
     // const [scalvalue, setScaleValue] = useState();
     useEffect(() => {
+      isMounted.current = true;
       const renderPdfPage = async () => {
         const canvas = canvasRef.current;
         // setScaleValue(value);
@@ -34,6 +36,9 @@ import { PdfRendererProps } from '../Interface'
       };
   
       renderPdfPage();
+      return () => {
+        isMounted.current = false;
+      };
     }, [pdfData]);
   
     return (

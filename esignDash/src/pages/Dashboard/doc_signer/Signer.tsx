@@ -44,6 +44,7 @@ interface BasePDFInterface
 
 const Signer = () => {
     
+  const [documentStatusUser , setDocumentStatusUser] = useState(false);
   const [components, setComponents] = useState<ComponentData[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<HTMLElement | null>(null);
@@ -111,10 +112,36 @@ const Signer = () => {
                     console.log(`Email found at index ${index}, status: ${user.status}`);
         
                     if (user.status === "unseen") {
-                      console.log(`Status: ${user.status}`);
+                      user.status = "open";
+                      userStatusDoc[index] = user;
+
+                      const UserStatusUpdate = {
+                        document_title : documentData.name,
+                        assigned_user_list : JSON.stringify(userStatusDoc)
+                      }
+                      try {
+                        const response = await fetch('/api/method/esign_app.api.patch_user_status_document', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify(UserStatusUpdate)
+                        });
+                    
+                        const result = await response.json();
+                       console.log(JSON.stringify(result));
+                        if (result.message.status < 300) {
+                         
+                        } else {
+                         
+                        }
+                      } catch (error) {
+                        console.error('Error:', error);
+                      }
                       
                     }else if(user.status === "close")
                     {
+                      setDocumentStatusUser(true);
                       console.log(`Status: ${user.status}`);
                     }
                     break; 
@@ -496,7 +523,7 @@ return (
 
       <Moveable
         ref={moveableRef}
-        target={target}
+        // target={target}
         bounds={{
           left: 0,
           top: 0,
@@ -523,7 +550,7 @@ return (
                   <tr
                     key={component.id}
                     className={selectedId === component.id ? 'selected-row' : ''}
-                    onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo)}}
+                    onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo); handleModelSignComp()}}
                   >
                     <td>{index + 1}</td>
                     <td  onClick={() => {
@@ -564,7 +591,7 @@ return (
                       />
                       )}
                     </td>
-                  </tr>
+                  </tr> 
                 ))}
            
           </tbody>

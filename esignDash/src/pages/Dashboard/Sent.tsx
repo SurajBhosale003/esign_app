@@ -165,7 +165,7 @@ const Sent: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 w-[73vw]">
+    <div className="container mx-auto p-1 pt-3 w-[73vw]">
       <div className="mb-4 flex gap-1">
         <button
           onClick={() => setFilter('all')}
@@ -192,7 +192,7 @@ const Sent: React.FC = () => {
           Unseen
         </button>
       </div>
-      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+      <div className="bg-white shadow-md rounded-lg overflow-y-auto max-h-[85vh] doc-temp-scroll-container">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-[#283C42] text-white">
             <tr>
