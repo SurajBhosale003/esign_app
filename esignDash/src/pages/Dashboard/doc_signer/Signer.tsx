@@ -424,7 +424,7 @@ return (
           </p>
   </div>
 </div>
-<div className='templete-main-div-signer'>
+<div className={`${documentStatusUser ? '' : 'templete-main-div-signer'} `}>
 
 
   <div className="templete-app text-xs">
@@ -535,7 +535,7 @@ return (
     </div>
   </div>
 
-  <div className='right-div-signer p-5 cursor-pointer'>
+  <div className={`right-div-signer p-5 cursor-pointer ${documentStatusUser? "hidden":""}`}>
         <table className='w-full signer-table'>
           <thead>
             <th>Sr.</th>
