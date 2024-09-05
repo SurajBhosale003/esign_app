@@ -245,7 +245,8 @@ def get_document_components_and_basepdf(document_name):
         response = {
             'status': 200,
             'document_json_data': doc.document_json_data,
-            'base_pdf_datad': doc.base_pdf_datad
+            'base_pdf_datad': doc.base_pdf_datad,
+            'assigned_users': doc.assigned_users,
         }
         return response
 

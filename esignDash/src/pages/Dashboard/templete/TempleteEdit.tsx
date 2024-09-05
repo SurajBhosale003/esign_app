@@ -18,6 +18,7 @@ import { pdfToBase64 } from '../helper/PDFtoBase64';
 import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
 import './templete.css'
 import SignInput from '../helper/SignInput';
+import dayjs from '../helper/dayjsConfig';
 
 type SelectedComponent = {
   id: number;
@@ -823,7 +824,9 @@ return (
       </div>
       <div>
     <h1 className="font-bold text-lg">{templete.templete_title}</h1>
-    <p className='text-sm'>Created At: {new Date(templete.templete_created_at).toLocaleString()}</p>
+    <p className='text-sm'>
+      Created At: {dayjs(templete.templete_created_at).format('DD/MM/YYYY - HH:mm')} ({dayjs().to(dayjs(templete.templete_created_at))})
+    </p>
       </div>
 </div>
 

@@ -138,6 +138,7 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
   };
   const handleSignatureClick = (signBlob: string) => {
     onSelect(signBlob);  
+    closeModal();
   };
 
   return (

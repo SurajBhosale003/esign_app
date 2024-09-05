@@ -14,6 +14,9 @@ import { pdfToBase64 } from '../helper/PDFtoBase64';
 import SignInput from '../helper/SignInput';
 import './document.css' 
 import { extractUniqueElements } from '../helper/extractUniqueElements';
+import { useSelector } from 'react-redux';
+import { selectEmail } from '../../../redux/selectors/userSelector';
+import dayjs from '../helper/dayjsConfig';
 
 type SelectedComponent = {
   id: number;
@@ -30,6 +33,7 @@ interface DocumentList {
     template_title: string;
     owner_email: string;
     document_created_at: string;
+    
   }
 
 interface BasePDFInterface
@@ -37,15 +41,6 @@ interface BasePDFInterface
   page: number;
   data: string;
 }
-
-interface DraggableButtonProps {
-  type: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  title: string;
-}
-
-
 
 const Signer = () => {
     
@@ -55,7 +50,7 @@ const Signer = () => {
   const [textFieldValue, setTextFieldValue] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
+
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
@@ -64,6 +59,7 @@ const Signer = () => {
   const location = useLocation();
   const [assignedUser , setAssignedUser] = useState<String[]>([])
   const { documentData } = location.state as { documentData?: DocumentList } || {};
+  const email = useSelector(selectEmail);
   const navigate = useNavigate();
   if (!documentData) {
     console.log("No document data",JSON.stringify(documentData));
@@ -102,8 +98,43 @@ const Signer = () => {
           ? JSON.parse(result.message.base_pdf_datad)
           : result.message.base_pdf_datad;
 
-          // // // console.log("Parseeee",parsedData)
-          // // // console.log("Baseeee",BasePDFData)
+
+          const userStatusDoc = typeof result.message.assigned_users === 'string'
+          ? JSON.parse(result.message.assigned_users)
+          : result.message.assigned_users;
+
+            try{
+              for (let index in userStatusDoc) {
+                if (userStatusDoc.hasOwnProperty(index)) {
+                  const user = userStatusDoc[index];
+                  if (user.email === email) {
+                    console.log(`Email found at index ${index}, status: ${user.status}`);
+        
+                    if (user.status === "unseen") {
+                      console.log(`Status: ${user.status}`);
+                      
+                    }else if(user.status === "close")
+                    {
+                      console.log(`Status: ${user.status}`);
+                    }
+                    break; 
+                  }
+                }
+              }
+            }catch(e)
+            {
+
+            }
+
+
+
+          // console.log("here----->",userStatusDoc)
+          // const userArray = Object.values(userStatusDoc);
+          // const user = userArray.find((userObj:any,index) => userObj[index].email === email);
+
+          // console.log("userList" ,user);
+
+
         setComponents(parsedData);
         setdatapdf(BasePDFData);
         } else {
@@ -126,11 +157,36 @@ const Signer = () => {
     addAssignUser();
   },[components])
 
+  useEffect(() => {
+    if (selectedId !== null) {
+      const component = components.find(c => c.id === selectedId);
+      if (component) {
+        setSelectedComponent({ id: component.id, type: component.type,checked : component.checked ?? false , content: component.content  });
+      } else {
+        setSelectedComponent(null);
+      }
+    }
+  }, [selectedId, target, components]);
 
 const handleNextPage = () => {
   if (currentPage < datapdf.length - 1) {
     setCurrentPage(currentPage + 1); setTarget(null); setSelectedId(null);
   }
+};
+const logComponentData = () => {
+  const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
+    id,
+    type,
+    content,
+    pageNo,
+    value,
+    position,
+    size,
+    name,
+    fontSize,
+    assign,
+  }));
+  console.log(JSON.stringify(data, null, 2));
 };
 
 const handlePreviousPage = () => {
@@ -215,6 +271,17 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: n
   );
 };
 
+const handleTextChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
+  const newText = e.target.value;
+  
+  if (selectedId !== null) {
+    setComponents((prevComponents) =>
+      prevComponents.map((component) =>
+        component.id === selectedId ? { ...component, content: newText, value: newText } : component
+      )
+    );
+  }
+};
 
 const handleDeselect = (e: React.MouseEvent) => {
   if (!(e.target as HTMLElement).closest('.component')) {
@@ -325,7 +392,9 @@ return (
     <h1 className="text-xl font-bold " style={{ fontVariant: 'small-caps' }}>{documentData.document_title}</h1>
     <p className='text-xs'>{documentData.template_title}</p>
     <p className='text-xs'>Email: {documentData.owner_email}</p>
-    <p className='text-xs'>Created At: {documentData.document_created_at}</p>
+    <p className='text-sm'>
+            Created At: {dayjs(documentData.document_created_at).format('DD/MM/YYYY - HH:mm')} ({dayjs().to(dayjs(documentData.document_created_at))})
+          </p>
   </div>
 </div>
 <div className='templete-main-div-signer'>
@@ -439,8 +508,68 @@ return (
     </div>
   </div>
 
-  <div className='right-div-signer'>
-{/* Here Code To render Components  */}
+  <div className='right-div-signer p-5 cursor-pointer'>
+        <table className='w-full signer-table'>
+          <thead>
+            <th>Sr.</th>
+            <th>Component</th>
+            <th>Page No.</th>
+            <th>Input</th>
+          </thead>
+          <tbody>
+          {components
+                .filter((component) => component.assign?.includes(email))
+                .map((component, index) => (
+                  <tr
+                    key={component.id}
+                    className={selectedId === component.id ? 'selected-row' : ''}
+                    onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo)}}
+                  >
+                    <td>{index + 1}</td>
+                    <td  onClick={() => {
+                      setSelectedId(component.id);
+                     
+                      const selectedElement = document.querySelector(`[data-id="${component.id}"]`);
+                      setTarget(selectedElement as HTMLElement);
+                    }}>{component.name}</td>
+                    <td>{component.pageNo + 1}</td>
+                    <td className='max-w-[18vw]'>
+                      {(component?.type === 'signature') && (
+                        <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp} />
+                      )}
+                      {(component?.type === 'image') && (
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, component.id)} />
+                      )} 
+                      {component?.type === 'checkbox' && (
+                      <input type="checkbox" checked={component.checked || false} onChange={(e) => handleCheckboxChange(e, component.id)} />
+                      )}
+                      {component?.type === 'm_date' && (
+                        <input type="date" value={component.content || ''} onChange={(e) => handleDateChange(e, component.id)} />
+                      )}
+                      {component?.type === 'live_date' && (
+                        <input type="date" value={new Date().toISOString().split('T')[0]} readOnly />
+                      )}
+                      {component?.type === 'fix_date' && (
+                        <input type="date" value={component.content || ''} onChange={(e) => handleDateChange(e, component.id)} />
+                      )}
+                      {component?.type === 'text' && (
+                        <input
+                        className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
+                        ref={textInputRef}
+                        type="text"
+                        value={component.content || ''}
+                        onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo)}}
+                        onChange={handleTextChange}
+                        placeholder="Edit text here"
+                      />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+           
+          </tbody>
+        </table>
+       
   </div>
 
 </div>

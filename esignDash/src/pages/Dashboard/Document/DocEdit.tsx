@@ -20,6 +20,7 @@ import './document.css'
 import SignInput from '../helper/SignInput';
 import SendDoc from './utility/SendDoc'
 import { extractUniqueElements } from '../helper/extractUniqueElements';
+import dayjs from '../helper/dayjsConfig';
 
 type SelectedComponent = {
   id: number;
@@ -829,7 +830,7 @@ return (
 
 
 <div className="text-xs flex items-center gap-3 relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
-<div>
+
   <button className="button" onClick={() => navigate(-1)}>
   <div className="button-box">
     <span className="button-elem">
@@ -848,13 +849,16 @@ return (
     </span>
   </div>
 </button>
-      </div>
+      
           <div>
           <h1 className="text-lg font-bold">{documentData.document_title}</h1>
           <p className='text-sm'>{documentData.template_title}</p>
           <p className='text-sm'>Email: {documentData.owner_email}</p>
-          <p className='text-sm'>Created At: {documentData.document_created_at}</p>
+          <p className='text-sm'>
+            Created At: {dayjs(documentData.document_created_at).format('DD/MM/YYYY - HH:mm')} ({dayjs().to(dayjs(documentData.document_created_at))})
+          </p>
           </div>
+          
 </div>
 <div className='templete-main-div'>
   <div className='left-area-div'>

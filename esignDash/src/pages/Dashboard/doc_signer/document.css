@@ -303,3 +303,10 @@
     transition: 0.4s;
     transform: translateX(-56px);
   }
+
+  .signer-table th,td
+  {
+    border: 1px solid black;
+    padding: 5px;
+    
+  }
