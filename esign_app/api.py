@@ -277,6 +277,19 @@ def update_document(document_title,document_json_data, base_pdf_datad , assigned
         return {'status': 500, 'message': str(e)}
 # ++++ Save/Update Template End ++++++++++++
 
+@frappe.whitelist(allow_guest=True)
+def patch_user_status_document(document_title, assigned_user_list):
+    try:
+        assign_users = json.loads(assigned_user_list)
+        doc = frappe.get_doc("DocumentList", document_title)
+        doc.assigned_users = assign_users
+        doc.save()
+        message = 'Assigned users updated successfully'
+        return {'status': 200, 'message': message}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+
 # update document and assign to users [ Frezzee the document ]
 
 @frappe.whitelist(allow_guest=True)
