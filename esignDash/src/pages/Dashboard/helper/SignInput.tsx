@@ -144,7 +144,7 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
   return (
     <>
     <button 
-      className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+      className="bg-[#283C42] w-full text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
       onClick={showModal}
     >Sign</button>
     
