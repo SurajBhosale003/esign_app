@@ -336,3 +336,23 @@ def sent_doc_by_user(user_mail):
         return {'status': 200, 'data': documents_list}
     except Exception as e:
         return {'status': 500, 'message': str(e)}
+
+# Finl Doc Confirmation 
+@frappe.whitelist(allow_guest=True)
+def submit_final_document(document_title,document_json_data , assigned_user_list , iscomplete):
+    try:
+        # Parse JSON data
+        document_json_data1 = json.loads(document_json_data)
+        assigned_user_list1 = json.loads(assigned_user_list)
+
+        doc = frappe.get_doc("DocumentList", document_title)
+        doc.document_json_data = document_json_data1
+        doc.assigned_user_list = assigned_user_list1
+        doc.iscompleted = iscomplete
+        message = 'Document completed successfully'
+        doc.save()
+        return {'status': 200, 'message': message}
+    
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+# ++++ Save/Update Template End ++++++++++++

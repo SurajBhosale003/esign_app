@@ -63,44 +63,58 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
     // // // console.log(emails);
     setVisible(true);
   };
-  const sendMail = async () => {
-    setVisible(false)
-    const DocumentObj = {
-      to: JSON.stringify(emails , null , 2) ,
-      subject: mailTitle,
-      body: mailBody,
-      document_name: document_title,
-      user_mail: owner_email,
-      isChecked: checked,
-    };
-    // // console.log(DocumentObj);
-    try {
-      const response = await fetch('/api/method/esign_app.api.send_document_data', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(DocumentObj),
-      });
-      const result = await response.json();
-      // // console.log(result);
-      if (result.message.status < 300) {
-        toast.success('Document Assigned Successfully', {
-          position: "top-right",
-          autoClose: 500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-          transition: Flip,
+  
+    const sendMail = async () => {
+      setVisible(false)
+      const DocumentObj = {
+        to: JSON.stringify(emails , null , 2) ,
+        subject: mailTitle,
+        body: mailBody,
+        document_name: document_title,
+        user_mail: owner_email,
+        isChecked: checked,
+      };
+      // // console.log(DocumentObj);
+      try {
+        const response = await fetch('/api/method/esign_app.api.send_document_data', {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(DocumentObj),
         });
-        setTimeout(() => {
-          navigate('/documents');
-        }, 2000);
-      } else {
-        toast.error('Error While Sending Document...', {
+        const result = await response.json();
+        // // console.log(result);
+        if (result.message.status < 300) {
+          toast.success('Document Assigned Successfully', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          setTimeout(() => {
+            navigate('/documents');
+          }, 2000);
+        } else {
+          toast.error('Error While Sending Document...', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+        }
+      } catch (error) {
+        toast.error('Server Error, Please Try Again...', {
           position: "top-right",
           autoClose: 500,
           hideProgressBar: false,
@@ -112,20 +126,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
           transition: Flip,
         });
       }
-    } catch (error) {
-      toast.error('Server Error, Please Try Again...', {
-        position: "top-right",
-        autoClose: 500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Flip,
-      });
-    }
-  };
+    };
 
 
   return (
