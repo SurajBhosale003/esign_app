@@ -17,6 +17,8 @@ import { extractUniqueElements } from '../helper/extractUniqueElements';
 import { useSelector } from 'react-redux';
 import { selectEmail } from '../../../redux/selectors/userSelector';
 import dayjs from '../helper/dayjsConfig';
+import SignerInput from './SignInput'
+
 
 type SelectedComponent = {
   id: number;
@@ -161,7 +163,7 @@ const Signer = () => {
 
           // console.log("userList" ,user);
 
-
+            console.log("Parrsed data : " , parsedData)
         setComponents(parsedData);
         setdatapdf(BasePDFData);
         } else {
@@ -200,6 +202,74 @@ const handleNextPage = () => {
     setCurrentPage(currentPage + 1); setTarget(null); setSelectedId(null);
   }
 };
+
+const submitFinalDocument = async () => {
+
+  console.log('inside Submit Final Doc')
+
+  const documentObj = {
+    document_title :documentData.name,
+    document_json_data: JSON.stringify(components),
+    iscomplete : true
+  };
+  console.log(documentObj);
+
+  try {
+    const response = await fetch('/api/method/esign_app.api.submit_final_document', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(documentObj),
+    });
+
+    const result = await response.json();
+    console.log(JSON.stringify(result));
+    if (result.message.status < 300) {
+      toast.success('Document Submitted Successfully', {
+        position: "top-right",
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Flip,
+      });
+
+      setTimeout(() => {
+        navigate('/inbox');
+      }, 1500);
+    } else {
+      toast.error('Error Submitting Document...', {
+        position: "top-right",
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Flip,
+      });
+    }
+  } catch (error) {
+    toast.error('Server Error, Please Try Again...', {
+      position: "top-right",
+      autoClose: 500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Flip,
+    });
+  }
+};
+
+
 const logComponentData = () => {
   const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
     id,
@@ -536,12 +606,15 @@ return (
   </div>
 
   <div className={`right-div-signer p-5 cursor-pointer ${documentStatusUser? "hidden":""}`}>
-        <table className='w-full signer-table'>
+
+        {/* <table className='w-full signer-table'>
           <thead>
+            <tr>
             <th>Sr.</th>
             <th>Component</th>
             <th>Page No.</th>
             <th>Input</th>
+            </tr>
           </thead>
           <tbody>
           {components
@@ -595,8 +668,99 @@ return (
                 ))}
            
           </tbody>
-        </table>
+        </table> */}
        
+       <div className="p-4 bg-gray-100 min-h-screen flex ">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden ">
+      <button 
+  onClick={submitFinalDocument}
+  className="bg-[#283C42] text-white px-4 py-2 mb-4  border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+>
+  Submit
+</button>
+        <table className='w-full signer-table '>
+          <thead>
+            <tr className="bg-[#283C42] text-white">
+              <th className="py-3 px-4 text-left">Sr.</th>
+              <th className="py-3 px-4 text-left">Component</th>
+              <th className="py-3 px-4 text-left">Page No.</th>
+              <th className="py-3 px-4 text-left">Input</th>
+            </tr>
+          </thead>
+          <tbody>
+            {components
+              .filter((component) => component.assign?.includes(email))
+              .map((component, index) => (
+                <tr
+                  key={component.id}
+                  className={`${selectedId === component.id ? 'selected-row bg-blue-100' : ''} ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+                  onClick={() => {
+                    setSelectedId(component.id)
+                    setCurrentPage(component.pageNo)
+                    handleModelSignComp()
+                  }}
+                >
+                  <td className="py-2 px-4 border-b border-gray-200">{index + 1}</td>
+                  <td
+                    className="py-2 px-4 border-b border-gray-200"
+                    onClick={() => {
+                      setSelectedId(component.id)
+                      // Note: This part would need adjustment in a real application
+                      // const selectedElement = document.querySelector(`[data-id="${component.id}"]`);
+                      // setTarget(selectedElement as HTMLElement);
+                    }}
+                  >
+                    {component.name}
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">{component.pageNo + 1}</td>
+                  <td className="py-2 px-4 border-b border-gray-200 max-w-[18vw]">
+                    {component.type === 'signature' && (
+                      <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp} />
+                    )}
+                    {component.type === 'image' && (
+                      <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, component.id)} />
+                    )}
+                    {component.type === 'checkbox' && (
+                      <input
+                        type="checkbox"
+                        checked={component.checked || false}
+                        onChange={(e) => handleCheckboxChange(e, component.id)}
+                      />
+                    )}
+                    {(component.type === 'm_date' || component.type === 'fix_date') && (
+                      <input
+                        type="date"
+                        value={component.content || ''}
+                        onChange={(e) => handleDateChange(e, component.id)}
+                      />
+                    )}
+                    {component.type === 'live_date' && (
+                      <input type="date" value={new Date().toISOString().split('T')[0]} readOnly />
+                    )}
+                    {component.type === 'text' && (
+                      <input
+                        className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                        ref={textInputRef}
+                        type="text"
+                        value={component.content || ''}
+                        onClick={() => {
+                          setSelectedId(component.id)
+                          setCurrentPage(component.pageNo)
+                        }}
+                        onChange={handleTextChange}
+                        placeholder="Edit text here"
+                      />
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+{/* <SignerInput/> */}
+
   </div>
 
 </div>
