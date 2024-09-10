@@ -279,6 +279,7 @@ def update_document(document_title,document_json_data, base_pdf_datad , assigned
 
 @frappe.whitelist(allow_guest=True)
 def patch_user_status_document(document_title, assigned_user_list):
+   
     try:
         assign_users = json.loads(assigned_user_list)
         doc = frappe.get_doc("DocumentList", document_title)

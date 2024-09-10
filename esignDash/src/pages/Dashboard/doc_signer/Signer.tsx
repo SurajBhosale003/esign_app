@@ -20,6 +20,13 @@ import dayjs from '../helper/dayjsConfig';
 import SignerInput from './SignInput'
 
 
+interface EmailStatus {
+  [key: string]: {
+    email: string;
+    status: string;
+  };
+}
+
 type SelectedComponent = {
   id: number;
   type: ComponentType | string;
@@ -53,6 +60,8 @@ const Signer = () => {
   const [textFieldValue, setTextFieldValue] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
+  const [emailData, setEmailData] = useState<EmailStatus | null>(null);
+
 
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
@@ -105,7 +114,8 @@ const Signer = () => {
           const userStatusDoc = typeof result.message.assigned_users === 'string'
           ? JSON.parse(result.message.assigned_users)
           : result.message.assigned_users;
-
+          setEmailData(userStatusDoc)
+          console.log("User Status Document list ------------------>", userStatusDoc);
             try{
               for (let index in userStatusDoc) {
                 if (userStatusDoc.hasOwnProperty(index)) {
@@ -116,7 +126,7 @@ const Signer = () => {
                     if (user.status === "unseen") {
                       user.status = "open";
                       userStatusDoc[index] = user;
-
+                      setEmailData(userStatusDoc)
                       const UserStatusUpdate = {
                         document_title : documentData.name,
                         assigned_user_list : JSON.stringify(userStatusDoc)
@@ -226,6 +236,8 @@ const submitFinalDocument = async () => {
     const result = await response.json();
     console.log(JSON.stringify(result));
     if (result.message.status < 300) {
+
+      handleChangeStatus();
       toast.success('Document Submitted Successfully', {
         position: "top-right",
         autoClose: 500,
@@ -269,6 +281,54 @@ const submitFinalDocument = async () => {
   }
 };
 
+
+const handleChangeStatus = () => {
+  if (emailData) {
+    const updatedData = { ...emailData };
+    let isUpdated = false;
+
+    Object.keys(updatedData).forEach((key) => {
+      if (updatedData[key].email === email && updatedData[key].status === "open") {
+        updatedData[key].status = "close";  
+        isUpdated = true;
+
+        setEmailData(updatedData);
+
+        console.log("Updated data of assigned users:", updatedData);
+        
+        sendToAPI(updatedData);  
+      }
+    });
+
+    if (!isUpdated) {
+      console.log('No matching user with "open" status found.');
+    }
+  }
+};
+
+
+const sendToAPI = async (updatedData: EmailStatus) => {
+  
+  const UserStatusUpdate = {
+    document_title: documentData.name, 
+    assigned_user_list: JSON.stringify(updatedData),  
+  };
+  // console.log("IMPPPPPPPPPPPPPPPP---",UserStatusUpdate)
+  try {
+    const response = await fetch(`/api/method/esign_app.api.patch_user_status_document`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(UserStatusUpdate),
+    });
+
+    const result = await response.json();
+    console.log('API response:', result);
+  } catch (error) {
+    console.error('Error sending data to API:', error);
+  }
+};
 
 const logComponentData = () => {
   const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
@@ -521,7 +581,7 @@ return (
       <div
         key={component.id}
         data-id={component.id}
-        className={`component ${component.type} ${selectedId === component.id ? 'selected' : ''}`}
+        className={` ${component.type} ${selectedId === component.id ? 'selected' : ''}`}
         style={{
           position: 'absolute',
           top: component.position.top,
@@ -558,6 +618,7 @@ return (
       <input
         type="checkbox"
         checked={component.checked || false}
+        readOnly
         // onChange={(e) => handleComponentChange(e, component.id)}
     
       />
@@ -566,6 +627,7 @@ return (
       <input
         type="date"
         value={component.content || ''}
+        readOnly
         // onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
@@ -573,6 +635,7 @@ return (
       <input
         type="date"
         value={new Date().toISOString().split('T')[0]}
+        readOnly
         // onChange={(e) => handleComponentChange(e, component.id)}
         // readOnly
         
@@ -582,6 +645,7 @@ return (
       <input
         type="date"
         value={component.content || ''}
+        readOnly
         // onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
@@ -606,71 +670,6 @@ return (
   </div>
 
   <div className={`right-div-signer p-5 cursor-pointer ${documentStatusUser? "hidden":""}`}>
-
-        {/* <table className='w-full signer-table'>
-          <thead>
-            <tr>
-            <th>Sr.</th>
-            <th>Component</th>
-            <th>Page No.</th>
-            <th>Input</th>
-            </tr>
-          </thead>
-          <tbody>
-          {components
-                .filter((component) => component.assign?.includes(email))
-                .map((component, index) => (
-                  <tr
-                    key={component.id}
-                    className={selectedId === component.id ? 'selected-row' : ''}
-                    onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo); handleModelSignComp()}}
-                  >
-                    <td>{index + 1}</td>
-                    <td  onClick={() => {
-                      setSelectedId(component.id);
-                     
-                      const selectedElement = document.querySelector(`[data-id="${component.id}"]`);
-                      setTarget(selectedElement as HTMLElement);
-                    }}>{component.name}</td>
-                    <td>{component.pageNo + 1}</td>
-                    <td className='max-w-[18vw]'>
-                      {(component?.type === 'signature') && (
-                        <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp} />
-                      )}
-                      {(component?.type === 'image') && (
-                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, component.id)} />
-                      )} 
-                      {component?.type === 'checkbox' && (
-                      <input type="checkbox" checked={component.checked || false} onChange={(e) => handleCheckboxChange(e, component.id)} />
-                      )}
-                      {component?.type === 'm_date' && (
-                        <input type="date" value={component.content || ''} onChange={(e) => handleDateChange(e, component.id)} />
-                      )}
-                      {component?.type === 'live_date' && (
-                        <input type="date" value={new Date().toISOString().split('T')[0]} readOnly />
-                      )}
-                      {component?.type === 'fix_date' && (
-                        <input type="date" value={component.content || ''} onChange={(e) => handleDateChange(e, component.id)} />
-                      )}
-                      {component?.type === 'text' && (
-                        <input
-                        className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
-                        ref={textInputRef}
-                        type="text"
-                        value={component.content || ''}
-                        onClick={()=>{setSelectedId(component.id); setCurrentPage(component.pageNo)}}
-                        onChange={handleTextChange}
-                        placeholder="Edit text here"
-                      />
-                      )}
-                    </td>
-                  </tr> 
-                ))}
-           
-          </tbody>
-        </table> */}
-       
-       <div className="p-4 bg-gray-100 min-h-screen flex ">
       <div className="w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden ">
       <button 
   onClick={submitFinalDocument}
@@ -757,7 +756,7 @@ return (
           </tbody>
         </table>
       </div>
-    </div>
+   
 
 {/* <SignerInput/> */}
 

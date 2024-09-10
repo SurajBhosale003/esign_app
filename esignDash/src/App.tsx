@@ -25,7 +25,6 @@ const Profile = React.lazy(() => import('./pages/Dashboard/Profile'));
 const Sent = React.lazy(() => import('./pages/Dashboard/Sent'));
 const Signature = React.lazy(() => import('./pages/Dashboard/Signature'));
 const Templete = React.lazy(() => import('./pages/Dashboard/Templete'));
-const DocBody = React.lazy(() => import('./pages/Dashboard/Document/DocBody'));
 const DocEdit = React.lazy(() => import('./pages/Dashboard/Document/DocEdit'));
 const TempleteDash = React.lazy(() => import('./pages/Dashboard/TempleteDash'));
 const TempleteEdit = React.lazy(() => import('./pages/Dashboard/templete/TempleteEdit'));
