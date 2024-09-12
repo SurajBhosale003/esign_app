@@ -853,7 +853,7 @@ return (
           <div>
           <h1 className="text-lg font-bold">{documentData.document_title}</h1>
           <p className='text-sm'>{documentData.template_title}</p>
-          <p className='text-sm'>Email: {documentData.owner_email}</p>
+          <p className='text-sm'>Created by: {documentData.owner_email}</p>
           <p className='text-sm'>
             Created At: {dayjs(documentData.document_created_at).format('DD/MM/YYYY - HH:mm')} ({dayjs().to(dayjs(documentData.document_created_at))})
           </p>
