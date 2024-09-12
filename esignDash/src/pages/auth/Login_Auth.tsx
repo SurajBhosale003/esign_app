@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 // import axios from 'axios';
-import { useState ,useRef } from 'react';
+import { useState ,useRef, useEffect } from 'react';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../redux/reducers/userReducerSlice';
@@ -46,8 +46,37 @@ function SignIn() {
         });
     })
     
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          onSubmit(); 
+        }
+      };
+  
+      window.addEventListener('keydown', handleKeyDown);
+  
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }, [email, password]);
+    
     const onSubmit = () => {
-        // // // console.log("User: " + email + " Password: " + password);
+      if( email== '' && password== '' )
+        {
+          toast.error('Login Enter Email & Password', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true, 
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+            });
+            return;
+        }  
+
         login({
             username: email,
             password: password
@@ -88,6 +117,11 @@ function SignIn() {
                 });
         });
     };
+  //   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  //     if (e.key === 'Enter') {
+  //         onSubmit();
+  //     }
+  // };
 
     return (
         <div className="h-screen w-screen flex items-center justify-center">
@@ -121,7 +155,8 @@ function SignIn() {
             <div className="mt-4">
               <div className="flex justify-between">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                <Link to="#" className="text-xs text-gray-500">Forget Password?</Link>
+                {/* <Link to="#" className="text-xs text-gray-500">Forgot Password?</Link>  */}
+              {/* Add functionality of Forget password ---------------------------------> */}
               </div>
               <input 
                 className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 

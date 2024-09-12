@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast ,Flip } from 'react-toastify';
 import { useGSAP } from '@gsap/react'
@@ -48,6 +48,20 @@ function SignUp() {
                   }, 1600);
             } else {
                 console.error('Error creating user here data:', data ,"data message ened");
+                if (data.message && data.message.message.includes("Duplicate entry")) {
+                  toast.error('User Email Already Exist', {
+                    position: "top-right",
+                    autoClose: 500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Flip,
+                    });
+                    return;
+                }
                 toast.error('User Creation Error', {
                     position: "top-right",
                     autoClose: 500,
@@ -96,7 +110,19 @@ function SignUp() {
             ease: 'power2.inOut',
         });
     })
-
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          handleSignUp(); 
+        }
+      };
+  
+      window.addEventListener('keydown', handleKeyDown);
+  
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }, [email, password]);
 
     return (
         <div className="h-screen w-screen flex items-center justify-center">
@@ -143,7 +169,7 @@ function SignUp() {
             <div className="mt-4">
               <div className="flex justify-between">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                <p className="text-xs text-gray-500">Forget Password?</p>
+               
               </div>
               <input 
                 className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 

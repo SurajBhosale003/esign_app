@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import SignPad from './Sign/SignPad';
 import { selectFullName, selectEmail } from '../../redux/selectors/userSelector';
@@ -74,6 +74,21 @@ function Signature() {
     setUploadedImage(imageUrl);
     setSignatureData(null);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleSaveSignatureInDB(); 
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [uploadedImage,signatureData ,signName]);
+
 
   return (
     <div className="max-w-lg mx-auto mt-8">

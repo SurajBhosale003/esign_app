@@ -136,6 +136,21 @@ function Documents() {
       }
       setCurrentTab('2');
     } else if (currentTab === '2') {
+      if(selectedTemplate == '')
+      {
+        toast.error('Select Template', {
+          position: "top-right",
+          autoClose: 500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Flip,
+          });
+          return;
+      }
       setCurrentTab('3');
     }
   };
@@ -143,11 +158,45 @@ function Documents() {
   const previousTab = () => {
     if (currentTab === '2') {
       setCurrentTab('1');
-      // // // console.log(selectedTemplate);
     } else if (currentTab === '3') {
       setCurrentTab('2');
     }
   };
+
+
+  useEffect(() => {
+    console.log("____________________> useeffect");
+    const handleKeyDownTab1_2 = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        nextTab(); 
+      }
+    };
+    const handleKeyDownTab3 = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        saveTemplateDocument(); 
+      }
+    };
+
+if(visible)
+{
+  if(currentTab == '1' || currentTab == '2' )
+  {
+        window.addEventListener('keydown', handleKeyDownTab1_2);
+  }
+  if(currentTab == '3')
+  {
+         window.addEventListener('keydown', handleKeyDownTab3);
+  }
+}
+    
+    
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDownTab1_2);
+      window.removeEventListener('keydown', handleKeyDownTab3);
+    };
+  }, [currentTab,selectedTemplate,title]);
+
   return (
     <>
       <div className="mb-5">

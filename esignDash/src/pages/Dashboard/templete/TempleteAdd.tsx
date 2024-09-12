@@ -1,4 +1,4 @@
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 import { Modal } from 'antd';
 import { useSelector } from 'react-redux';
 import { selectFullName, selectEmail } from '../../../redux/selectors/userSelector';
@@ -96,6 +96,21 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
       }
     }
   };
+  useEffect(() => {
+    if(modalVisible){
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          saveTemplete(); 
+        }
+      };
+      
+      window.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [modalVisible,fullName ,templeteName]);
 
   return (
     <>
