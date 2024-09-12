@@ -54,6 +54,7 @@
         |-- loading
             |-- BookAnimation.css
             |-- BookAnimation.tsx
+            |-- BookAnimation2.tsx
             |-- Temp.tsx
         |-- main.tsx
         |-- pages
