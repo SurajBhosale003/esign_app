@@ -76,18 +76,31 @@ def cancel_and_delete_esignature(user_mail, name):
 
 # Templete API's_______________________________________________________________________________________________________________________________________________
 # ++++ Save Templete ++++++++++++
-@frappe.whitelist(allow_guest= True)
+@frappe.whitelist(allow_guest=True)
 def save_templete(templete_name, user_full_name, user_email):
     try:
-        doc=frappe.get_doc({'doctype':'TempleteList'})
-        doc.templete_title=templete_name
-        doc.templete_owner_name=user_full_name
-        doc.templete_owner_email=user_email
-        doc.templete_created_at=datetime.now()
+        from datetime import datetime
+        # Create a new document
+        doc = frappe.get_doc({'doctype': 'TempleteList'})
+        doc.templete_title = templete_name
+        doc.templete_owner_name = user_full_name
+        doc.templete_owner_email = user_email
+        doc.templete_created_at = datetime.now()
         doc.save()
-        return {'status':200,'message':'Templete Created successfully'}
+        
+        # Fetch the saved template based on email
+        templetes_list = frappe.get_all(
+            'TempleteList',
+            filters={'templete_owner_email': user_email , 'templete_title': templete_name },
+            fields=['name', 'templete_title', 'templete_owner_email', 'templete_owner_name', 'templete_created_at']
+        )
+        
+        # Return success response with data
+        return {'status': 200, 'message': 'Templete Created successfully', 'data': templetes_list}
     except Exception as e:
-        return {'status':500,'message':str(e)}
+        # Return error response with exception message
+        return {'status': 500, 'message': str(e)}
+
 # ++++ Save Templete End ++++++++++++
 # ++++ Get Templete ++++++++++++
 @frappe.whitelist(allow_guest=True)

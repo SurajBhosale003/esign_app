@@ -4,9 +4,17 @@ import { useSelector } from 'react-redux';
 import { selectFullName, selectEmail } from '../../../redux/selectors/userSelector';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 interface TempleteAddProps {
   setRefreshTempletes: Dispatch<SetStateAction<boolean>>;
+}
+interface Templete {
+  name: string;
+  templete_title: string;
+  templete_owner_email: string;
+  templete_owner_name: string;
+  templete_created_at: string;
 }
 
 const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
@@ -15,7 +23,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fullName = useSelector(selectFullName);
   const email = useSelector(selectEmail);
-
+  const navigate = useNavigate();
   const showModal = () => {
     setModalVisible(true);
   };
@@ -39,6 +47,17 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
     }
   };
 
+
+  const handleEdit = (templeteData: Templete | Templete[]) => {
+    // Convert array to object by using the first element if it's an array
+    const templete = Array.isArray(templeteData) ? templeteData[0] : templeteData;
+  
+    // Now you can safely access templeteObject.name
+    console.log("Here is the navigate function", templete.name);
+    navigate(`/templete/${templete.name}`, { state: { templete: templete } });
+  };
+  
+
   const saveTemplete = async () => {
     if (!templeteName) {
       setErrorMessage("No value provided for templete name");
@@ -61,7 +80,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
         });
 
         const result = await response.json();
-        // // console.log(result);
+        console.log(result);
         if (result.message.status < 300) {
           toast.success('Templete Created Successfully', {
             position: "top-right",
@@ -76,7 +95,11 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
           });
           setTempleteName(null);
           setModalVisible(false);
-          setRefreshTempletes((prev: boolean) => !prev); // Trigger refresh
+          setRefreshTempletes((prev: boolean) => !prev); 
+
+
+          handleEdit(result.message.data)
+          
         } else {
           toast.error('Error while saving templete', {
             position: "top-right",

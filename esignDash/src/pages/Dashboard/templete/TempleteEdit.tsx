@@ -60,8 +60,9 @@ const TempleteEdit = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
   const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
-
-  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
+  const [fileName, setFileName] = useState<string | null>(null)
+  
+  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(BlankDatapdf);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
@@ -509,6 +510,7 @@ const handleSelectChange = (event:any) => {
       // setBase64PDF(base64String);
       const result = await splitPDF(base64String);
       setdatapdf(result);
+      setFileName(file ? file.name : null)
       setCurrentPage(0);
     }
   };
@@ -785,6 +787,7 @@ const handleSaveTemplete = async() => {
  }
 
 
+
 if (!templete) {
   return <div>No template data available</div>;
 }
@@ -831,16 +834,24 @@ return (
 </div>
 
 
-<div className='templete-main-div'>
-  <div className='left-area-div'>
+<div className='templete-main-div relative'>
+  <div className='left-area-div h-fit sticky top-0'>
     <div className="control-buttons gap-2 text-xs">
-
       <input
         type="file"
         accept="application/pdf"
         onChange={handleFileChange}
-        className="bg-gray-100 text-[#283C42] border-1 border-[#283C42] px-4 py-2 rounded hover:bg-[#283C42] hover:text-white hover:border-white transition-colors duration-300"
+        className="hidden"
+        id="file-upload"
       />
+      <label
+        htmlFor="file-upload"
+        className="items-center content-center space-x-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer grid place-items-center"
+      >
+     
+        <span>{fileName ? 'Change File' : 'Upload PDF'}</span>
+      </label>
+         
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={LoadBlankPage}>Load Blank Page</button>
@@ -908,29 +919,17 @@ return (
       >
         {component.type === 'text' && (
       <div
-        // contentEditable
-        // // onChange={handleTextChange}
-        // onInput={() => handleTextChange}
-        style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
+            style={{ width: '100%', height: '100%', overflow: 'hidden', fontSize: 'inherit', outline: 'none' }}
       >
         {component.value || 'Editable Text'}
       </div>
     )}
     {component.type === 'image' && !component.content && (
-      // <input
-      //   type="file"
-      //   accept="image/*"
-      //   onChange={(e) => handleComponentChange(e, component.id)}
-       
-      // />
+
       <div></div>
     )}
     {component.type === 'v_image' && !component.content && (
-      // <input
-      //   type="file"
-      //   accept="image/*"
-      //   onChange={(e) => handleComponentChange(e, component.id)}
-      // />
+ 
       <div></div>
     )}
     {(component.type === 'image'|| component.type === 'v_image' || component.type === 'signature' || component.type === 'v_signature') && component.content && (
@@ -939,16 +938,13 @@ return (
     {component.type === 'checkbox' && (
       <input
         type="checkbox"
-        checked={component.checked || false}
-        onChange={(e) => handleComponentChange(e, component.id)}
-    
+        checked={component.checked || false}    
       />
     )}
     {component.type === 'm_date' && (
       <input
         type="date"
         value={component.content || ''}
-        onChange={(e) => handleComponentChange(e, component.id)}
       />
     )}
     {component.type === 'live_date' && (
@@ -1027,14 +1023,43 @@ return (
     </div>
   </div>
 
-  <div className='right-templete'>
+  <div className='right-templete h-fit sticky top-14'>
       <div className='templete-utility-btn mt-2 text-xs pr-20'>
       {/* {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_signature') && (
         <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp}/>
       )} */}
 
       {selectedId && (selectedComponent?.type === 'image' || selectedComponent?.type === 'v_image') && (
-        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, selectedId)} />
+        
+        <div className="flex items-center">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, selectedId)}
+          className="hidden"
+          id="image-upload"
+        />
+        <label
+          htmlFor="image-upload"
+          className="flex items-center space-x-2 bg-[#283C42] text-white px-4 py-1 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+          <span>Upload Image</span>
+        </label>
+      </div>
       )} 
       {/* {selectedId && selectedComponent?.type === 'checkbox' && (
       <input type="checkbox" checked={selectedComponent.checked || false} onChange={(e) => handleCheckboxChange(e, selectedId)} />
