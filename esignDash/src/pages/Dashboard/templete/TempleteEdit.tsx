@@ -1029,16 +1029,16 @@ return (
 
   <div className='right-templete'>
       <div className='templete-utility-btn mt-2 text-xs pr-20'>
-      {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_signature') && (
+      {/* {selectedId && (selectedComponent?.type === 'signature' || selectedComponent?.type === 'v_signature') && (
         <SignInput onSelect={handleSelectSignComp} onClickbtn={handleModelSignComp}/>
-      )}
+      )} */}
 
       {selectedId && (selectedComponent?.type === 'image' || selectedComponent?.type === 'v_image') && (
         <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, selectedId)} />
       )} 
-      {selectedId && selectedComponent?.type === 'checkbox' && (
+      {/* {selectedId && selectedComponent?.type === 'checkbox' && (
       <input type="checkbox" checked={selectedComponent.checked || false} onChange={(e) => handleCheckboxChange(e, selectedId)} />
-      )}
+      )} */}
       {selectedId && selectedComponent?.type === 'm_date' && (
         <input type="date" value={selectedComponent.content || ''} onChange={(e) => handleDateChange(e, selectedId)} />
       )}
