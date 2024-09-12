@@ -584,132 +584,132 @@ const base64ToUint8Array = (base64:any) => {
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
 };
 
-const mergeAndPrintPDF = async () => {
-  const pdfDoc = await PDFDocument.create(); // Create a new PDF document
+// const mergeAndPrintPDF = async () => {
+//   const pdfDoc = await PDFDocument.create(); // Create a new PDF document
   
-  for (let i = 0; i < datapdf.length; i++) {
-    const pdfBytes = base64ToUint8Array(datapdf[i].data);
-    const pdfToMerge = await PDFDocument.load(pdfBytes);
+//   for (let i = 0; i < datapdf.length; i++) {
+//     const pdfBytes = base64ToUint8Array(datapdf[i].data);
+//     const pdfToMerge = await PDFDocument.load(pdfBytes);
 
-    const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
-    pages.forEach(page => pdfDoc.addPage(page));
-  }
+//     const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
+//     pages.forEach(page => pdfDoc.addPage(page));
+//   }
 
-  const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
-    if (!acc[component.pageNo]) acc[component.pageNo] = [];
-    acc[component.pageNo].push(component);
-    return acc;
-  }, {} as { [key: number]: ComponentData[] });
+//   const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
+//     if (!acc[component.pageNo]) acc[component.pageNo] = [];
+//     acc[component.pageNo].push(component);
+//     return acc;
+//   }, {} as { [key: number]: ComponentData[] });
 
-  const pages = pdfDoc.getPages();
+//   const pages = pdfDoc.getPages();
   
-  for (const page of pages) {
-    const pageIndex = pages.indexOf(page);
-    const pageComponents = componentsByPage[pageIndex] || [];
+//   for (const page of pages) {
+//     const pageIndex = pages.indexOf(page);
+//     const pageComponents = componentsByPage[pageIndex] || [];
 
-    for (const component of pageComponents) {
-      const { left, top } = component.position;
+//     for (const component of pageComponents) {
+//       const { left, top } = component.position;
 
-      if (component.type === 'text' || component.type === 'v_text') {
-        const fontSize = component.fontSize ?? 12;
-        const yPosition = page.getHeight() - top - fontSize - 3;
-        page.drawText(component.content || '', {
-          x: left + 3,
-          y: yPosition,
-          size: fontSize,
-          color: rgb(0, 0, 0),
-          lineHeight: fontSize * 1.2,
-          maxWidth: component.size?.width ?? 0,
-        });
-      } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
-        const imageData = component.content.split(',')[1];
-        if (!imageData) {
-          console.error('Invalid image data');
-          continue;
-        }
+//       if (component.type === 'text' || component.type === 'v_text') {
+//         const fontSize = component.fontSize ?? 12;
+//         const yPosition = page.getHeight() - top - fontSize - 3;
+//         page.drawText(component.content || '', {
+//           x: left + 3,
+//           y: yPosition,
+//           size: fontSize,
+//           color: rgb(0, 0, 0),
+//           lineHeight: fontSize * 1.2,
+//           maxWidth: component.size?.width ?? 0,
+//         });
+//       } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
+//         const imageData = component.content.split(',')[1];
+//         if (!imageData) {
+//           console.error('Invalid image data');
+//           continue;
+//         }
 
-        const imageBytes = base64ToUint8Array(imageData);
-        let embeddedImage;
+//         const imageBytes = base64ToUint8Array(imageData);
+//         let embeddedImage;
 
-        if (component.content.startsWith('data:image/png')) {
-          embeddedImage = await pdfDoc.embedPng(imageBytes);
-        } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
-        } else {
-          console.error('Unsupported image format');
-          continue;
-        }
+//         if (component.content.startsWith('data:image/png')) {
+//           embeddedImage = await pdfDoc.embedPng(imageBytes);
+//         } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
+//           embeddedImage = await pdfDoc.embedJpg(imageBytes);
+//         } else {
+//           console.error('Unsupported image format');
+//           continue;
+//         }
 
-        const { width: imageWidth, height: imageHeight } = embeddedImage;
-        const containerWidth = component.size?.width ?? 0;
-        const containerHeight = component.size?.height ?? 0;
+//         const { width: imageWidth, height: imageHeight } = embeddedImage;
+//         const containerWidth = component.size?.width ?? 0;
+//         const containerHeight = component.size?.height ?? 0;
 
-        const widthRatio = containerWidth / imageWidth;
-        const heightRatio = containerHeight / imageHeight;
-        const scaleRatio = Math.min(widthRatio, heightRatio);
+//         const widthRatio = containerWidth / imageWidth;
+//         const heightRatio = containerHeight / imageHeight;
+//         const scaleRatio = Math.min(widthRatio, heightRatio);
 
-        const drawWidth = imageWidth * scaleRatio;
-        const drawHeight = imageHeight * scaleRatio;
+//         const drawWidth = imageWidth * scaleRatio;
+//         const drawHeight = imageHeight * scaleRatio;
 
-        const x = left;
-        const y = page.getHeight() - top - drawHeight;
+//         const x = left;
+//         const y = page.getHeight() - top - drawHeight;
 
-        page.drawImage(embeddedImage, {
-          x: x,
-          y: y,
-          width: drawWidth,
-          height: drawHeight,
-        });
-      } else if (component.type === 'checkbox') {
-        const size = 10; //=================================================================================== CheckBox
-        const yPosition = page.getHeight() - top - size - 5;
+//         page.drawImage(embeddedImage, {
+//           x: x,
+//           y: y,
+//           width: drawWidth,
+//           height: drawHeight,
+//         });
+//       } else if (component.type === 'checkbox') {
+//         const size = 10; //=================================================================================== CheckBox
+//         const yPosition = page.getHeight() - top - size - 5;
 
-        if (component.checked) {
-          page.drawRectangle({
-            x: left + 5,
-            y: yPosition,
-            width: size,
-            height: size,
-            color: rgb(0, 0, 0),
-          });
-        } else {
-          page.drawRectangle({
-            x: left + 5,
-            y: yPosition,
-            width: size,
-            height: size,
-            borderColor: rgb(0, 0, 0),
-            borderWidth: 1,
-            color: rgb(1, 1, 1),
-          });
-        }
-      } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
-        const fontSize = component.fontSize ?? 12;
-        const yPosition = page.getHeight() - top - fontSize - 3;
-        const dateValue = component.content || new Date().toLocaleDateString();
+//         if (component.checked) {
+//           page.drawRectangle({
+//             x: left + 5,
+//             y: yPosition,
+//             width: size,
+//             height: size,
+//             color: rgb(0, 0, 0),
+//           });
+//         } else {
+//           page.drawRectangle({
+//             x: left + 5,
+//             y: yPosition,
+//             width: size,
+//             height: size,
+//             borderColor: rgb(0, 0, 0),
+//             borderWidth: 1,
+//             color: rgb(1, 1, 1),
+//           });
+//         }
+//       } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
+//         const fontSize = component.fontSize ?? 12;
+//         const yPosition = page.getHeight() - top - fontSize - 3;
+//         const dateValue = component.content || new Date().toLocaleDateString();
 
-        page.drawText(dateValue, {
-          x: left + 3,
-          y: yPosition,
-          size: fontSize,
-          color: rgb(0, 0, 0),
-        });
-      }
-    }
-  }
+//         page.drawText(dateValue, {
+//           x: left + 3,
+//           y: yPosition,
+//           size: fontSize,
+//           color: rgb(0, 0, 0),
+//         });
+//       }
+//     }
+//   }
 
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
- const varName = `esignDoc-${documentData.document_title}`;
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${varName}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
+//   const pdfBytes = await pdfDoc.save();
+//   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+//   const url = URL.createObjectURL(blob);
+//  const varName = `esignDoc-${documentData.document_title}`;
+//   const link = document.createElement('a');
+//   link.href = url;
+//   link.download = `${varName}.pdf`;
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+//   URL.revokeObjectURL(url);
+// };
 
 
 
@@ -875,8 +875,8 @@ return (
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={LoadBlankPage}>Load Blank Page</button>
 
-      <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={mergeAndPrintPDF}>Merge and Print PDF</button>   
+      {/* <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+      onClick={mergeAndPrintPDF}>Merge and Print PDF</button>    */}
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
        onClick={handleSaveDocument}>Save Document</button>   
