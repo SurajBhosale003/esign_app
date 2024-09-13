@@ -5,6 +5,7 @@ import { DeleteOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-desi
 import { Card } from 'antd';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal'; // Import the ConfirmDeleteModal component
 
 const { Meta } = Card;
 
@@ -41,6 +42,8 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
   const [signatures, setSignatures] = useState<Signature[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [selectedSignature, setSelectedSignature] = useState<Signature | null>(null); // State to hold selected signature for deletion
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,10 +55,10 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
             'Content-Type': 'application/json',
           },
         });
-  
+
         const result: ApiResponse = await response.json();
         // // console.log('API Response:', result);
-  
+
         if (response.status === 200) {
           setSignatures(result.message.data);
           setLoading(false);
@@ -68,66 +71,81 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         setLoading(false);
       }
     };
-  
+
     if (email || refreshSignatures) { 
       fetchSignatures();
     }
   }, [email, refreshSignatures]); // Added refreshSignatures to dependency array
 
-  function deleted() {
-    toast.error('Deleted successfully', {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-    });
-  }
-
-  function errorMSG() {
-    toast.error('Failed to delete signature', {
-      position: "top-right",
-      autoClose: 500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      transition: Flip,
-    });
-  }
-
-  const handleDelete = async (name: string) => {
-    try {
-      const response = await fetch(`/api/method/esign_app.api.cancel_and_delete_esignature?user_mail=${email}&name=${name}`, {
-        method: 'POST', // or 'DELETE'
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result: ApiDeleteResponse = await response.json();
-      // // console.log('Delete API Response:', result);
-
-      if (result.message.status === 200) {
-        deleted();
-        setSignatures(signatures.filter(sig => sig.name !== name));
-        setRefreshSignatures(true); // Trigger refresh after successful delete
-      } else {
-        errorMSG();
-        console.error('Failed to delete signature:', result.message);
-      }
-    } catch (error) {
-      errorMSG();
-      console.error('Error deleting signature:', error);
-    }
+  const handleDelete = (signature: Signature) => {
+    setSelectedSignature(signature); // Set the selected signature for deletion
+    setIsModalVisible(true); // Show the confirmation modal
   };
 
+  const handleCancel = () => {
+    setIsModalVisible(false); // Hide the confirmation modal
+    setSelectedSignature(null); // Clear the selected signature
+  };
+
+  const handleConfirm = async (name: string) => {
+    if (selectedSignature) {
+      try {
+        const response = await fetch(`/api/method/esign_app.api.cancel_and_delete_esignature?user_mail=${email}&name=${name}`, {
+          method: 'POST', // or 'DELETE'
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result: ApiDeleteResponse = await response.json();
+        // // console.log('Delete API Response:', result);
+
+        if (result.message.status === 200) {
+          toast.success('Deleted successfully', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          setSignatures(signatures.filter(sig => sig.name !== name));
+          setRefreshSignatures(true); // Trigger refresh after successful delete
+        } else {
+          toast.error('Failed to delete signature', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          console.error('Failed to delete signature:', result.message);
+        }
+      } catch (error) {
+        toast.error('Failed to delete signature', {
+          position: "top-right",
+          autoClose: 500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Flip,
+        });
+        console.error('Error deleting signature:', error);
+      }
+      setIsModalVisible(false); // Hide the confirmation modal
+      setSelectedSignature(null); // Clear the selected signature
+    }
+  };
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -176,7 +194,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
               style={{ width: 300 }}
               cover={<img className='mt-10 h-30' alt={`Signature ${index}`} src={signature.sign_blob} />}
               actions={[
-                <DeleteOutlined key="delete" onClick={() => handleDelete(signature.name)} />
+                <DeleteOutlined key="delete" onClick={() => handleDelete(signature)} />
               ]}
             >
               <Meta title={signature.sign_name} description={new Date(signature.creation).toLocaleString()} />
@@ -185,6 +203,16 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         ))}
       </div>
       <ToastContainer limit={1} />
+      {selectedSignature && (
+        <ConfirmDeleteModal
+          visible={isModalVisible}
+          name={selectedSignature.name}
+          onCancel={handleCancel}
+          onConfirm={handleConfirm}
+          message={"You sure ? wanna delete the sign?"}
+          module={"Signature"}
+        />
+      )}
     </div>
   );
 }
