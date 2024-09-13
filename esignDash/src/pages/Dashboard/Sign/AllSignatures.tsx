@@ -5,7 +5,7 @@ import { DeleteOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-desi
 import { Card } from 'antd';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal'; // Import the ConfirmDeleteModal component
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal'; 
 
 const { Meta } = Card;
 

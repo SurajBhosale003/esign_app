@@ -2,8 +2,9 @@ import React, { useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectEmail } from '../../../redux/selectors/userSelector';
-import { ToastContainer, toast ,Flip } from 'react-toastify';
+import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 
 interface Templete {
   name: string;
@@ -33,14 +34,13 @@ interface ApiDeleteResponse {
 }
 
 const TempleteAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRefreshTempletes }) => {
-   const navigate = useNavigate();
-        const handleEdit = (templete:Templete) => {
-          navigate(`/templete/${templete.name}`, { state: { templete } });
-        };
+  const navigate = useNavigate();
   const email = useSelector(selectEmail);
   const [templetes, setTempletes] = useState<Templete[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [selectedTemplete, setSelectedTemplete] = useState<Templete | null>(null);
 
   useEffect(() => {
     const fetchTempletes = async () => {
@@ -77,73 +77,96 @@ const TempleteAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
     }
   }, [email, refreshTempletes]);
 
+  const handleEdit = (templete: Templete) => {
+    navigate(`/templete/${templete.name}`, { state: { templete } });
+  };
+
   const handleDelete = async (name: string) => {
-    try {
-      const response = await fetch(`/api/method/esign_app.api.delete_esign_templete?user_mail=${email}&name=${name}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    if (selectedTemplete) {
+      try {
+        const response = await fetch(`/api/method/esign_app.api.delete_esign_templete?user_mail=${email}&name=${name}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const result: ApiDeleteResponse = await response.json();
-      // // console.log('Delete Template API Response:', result);
+        const result: ApiDeleteResponse = await response.json();
 
-      if (result.message.status === 200) {
-        setTempletes(templetes.filter(templete => templete.name !== name));
-        setRefreshTempletes(true);
-        deleted();
-      } else {
-        console.error('Failed to delete template:', result.message);
-        setError('Failed to delete template');
+        if (result.message.status === 200) {
+          setTempletes(templetes.filter(templete => templete.name !== name));
+          setRefreshTempletes(true);
+          deleted();
+        } else {
+          console.error('Failed to delete template:', result.message);
+          setError('Failed to delete template');
+        }
+      } catch (error) {
+        console.error('Error deleting template:', error);
+        setError('Error deleting template');
+      } finally {
+        setDeleteModalVisible(false);
       }
-    } catch (error) {
-      console.error('Error deleting template:', error);
-      setError('Error deleting template');
     }
   };
+
+  const showDeleteModal = (templete: Templete) => {
+    setSelectedTemplete(templete);
+    setDeleteModalVisible(true);
+  };
+
+  function deleted() {
+    toast.error('Template Deleted successfully', {
+      position: "top-right",
+      autoClose: 500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Flip,
+    });
+  }
 
   if (loading) {
     return <div>Loading...</div>;
   }
-  function deleted()
-        {
-          toast.error('Templete Deleted successfully', {
-            position: "top-right",
-            autoClose: 500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Flip,
-            });
-        }
-      
+
   return (
     <div className="relative mt-6 min-w-[1000px] max-w-[1000px] mx-auto">
       <div className="flex flex-wrap gap-5">
-      {templetes.map((templete, index) => (
-        <div key={index} className="relative flex w-[200px]">
-          <div className="absolute top-2 right-2 cursor-pointer" onClick={() => handleDelete(templete.name)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-trash-2 text-red-600">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-2 14H7L5 6"></path>
-              <path d="M10 11v6"></path>
-              <path d="M14 11v6"></path>
-              <path d="M18 4l-1-1h-8L7 4"></path>
-            </svg>
+        {templetes.map((templete, index) => (
+          <div key={index} className="relative flex w-[200px]">
+            <div className="absolute top-2 right-2 cursor-pointer" onClick={() => showDeleteModal(templete)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-trash-2 text-red-600">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-2 14H7L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M18 4l-1-1h-8L7 4"></path>
+              </svg>
+            </div>
+            <div className="bg-[#283C42] text-white rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer p-4"
+              style={{ width: '350px', height: '100px' }}
+              onClick={() => handleEdit(templete)}>
+              <h3 className="mt-2 font-bold">{templete.templete_title}</h3>
+              <p className="text-sm text-gray-500">{new Date(templete.templete_created_at).toLocaleString()}</p>
+            </div>
           </div>
-          <div className="bg-[#283C42] text-white rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer p-4"
-               style={{ width: '350px', height: '100px' }}
-               onClick={() => handleEdit(templete)}>
-            <h3 className="mt-2 font-bold">{templete.templete_title}</h3>
-            <p className="text-sm text-gray-500">{new Date(templete.templete_created_at).toLocaleString()}</p>
-          </div>
-        </div>
-      ))}
+        ))}
       </div>
+      {selectedTemplete && (
+        <ConfirmDeleteModal
+          visible={deleteModalVisible}
+          name={selectedTemplete.name}
+          message={`Are you sure you want to delete the template "${selectedTemplete.templete_title}"?`}
+          module="Template"
+          onCancel={() => setDeleteModalVisible(false)}
+          onConfirm={handleDelete}
+        />
+      )}
+      {/* <ToastContainer /> */}
     </div>
   );
 };
