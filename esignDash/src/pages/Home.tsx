@@ -2,9 +2,14 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap';
 import SignImage from '../assets/HomePage/sign.jpg';
 import SignImage2 from '../assets/HomePage/sign2.jpg';
+// import { selectEmail , selectFullName } from '../redux/selectors/userSelector'
+// import { useSelector } from 'react-redux';
 // import { useRef } from 'react';
 
 function Home() {
+  // const username = useSelector(selectFullName);
+  // const email = useSelector(selectEmail);
+
   // const gsapRef = useRef();
   useGSAP(()=>{
     gsap.from(".home-card-2",{
