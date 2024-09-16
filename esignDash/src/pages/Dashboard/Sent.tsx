@@ -241,38 +241,3 @@ const Sent: React.FC = () => {
 
 export default Sent;
 
-/*
-     <React.Fragment key={mail.id}>
-             <tr
-               className={`cursor-pointer ${hoveredRow === mail.id ? 'bg-gray-100' : ''}`}
-               onMouseEnter={() => setHoveredRow(mail.id)}
-               onMouseLeave={() => setHoveredRow(null)}
-             >
-               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm">
-                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusClasses(mail.status)}`}>
-                   {mail.status}
-                 </span>
-               </td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{mail.documentTitle}</td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">{mail.subject}</td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                 {dayjs(mail.timestamp).format('DD/MM/YYYY')} ({dayjs(mail.timestamp).fromNow()})
-               </td>
-             </tr>
-             
-             <tr>
-             <td colSpan={5} className={`bg-gray-50 text-sm text-gray-700 h-0 transition-all duration-1000 align-top`}>
-               <div className={`${hoveredRow === mail.id ? 'opendiv' : ''} overflow-hidden transition-all duration-1000 h-0 max-h-[200px] `}>{mail.description}</div>
-             </td>
-           </tr>
-                </React.Fragment>
-*/
-
-     {/* {hoveredRow === mail.id && (
-               <tr className={`transition-expand ${hoveredRow === mail.id ? 'open' : ''}`}>
-                 <td colSpan={5} className="px-6 py-4 bg-gray-50 text-sm text-gray-700">
-                   <div className="whitespace-pre-line">{mail.description}</div>
-                 </td>
-               </tr>
-             )} */}
