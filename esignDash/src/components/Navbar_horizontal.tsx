@@ -15,7 +15,7 @@ function Navbar_horizontal() {
           <span className="self-center text-xl font-semibold whitespace-nowrap"></span>
         </p>
         <div className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1" id="navbar-links">
-          <ul className="flex flex-col mt-4 lg:flex-row lg:space-x-8 lg:mt-0">
+          {/* <ul className="flex flex-col mt-4 lg:flex-row lg:space-x-8 lg:mt-0">
             <li>
               <p className="block py-2 pr-4 pl-3 text-gray-700 rounded lg:p-0 hover:text-[#283C42]">Home</p>
             </li>
@@ -28,7 +28,7 @@ function Navbar_horizontal() {
             <li>
               <p className="block py-2 pr-4 pl-3 text-gray-700 rounded lg:p-0 hover:text-[#283C42]">Contact</p>
             </li>
-          </ul>
+          </ul> */}
         </div>
         {email &&(
         <div  className="flex items-center lg:order-2 space-x-4">
