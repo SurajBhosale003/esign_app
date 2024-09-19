@@ -20,7 +20,17 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   const [newEmail, setNewEmail] = useState<string>('');
   const [mailTitle,setMailTitle] = useState<string>(`${document_title}-(${template_tite})`);
   const [mailBody, setMailBody] = useState<string>('');
-  const [checked, setChecked] = useState<number>(0);
+  const [checked, setChecked] = useState<number>(1);
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    if (mailTitle && mailBody && Object.keys(emails).length > 0) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  }, [newEmail, mailTitle, mailBody, emails]);
+
   const navigate = useNavigate();
   useEffect(() => {
     const formattedEmails = assigned_user.reduce((acc, email, index) => {
@@ -31,9 +41,9 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
     setEmails(formattedEmails);
   }, [assigned_user]);
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(e.target.checked ? 1 : 0);
-  };
+  // const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setChecked(e.target.checked ? 1 : 0);
+  // };
   const handleMailTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMailTitle(e.target.value);
   };
@@ -211,11 +221,11 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
               onChange={handleMailBodyChange}
               rows={6}
               className="w-full px-3 py-2 rounded bg-white text-black text-xs"
-            />
+                       />
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <input
                 type="checkbox"
                 className="form-checkbox text-[#283C42] rounded"
@@ -223,11 +233,12 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
                 onChange={handleCheckboxChange}
               />
               <label className="ml-2 text-xs">Freeze</label>
-            </div>
+            </div> */}
             <button
               type="submit"
               onClick={sendMail}
-              className="bg-white text-[#283C42] px-4 py-2 rounded-md font-semibold text-xs"
+              className={`bg-white text-[#283C42] px-4 py-2 rounded-md font-semibold text-xs ${!isFormValid? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              disabled={!isFormValid}
             >
               Send
             </button>
