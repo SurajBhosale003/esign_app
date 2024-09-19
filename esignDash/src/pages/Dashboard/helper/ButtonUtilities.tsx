@@ -161,15 +161,15 @@ export type ButtonType =
 
   export const buttonConfigs: { type: ButtonType; icon: React.ReactNode; title: string }[] = [
     { type: 'text', icon: <TextIcon />, title: 'Edit Text' },
-    { type: 'v_text', icon: <ViewTextIcon />, title: 'View Text' },
+    // { type: 'v_text', icon: <ViewTextIcon />, title: 'View Text' },
     { type: 'signature', icon: <SignatureIcon />, title: 'Signature' },
-    { type: 'v_signature', icon: <ViewSignatureIcon />, title: 'View-Sign' },
+    // { type: 'v_signature', icon: <ViewSignatureIcon />, title: 'View-Sign' },
     { type: 'image', icon: <ImageIcon />, title: 'Image' },
-    { type: 'v_image', icon: <ViewImageIcon />, title: 'View Image' },
+    // { type: 'v_image', icon: <ViewImageIcon />, title: 'View Image' },
     { type: 'checkbox', icon: <CheckBoxIcon />, title: 'Checkbox' },
     { type: 'm_date', icon: <ManualDateIcon />, title: 'Date' },
     { type: 'live_date', icon: <LiveDateIcon />, title: 'Live Date' },
-    { type: 'fix_date', icon: <FixDateIcon />, title: 'Fix Date' },
+    // { type: 'fix_date', icon: <FixDateIcon />, title: 'Fix Date' },
   ];
   
 
