@@ -220,7 +220,6 @@ const submitFinalDocument = async () => {
   const documentObj = {
     document_title :documentData.name,
     document_json_data: JSON.stringify(components),
-    iscomplete : true
   };
   console.log(documentObj);
 

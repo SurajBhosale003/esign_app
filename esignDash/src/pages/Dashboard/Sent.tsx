@@ -81,13 +81,15 @@ const Sent: React.FC = () => {
                 statusCounts[user.status]++;
               }
             });
-
+            // Status Code for User check and Give PDF print
             let finalStatus: 'Unread' | 'Pending' | 'Completed' = 'Completed';
             if (statusCounts.unseen > 0) {
               finalStatus = 'Unread';
             } else if (statusCounts.open > 0) {
               finalStatus = 'Pending';
             }
+
+
 
             return {
               id: index + 1,

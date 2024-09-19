@@ -353,14 +353,14 @@ def sent_doc_by_user(user_mail):
 
 # Finl Doc Confirmation 
 @frappe.whitelist(allow_guest=True)
-def submit_final_document(document_title,document_json_data , iscomplete):
+def submit_final_document(document_title,document_json_data):
     try:
         # Parse JSON data
         document_json_data1 = json.loads(document_json_data)
         print("Document data __________________",document_json_data1)
         doc = frappe.get_doc("DocumentList", document_title)
         doc.document_json_data = document_json_data
-        doc.iscompleted = iscomplete
+     
         message = 'Document completed successfully'
         doc.save()
         return {'status': 200, 'message': message}
