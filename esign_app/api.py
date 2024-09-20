@@ -1,5 +1,8 @@
 import frappe
+from frappe.core.doctype.communication.email import make
+from frappe.utils import get_datetime, get_url
 import json 
+
 from datetime import datetime
 # ++++ Save or Create User ++++++++++++
 @frappe.whitelist(allow_guest= True)
@@ -260,6 +263,7 @@ def get_document_components_and_basepdf(document_name):
             'document_json_data': doc.document_json_data,
             'base_pdf_datad': doc.base_pdf_datad,
             'assigned_users': doc.assigned_users,
+            'iscompleted': doc.iscompleted,
         }
         return response
 
@@ -317,13 +321,43 @@ def send_document_data(to, subject, body, document_name, user_mail, isChecked):
         doc.user_mail = user_mail
         doc.isnoteditable = isChecked
         
-        doc.save()      
+        doc.save()
+        send_url_email(to, subject ,body)
+
         return {'status': 200, 'message': 'Document Assigned Successfully'}
     
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "send_document_data")
         return {'status': 500, 'message': str(e)}
 # End ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def send_url_email(to, subject , message):
+    to_users=json.loads(to)
+    try: 
+        full_url = f"http://192.168.10.189:8080/"
+        emb_message = f"Dear User,<br><br>You Have been assigned to sign A Document by: <a href='{full_url}'>{full_url}</a><br><br>Thank you. <div>Discription: {message}</div>"
+        emails = [entry["email"] for entry in to_users.values()]
+        print(emails)
+        frappe.sendmail(
+            recipients=emails,
+            subject=subject,
+            message=emb_message
+        )
+    except Exception as e:
+        print('Error-----------> URL',e)
+
+# def test_send_url_email(to=["sbhosale@dexciss.com"], subject='GGGG', message='OP'):
+#     try:
+#         frappe.sendmail(
+#             recipients=to,
+#             subject=subject,
+#             message=message
+#         )
+#         print('Email sent successfully')
+#     except Exception as e:
+#         print('Error-----------> URL', e)
+
+
 
 # get List for User of Doc Assigned Fetch +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
 @frappe.whitelist(allow_guest=True)
@@ -350,6 +384,33 @@ def sent_doc_by_user(user_mail):
         return {'status': 200, 'data': documents_list}
     except Exception as e:
         return {'status': 500, 'message': str(e)}
+
+# ___________________________________________________________Doc Status User Assign Update _______________________________________________________________________________________
+@frappe.whitelist(allow_guest=True)
+def get_assigned_users_list_check(user_document_name):
+    try:
+        document = frappe.get_doc('DocumentList', user_document_name)
+        doc_data = {
+            'assigned_users': document.assigned_users,
+            'iscompleted': document.iscompleted
+        }
+        
+        return {'status': 200, 'data': doc_data}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+
+@frappe.whitelist(allow_guest=True)
+def update_document_status_confirm(user_document_name):
+    try:
+        document = frappe.get_doc('DocumentList', user_document_name)
+        document.iscompleted = True
+        document.save()
+        
+        return {'status': 200, 'message': 'Document status updated successfully.'}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
 
 # Finl Doc Confirmation 
 @frappe.whitelist(allow_guest=True)

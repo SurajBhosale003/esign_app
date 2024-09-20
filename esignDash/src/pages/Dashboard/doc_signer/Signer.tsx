@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 // import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
+import { PDFDocument, rgb } from 'pdf-lib';
 // Helper Custom ---
 import PdfRenderer from '../helper/pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
@@ -18,7 +19,12 @@ import { useSelector } from 'react-redux';
 import { selectEmail } from '../../../redux/selectors/userSelector';
 import dayjs from '../helper/dayjsConfig';
 import SignerInput from './SignInput'
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 
+interface User {
+  email: string;
+  status: 'unseen' | 'open' | 'close';
+}
 
 interface EmailStatus {
   [key: string]: {
@@ -61,8 +67,8 @@ const Signer = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
   const [emailData, setEmailData] = useState<EmailStatus | null>(null);
-
-
+  const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
@@ -70,6 +76,7 @@ const Signer = () => {
   const textInputRef = useRef<HTMLInputElement | null>(null);
   const location = useLocation();
   const [assignedUser , setAssignedUser] = useState<String[]>([])
+  const [isCompleted, setIsCompleted] = useState(0);
   const { documentData } = location.state as { documentData?: DocumentList } || {};
   const email = useSelector(selectEmail);
   const navigate = useNavigate();
@@ -87,6 +94,102 @@ const Signer = () => {
       }
     }
   }, [selectedId, target, components]);
+
+
+useEffect(()=>{
+  console.log("Fetch Data before if useEffect  --->>>>>")
+  if(!isCompleted)
+  {
+    console.log("Fetch Data Inside if isCompleted --->>>>>")
+    const fetchAssignedUsers = async () => {
+      try {
+        console.log("Fetch Data Inside function inside try --->>>>>")
+        const response = await fetch(
+          `/api/method/esign_app.api.get_assigned_users_list_check?user_document_name=${documentData.name}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (response.ok) {
+          console.log("response Is OK --->>>>>")
+          const data = await response.json();
+          setAssignedUsers(data.message.data.assigned_users || []);
+
+
+          const assignedUsers: Record<string, User> = JSON.parse(data.message.data.assigned_users);
+          console.log("here is Assigned user List data",assignedUsers);
+          const statusCounts: Record<string, number> = {
+            unseen: 0,
+            open: 0,
+            close: 0,
+          };
+
+          Object.values(assignedUsers).forEach((user) => {
+            if (user.status in statusCounts) {
+              statusCounts[user.status]++;
+            }
+          });
+          console.log(statusCounts,"-------------------->IMG Count-------------")
+          if (statusCounts.unseen > 0) {
+            setIsCompleted(0);
+            return;
+          }
+          if (statusCounts.open > 0) {
+            setIsCompleted(0);
+            return;
+          } 
+          
+          if((statusCounts.open + statusCounts.unseen)==0){
+            setIsCompleted(1);
+            updateDocumentStatus();
+          }
+
+        } else {
+          console.error('Error fetching data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      } finally {
+      
+      }
+    };
+
+    fetchAssignedUsers();
+  }
+
+},[])
+
+const updateDocumentStatus = async () => {
+  console.log('inside updateDocumentStatus');
+  try {
+    const response = await fetch(
+      `/api/method/esign_app.api.update_document_status_confirm?user_document_name=${documentData.name}`,
+      {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.ok) {
+      console.log('inside updateDocumentStatus ------------> OK')
+      const data = await response.json();
+      console.log(data.message , 'Document status updated successfully.',isCompleted);
+    } else {
+
+    }
+  } catch (error) {
+    console.error('Fetch error:', error);
+  } finally {
+
+  }
+};
+
   useEffect(() => {
 
     const fetchTemplateData = async () => {
@@ -101,7 +204,9 @@ const Signer = () => {
           return ;
         }
         if (result.message.status === 200) {
-     
+          
+          setIsCompleted(result.message.iscompleted)
+
           const parsedData = typeof result.message.document_json_data === 'string'
           ? JSON.parse(result.message.document_json_data)
           : result.message.document_json_data;
@@ -280,7 +385,17 @@ const submitFinalDocument = async () => {
     });
   }
 };
+const handleCancel = () => {
+  setIsModalVisible(false);
+};
 
+const handleConfirm = () => {
+  submitFinalDocument();
+  setIsModalVisible(false); 
+};
+const showConfirmModal = () => {
+  setIsModalVisible(true); // Show the modal when the submit button is clicked
+};
 
 const handleChangeStatus = () => {
   if (emailData) {
@@ -513,6 +628,133 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
   }
 };
 
+const mergeAndPrintPDF = async () => {
+  const pdfDoc = await PDFDocument.create(); // Create a new PDF document
+  
+  for (let i = 0; i < datapdf.length; i++) {
+    const pdfBytes = base64ToUint8Array(datapdf[i].data);
+    const pdfToMerge = await PDFDocument.load(pdfBytes);
+
+    const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
+    pages.forEach(page => pdfDoc.addPage(page));
+  }
+
+  const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
+    if (!acc[component.pageNo]) acc[component.pageNo] = [];
+    acc[component.pageNo].push(component);
+    return acc;
+  }, {} as { [key: number]: ComponentData[] });
+
+  const pages = pdfDoc.getPages();
+  
+  for (const page of pages) {
+    const pageIndex = pages.indexOf(page);
+    const pageComponents = componentsByPage[pageIndex] || [];
+
+    for (const component of pageComponents) {
+      const { left, top } = component.position;
+
+      if (component.type === 'text' || component.type === 'v_text') {
+        const fontSize = component.fontSize ?? 12;
+        const yPosition = page.getHeight() - top - fontSize - 3;
+        page.drawText(component.content || '', {
+          x: left + 3,
+          y: yPosition,
+          size: fontSize,
+          color: rgb(0, 0, 0),
+          lineHeight: fontSize * 1.2,
+          maxWidth: component.size?.width ?? 0,
+        });
+      } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
+        const imageData = component.content.split(',')[1];
+        if (!imageData) {
+          console.error('Invalid image data');
+          continue;
+        }
+
+        const imageBytes = base64ToUint8Array(imageData);
+        let embeddedImage;
+
+        if (component.content.startsWith('data:image/png')) {
+          embeddedImage = await pdfDoc.embedPng(imageBytes);
+        } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
+          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+        } else {
+          console.error('Unsupported image format');
+          continue;
+        }
+
+        const { width: imageWidth, height: imageHeight } = embeddedImage;
+        const containerWidth = component.size?.width ?? 0;
+        const containerHeight = component.size?.height ?? 0;
+
+        const widthRatio = containerWidth / imageWidth;
+        const heightRatio = containerHeight / imageHeight;
+        const scaleRatio = Math.min(widthRatio, heightRatio);
+
+        const drawWidth = imageWidth * scaleRatio;
+        const drawHeight = imageHeight * scaleRatio;
+
+        const x = left;
+        const y = page.getHeight() - top - drawHeight;
+
+        page.drawImage(embeddedImage, {
+          x: x,
+          y: y,
+          width: drawWidth,
+          height: drawHeight,
+        });
+      } else if (component.type === 'checkbox') {
+        const size = 10; //=================================================================================== CheckBox
+        const yPosition = page.getHeight() - top - size - 5;
+
+        if (component.checked) {
+          page.drawRectangle({
+            x: left + 5,
+            y: yPosition,
+            width: size,
+            height: size,
+            color: rgb(0, 0, 0),
+          });
+        } else {
+          page.drawRectangle({
+            x: left + 5,
+            y: yPosition,
+            width: size,
+            height: size,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 1,
+            color: rgb(1, 1, 1),
+          });
+        }
+      } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
+        const fontSize = component.fontSize ?? 12;
+        const yPosition = page.getHeight() - top - fontSize - 3;
+        const dateValue = component.content || new Date().toLocaleDateString();
+
+        page.drawText(dateValue, {
+          x: left + 3,
+          y: yPosition,
+          size: fontSize,
+          color: rgb(0, 0, 0),
+        });
+      }
+    }
+  }
+
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+ const varName = `esignDoc-${documentData.document_title}`;
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${varName}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 
 
 if (!documentData) {
@@ -556,22 +798,53 @@ return (
 </div>
 <div className={`${documentStatusUser ? '' : 'templete-main-div-signer'} `}>
 
-
   <div className="templete-app text-xs">
       <div className='flex gap-3 mb-2'>
         <button 
-          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+          className="bg-[#283C42] text-white px-4 py-2 min-w-[5rem] max-w-[5rem] rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onClick={handlePreviousPage} disabled={currentPage === 0}>
           Previous
         </button>
         <h1 className='mt-2'>{currentPage + 1} / {datapdf.length}</h1>
         <button
-          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+          className="bg-[#283C42] text-white px-4 py-2 rounded border-2 min-w-[5rem] max-w-[5rem] border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onClick={handleNextPage}
           disabled={currentPage === datapdf.length - 1}
         >
           Next
         </button>
+          { isCompleted == 1 && (
+            <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2  border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+          onClick={mergeAndPrintPDF}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              height="1.7em"
+              width="1.7em"
+            >
+              <path d="M7 10a1 1 0 101 1 1 1 0 00-1-1zm12-4h-1V3a1 1 0 00-1-1H7a1 1 0 00-1 1v3H5a3 3 0 00-3 3v6a3 3 0 003 3h1v3a1 1 0 001 1h10a1 1 0 001-1v-3h1a3 3 0 003-3V9a3 3 0 00-3-3zM8 4h8v2H8zm8 16H8v-4h8zm4-5a1 1 0 01-1 1h-1v-1a1 1 0 00-1-1H7a1 1 0 00-1 1v1H5a1 1 0 01-1-1V9a1 1 0 011-1h14a1 1 0 011 1z" />
+            </svg>
+          </button>
+          )}
+
+          {documentStatusUser &&  isCompleted == 0 &&(
+              <button
+              className="bg-[#283C42] text-white px-4 py-2 cursor-not-allowed rounded border-2  border-transparent transition-colors duration-300"
+              disabled={currentPage === datapdf.length - 1}
+            >
+              <svg
+                data-name="Layer 1"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                height="1.7em"
+                width="1.7em"
+              >
+                <path d="M7 10a1 1 0 101 1 1 1 0 00-1-1zM3.71 2.29a1 1 0 00-1.42 1.42L4.62 6A3 3 0 002 9v6a3 3 0 003 3h1v3a1 1 0 001 1h10a1 1 0 001-1v-1.59l2.29 2.3a1 1 0 001.42 0 1 1 0 000-1.42zM6 15v1H5a1 1 0 01-1-1V9a1 1 0 011-1h1.59l6 6H7a1 1 0 00-1 1zm10 5H8v-4h6.59L16 17.41zm3-14h-1V3a1 1 0 00-1-1H8.66a1 1 0 000 2H16v2h-3.34a1 1 0 000 2H19a1 1 0 011 1v6a.37.37 0 010 .11 1 1 0 00.78 1.18h.2a1 1 0 001-.8A2.84 2.84 0 0022 15V9a3 3 0 00-3-3z" />
+              </svg>
+            </button>
+          )}
       </div>
   <div className="workspace" ref={workspaceRef} onClick={handleDeselect}>
     <PdfRenderer pdfData={datapdf[currentPage].data} />
@@ -672,7 +945,7 @@ return (
   <div className={`right-div-signer p-5 cursor-pointer ${documentStatusUser? "hidden":""}`}>
       <div className="w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden ">
       <button 
-  onClick={submitFinalDocument}
+  onClick={showConfirmModal}
   className="bg-[#283C42] text-white px-4 py-2 mb-4  border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
 >
   Submit
@@ -756,7 +1029,14 @@ return (
           </tbody>
         </table>
       </div>
-   
+      <ConfirmDeleteModal
+        visible={isModalVisible}
+        name={documentData.name} 
+        onCancel={handleCancel}
+        onConfirm={handleConfirm}
+        message={"Are you sure you want to submit this document? After That You Can't Change or Edit Document !"}
+        module={"Document Submit"}
+      />
 
 {/* <SignerInput/> */}
 

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { selectEmail } from '../../redux/selectors/userSelector';
 import dayjs from './helper/dayjsConfig';
 import { Modal } from 'antd';
-import 'antd/dist/reset.css'; 
+// import 'antd/dist/reset.css'; 
 
 import SentModal from './Sent/SentModal'
 

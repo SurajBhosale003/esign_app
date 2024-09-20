@@ -32,7 +32,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ visible, onCanc
             </svg>
           </div>
           <div className="confirm-delete-content">
-            <span className="confirm-delete-title">Delete {module}</span>
+            <span className="confirm-delete-title">{module}</span>
             <p className="confirm-delete-message">
             {message}
             </p>
