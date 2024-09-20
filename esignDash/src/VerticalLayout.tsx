@@ -8,7 +8,7 @@ const VerticalLayout = () => {
       <div className="w-4/10 p-4 dark:bg-gray-200">
         <Navbar_vertical />
       </div>
-      <div className="w-3/10 p-4">
+      <div className="w-3/10 p-4 overflow-hidden">
         <Outlet />
       </div>
    </div>

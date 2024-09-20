@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
                 <li key={item}>
                   {/* Uncomment and use Link from your routing library */}
                   {/* <Link href={`/${item.toLowerCase().replace(' ', '-')}`} className="hover:text-gray-300 transition-colors"> */}
-                    {item}
+                    {/* {item} */}
                   {/* </Link> */}
                 </li>
               ))}

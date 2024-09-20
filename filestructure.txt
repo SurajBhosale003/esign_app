@@ -47,6 +47,7 @@
             |-- pdfassets
             |-- tailwind.css
         |-- components
+            |-- ComingSoon.tsx
             |-- ConfirmDeleteModal.tsx
             |-- Footer.tsx
             |-- Navbar_horizontal.tsx

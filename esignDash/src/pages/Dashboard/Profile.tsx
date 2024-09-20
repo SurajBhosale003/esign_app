@@ -1,7 +1,7 @@
-
+import ComingSoon from "../../components/ComingSoon"
 function Profile() {
   return (
-    <div>Profile</div>
+     <ComingSoon/>
   )
 }
 
