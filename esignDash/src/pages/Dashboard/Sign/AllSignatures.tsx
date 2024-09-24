@@ -5,7 +5,7 @@ import { DeleteOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-desi
 import { Card } from 'antd';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal'; 
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 
 const { Meta } = Card;
 
@@ -43,7 +43,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [selectedSignature, setSelectedSignature] = useState<Signature | null>(null); // State to hold selected signature for deletion
+  const [selectedSignature, setSelectedSignature] = useState<Signature | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,7 +57,6 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         });
 
         const result: ApiResponse = await response.json();
-        // // console.log('API Response:', result);
 
         if (response.status === 200) {
           setSignatures(result.message.data);
@@ -75,30 +74,29 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
     if (email || refreshSignatures) { 
       fetchSignatures();
     }
-  }, [email, refreshSignatures]); // Added refreshSignatures to dependency array
+  }, [email, refreshSignatures]);
 
   const handleDelete = (signature: Signature) => {
-    setSelectedSignature(signature); // Set the selected signature for deletion
-    setIsModalVisible(true); // Show the confirmation modal
+    setSelectedSignature(signature);
+    setIsModalVisible(true);
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false); // Hide the confirmation modal
-    setSelectedSignature(null); // Clear the selected signature
+    setIsModalVisible(false);
+    setSelectedSignature(null);
   };
 
   const handleConfirm = async (name: string) => {
     if (selectedSignature) {
       try {
         const response = await fetch(`/api/method/esign_app.api.cancel_and_delete_esignature?user_mail=${email}&name=${name}`, {
-          method: 'POST', // or 'DELETE'
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
         const result: ApiDeleteResponse = await response.json();
-        // // console.log('Delete API Response:', result);
 
         if (result.message.status === 200) {
           toast.success('Deleted successfully', {
@@ -113,7 +111,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
             transition: Flip,
           });
           setSignatures(signatures.filter(sig => sig.name !== name));
-          setRefreshSignatures(true); // Trigger refresh after successful delete
+          setRefreshSignatures(true);
         } else {
           toast.error('Failed to delete signature', {
             position: "top-right",
@@ -142,8 +140,8 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         });
         console.error('Error deleting signature:', error);
       }
-      setIsModalVisible(false); // Hide the confirmation modal
-      setSelectedSignature(null); // Clear the selected signature
+      setIsModalVisible(false);
+      setSelectedSignature(null);
     }
   };
 
@@ -167,7 +165,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
   }
 
   return (
-    <div className="relative mt-6 min-w-[1000px] max-w-[1000px] mx-auto pl-10 pr-10">
+    <div className="relative mt-6 w-[70vw] mx-auto overflow-hidden">
       {signatures.length >= 3 && (
         <>
           <button
@@ -209,12 +207,13 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
           name={selectedSignature.name}
           onCancel={handleCancel}
           onConfirm={handleConfirm}
-          message={"You sure ? wanna delete the sign?"}
+          message={"You sure? Wanna delete the sign?"}
           module={"Signature"}
         />
       )}
     </div>
   );
-}
+};
 
 export default AllSignatures;
+ 

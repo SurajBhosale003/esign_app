@@ -15,7 +15,9 @@ export default {
     },
   },
   plugins: [
+    
     function({ addUtilities }) {
+      
       addUtilities({
         '.text-stroke': {
           '-webkit-text-stroke': '2px #283C42',

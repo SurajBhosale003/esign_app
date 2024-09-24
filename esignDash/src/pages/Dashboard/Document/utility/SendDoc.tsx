@@ -10,11 +10,12 @@ interface SendDocProps {
   template_tite: string;
   document_title: string;
   setTarget: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  onClickSaveDoc: () => void;
 }
 
 
 
-function SendDoc({ owner_email, assigned_user, template_tite, document_title , setTarget }: SendDocProps) {
+function SendDoc({ owner_email, assigned_user, template_tite, document_title , setTarget , onClickSaveDoc }: SendDocProps) {
   const [visible, setVisible] = useState<boolean>(false);
   const [emails, setEmails] = useState<{ [key: number]: { email: string; status: string } }>({});
   const [newEmail, setNewEmail] = useState<string>('');
@@ -69,8 +70,8 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
     setEmails(updatedEmails);
   };
   const sendDialogHandle = () => {
+    
     setTarget(null);
-    // // // console.log(emails);
     setVisible(true);
   };
   
@@ -96,6 +97,7 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
         const result = await response.json();
         // // console.log(result);
         if (result.message.status < 300) {
+          onClickSaveDoc()
           toast.success('Document Assigned Successfully', {
             position: "top-right",
             autoClose: 500,

@@ -77,7 +77,7 @@ function Signature() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' && (uploadedImage!=null || signatureData!==null)) {
         handleSaveSignatureInDB(); 
       }
     };
@@ -91,7 +91,7 @@ function Signature() {
 
 
   return (
-    <div className="max-w-lg mx-auto mt-8">
+    <div className=" mx-auto mt-8">
       <SignPad onSave={handleSaveSignature} onUpload={handleUploadImage} />
       {signatureData && (
         <div className="bg-gray-200 p-4 mt-4">

@@ -220,8 +220,8 @@ const Sent: React.FC = () => {
                       {mail.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{mail.documentTitle}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">{mail.subject}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap max-w-9">{mail.documentTitle}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate text-ellipsis overflow-hidden whitespace-nowrap ">{mail.subject}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {dayjs(mail.timestamp).format('DD/MM/YYYY')} ({dayjs(mail.timestamp).fromNow()})
                   </td>

@@ -889,7 +889,7 @@ return (
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
        onClick={handleSaveDocument}>Save Document</button>   
-        <SendDoc setTarget={setTarget} owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
+        <SendDoc setTarget={setTarget} onClickSaveDoc={handleSaveDocument} owner_email={documentData.owner_email} assigned_user={assignedUser.map(String)} template_tite={documentData.template_title} document_title = {documentData.name }/>
     </div>
     <div className="control-buttons-utilities gap-2 text-xs">
       {buttonConfigs.map(({ type, icon , title }) => (

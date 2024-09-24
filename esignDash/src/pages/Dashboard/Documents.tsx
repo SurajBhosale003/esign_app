@@ -19,7 +19,7 @@ interface Template {
 
 const { TabPane } = Tabs;
 function Documents() {
-
+  
   const [refreshTempletes, setRefreshTempletes] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
   const [currentTab, setCurrentTab] = useState('1');
@@ -85,6 +85,7 @@ function Documents() {
           theme: "dark",
           transition: Flip,
         });
+        clearFunctionModel();
         setRefreshTempletes((prev: boolean) => !prev); 
       } else {
         toast.error('Error while saving Document', {
@@ -103,6 +104,12 @@ function Documents() {
      
     }
   };
+
+  const clearFunctionModel = () =>{
+  setCurrentTab('1');
+  setTitle('');
+  setSelectedTemplate('');
+  }
 
   const nextTab = () => {
     if (currentTab === '1') {
