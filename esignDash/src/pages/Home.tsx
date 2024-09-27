@@ -3,6 +3,13 @@ import gsap from 'gsap';
 import SignImage from '../assets/HomePage/sign.jpg';
 import SignImage2 from '../assets/HomePage/sign2.jpg';
 import Footer from '../components/Footer'
+
+import signImg from '../assets/HeroModules/CardsSignature IMG.png'
+import documentImg from '../assets/HeroModules/Group 5DocumentsIMG.png'
+import sentImg from '../assets/HeroModules/Group 6sentIMG.png'
+import inboxImg from '../assets/HeroModules/Group 7InboxIMG.png'
+import tempImg from '../assets/HeroModules/Template ImagesTemplateIMG.png'
+
 function Home() {
   // const username = useSelector(selectFullName);
   // const email = useSelector(selectEmail);
@@ -31,11 +38,13 @@ function Home() {
   const items = Array.from({ length: 6 }, (_, index) => index + 1);
   return (
     <div className='overflow-hidden'>
+      {/* Home Page Big Text */}
       <div className="flex items-center justify-center">
         <span className="home-main-headline font-bold text-[170px] mt-20 text-[#283C42] hover:cursor-default">
           <span className=''>Document</span> <span className="text-[175px] font-bold text-white text-stroke">Sign</span>
         </span>
       </div>
+      {/* Cards */}
       <div>
         <div className="flex justify-between mt-15 mx-20">
           <div className="home-card-1 outline-dashed outline-2 outline-offset-2 m-20 mt-60 relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-96">
@@ -72,7 +81,90 @@ function Home() {
           
         </div>
       </div>
-      <div className=" cursor-default grid grid-cols-2 pl-[10rem] pr-[10rem]">
+{/* Sub Title */}
+<div className="flex items-center justify-center">
+  <span className="relative font-bold text-[150px] mb-10 hover:cursor-default">
+    {/* Top Layer: Shadow and Stroke Effect */}
+    <span className="absolute top-2 left-2 text-stroke text-shadow text-white">
+      MODULES
+    </span>
+    <span className="text-[#283C42]">MODULES</span>
+  </span>
+</div>
+
+{/* Sign Module */}
+<div className='w-full h-screen bg-[#283C42] grid grid-cols-2'>
+  <div className='flex justify-center items-center '>
+    <div className='bg-white rounded-[11px] shadowborderclass p-6  max-w-[75rem] w-[35rem] min-w-[35rem] '>
+      <h2 className='text-2xl font-bold mb-4 text-[#283C42]'>Signature</h2>
+      <p className='text-[#283C42]'>
+        The Signature Module allows users to store their signatures, which can be drawn directly or uploaded as a PNG. These signatures are saved for future use, enabling users to easily apply them when needed in documents. When a user is assigned to sign a document, their stored signature can be quickly accessed and used, streamlining the signing process.
+      </p>
+    </div>
+  </div>
+  <div className='flex justify-center items-center'>
+    <img src={signImg} alt='Center Image' className='max-w-full h-auto'/>
+  </div>
+</div>
+{/* Template Module */}
+<div className='w-full h-screen  grid grid-cols-2'>
+  <div className='flex justify-center items-center'>
+    <img src={tempImg} width={"600rem"} alt='Center Image' className='max-w-full h-auto'/>
+  </div>
+  <div className='flex justify-center items-center'>
+    <div className='bg-[#283C42] rounded-[11px] p-6 shadowborderclass  max-w-[75rem] w-[35rem] min-w-[35rem] '>
+      <h2 className='text-2xl font-bold mb-4 text-white'>Template</h2>
+      <p className='text-gray-300'>
+        The Template Module facilitates the creation of reusable document templates. Users can add components like Text, Signature, Checkbox, Date, and Image to a base PDF, which acts as the background. Components can either be assigned to specific users or left unassigned for later use. This feature helps in creating standardized documents, allowing users to simply modify components without needing to recreate the document each time.
+      </p>
+    </div>
+  </div>
+</div>
+{/* Document Module */}
+<div className='w-full h-screen bg-[#283C42] grid grid-cols-2'>
+  <div className='flex justify-center items-center'>
+    <div className='bg-white rounded-[11px] p-6 shadowborderclass  max-w-[75rem] w-[35rem] min-w-[35rem] '>
+      <h2 className='text-2xl font-bold mb-4 text-[#283C42]'>Document</h2>
+      <p className='text-[#283C42]'>
+       The Document Module allows users to create a document by selecting a template and customizing its components. These components can be edited without affecting the original template. Once the document is complete, users can send it via email, automatically notifying the assigned recipients. The document is updated as users input data and sign, making collaboration and tracking progress easier.
+      </p>
+    </div>
+  </div>
+  <div className='flex justify-center items-center'>
+    <img src={documentImg} width={"550rem"}  alt='Center Image' className='max-w-full h-auto'/>
+  </div>
+</div>
+{/* Sent Module */}
+<div className='w-full h-screen  grid grid-cols-2'>
+  <div className='flex justify-center items-center'>
+    <img src={sentImg} alt='Center Image' width={"600rem"}  className='max-w-full h-auto'/>
+  </div>
+  <div className='flex justify-center items-center'>
+    <div className='bg-[#283C42] rounded-[11px] p-6 shadowborderclass max-w-[75rem] w-[35rem] min-w-[35rem] '>
+      <h2 className='text-2xl font-bold mb-4 text-white'>Sent</h2>
+      <p className='text-gray-300'>
+        The Sent Module tracks all documents that have been sent and displays their current status: Unseen, Open, or Closed. Users can hover over each document to view the assigned components and track who has completed their tasks. The global status updates in real-time based on the progress of assigned users, providing a clear overview of the document’s completion.
+      </p>
+    </div>
+  </div>
+</div>
+{/* Inbox Module */}
+<div className='w-full h-screen bg-[#283C42] grid grid-cols-2'>
+  <div className='flex justify-center items-center'>
+    <div className='bg-white rounded-[11px] p-6 shadowborderclass max-w-[75rem] w-[35rem] min-w-[35rem] '>
+      <h2 className='text-2xl font-bold mb-4 text-[#283C42]'>Inbox</h2>
+      <p className='text-[#283C42]'>
+       The Inbox Module organizes documents assigned to the user by their status—Unseen (marked by a yellow dot), Open, or Closed. When a document is opened, the PDF appears on the left, and the corresponding input fields on the right. As users interact with the components, the document scrolls to the relevant sections. Once all inputs are completed, a preview mode and print option become available, ensuring smooth navigation and task completion.
+      </p>
+    </div>
+  </div>
+  <div className='flex justify-center items-center'>
+    <img src={inboxImg} alt='Center Image' width={"600rem"}  className='max-w-full h-auto'/>
+  </div>
+</div>
+
+      {/* About eSign */}
+      <div className="mt-[10rem] cursor-default grid grid-cols-2 pl-[10rem] pr-[10rem]">
 <div
   className="w-[30rem] h-[20rem] bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
 >
@@ -155,7 +247,6 @@ function Home() {
   By eliminating the need for physical paper, printing, and mailing, eSign solutions significantly cut operational costs. Additionally, reducing paper usage contributes to more environmentally sustainable business practices, while also lowering storage and archiving expenses.
   </p>
 </div>
-
     </div>
  <Footer/>
     </div>

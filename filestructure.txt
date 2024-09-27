@@ -31,9 +31,29 @@
             |-- AuthPage
                 |-- signup.jpg
             |-- Dexciss_logo.png
+            |-- HeroModules
+                |-- CardsSignature IMG.png
+                |-- Group 5DocumentsIMG.png
+                |-- Group 6sentIMG.png
+                |-- Group 7InboxIMG.png
+                |-- Template ImagesTemplateIMG.png
             |-- HomePage
                 |-- sign.jpg
                 |-- sign2.jpg
+            |-- TourImg
+                |-- imp
+                    |-- Screenshot from 2024-09-27 17-01-03.png
+                    |-- Screenshot from 2024-09-27 17-01-15.png
+                    |-- Screenshot from 2024-09-27 17-01-21.png
+                    |-- Screenshot from 2024-09-27 17-01-30.png
+                    |-- Screenshot from 2024-09-27 17-01-35.png
+                    |-- Screenshot from 2024-09-27 17-01-41.png
+                    |-- Screenshot from 2024-09-27 17-02-20.png
+                    |-- Screenshot from 2024-09-27 17-02-49.png
+                    |-- Screenshot from 2024-09-27 17-04-10.png
+                    |-- Screenshot from 2024-09-27 17-04-51.png
+                    |-- Screenshot from 2024-09-27 17-06-10.png
+                    |-- Screenshot from 2024-09-27 17-09-23.png
             |-- icons
                 |-- Sign_out_circle.png
                 |-- Sign_out_circle.svg
@@ -46,6 +66,8 @@
                 |-- templete.svg
             |-- pdfassets
             |-- tailwind.css
+            |-- video
+                |-- Tour-V0.1.webm
         |-- components
             |-- ComingSoon.tsx
             |-- ConfirmDeleteModal.tsx
