@@ -41,7 +41,9 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   };
 
   const handleTempleteNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempleteName(e.target.value);
+    const newValue = e.target.value;
+    const formattedValue = newValue.replace(/\s{2,}/g, ' ');
+    setTempleteName(formattedValue); 
     if (errorMessage) {
       setErrorMessage(null); // Clear error message on input change
     }

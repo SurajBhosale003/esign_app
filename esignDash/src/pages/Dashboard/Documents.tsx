@@ -59,9 +59,14 @@ function Documents() {
     setCurrentTab('1');
     setTitle('')
     setSelectedTemplate('')
-    setVisible(true)
+    setVisible(false);
   }
-
+  const openDialogBox = () =>{
+    setCurrentTab('1');
+    setTitle('')
+    setSelectedTemplate('')
+    setVisible(true);
+  }
   const saveTemplateDocument = async () => {
 
     setVisible(false)
@@ -118,6 +123,7 @@ function Documents() {
   setCurrentTab('1');
   setTitle('');
   setSelectedTemplate('');
+  setVisible(true);
   }
 
   const nextTab = () => {
@@ -217,7 +223,7 @@ if(visible)
     <>
       <div className="mb-5">
         <button
-          onClick={() =>  removeSelectedTemAndTitle()}
+          onClick={() =>  openDialogBox()}
           // onDoubleClick={() => setVisible(true)}
           className=" mt-2 mr-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
         >
@@ -248,12 +254,17 @@ if(visible)
             </span>
           }
           disabled key="1">
-            <input
-            className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-              placeholder="Enter Document Title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
+              <input
+              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                placeholder="Enter Document Title"
+                value={title}
+                onChange={e =>{
+                  const newValue = e.target.value;
+                  const formattedValue = newValue.replace(/\s{2,}/g, ' ');
+                  setTitle(formattedValue);
+                }
+                } 
+              />
             <div style={{ textAlign: 'right', marginTop: 20 }}>
               <button 
               className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"

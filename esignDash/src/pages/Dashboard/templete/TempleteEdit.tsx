@@ -952,7 +952,7 @@ return (
         type="date"
         value={new Date().toISOString().split('T')[0]}
         onChange={(e) => handleComponentChange(e, component.id)}
-        // readOnly
+        readOnly
         
       />
     )}
@@ -961,6 +961,7 @@ return (
         type="date"
         value={component.content || ''}
         onChange={(e) => handleComponentChange(e, component.id)}
+        readOnly
       />
     )}
     {component.type === 'v_text' && (

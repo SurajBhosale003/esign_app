@@ -12,9 +12,25 @@ function SignUp() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
+ 
   const handleSignUp = async () => {
-
+  
     try {
+      if(password==''|| password==null || password == undefined)
+        {
+          toast.error('Enter Password', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          return;
+        }
       const response = await fetch("/api/method/esign_app.api.create_user", {
         method: 'POST',
         headers: {
@@ -123,6 +139,21 @@ function SignUp() {
           return;
         }
 
+        if (data.message && data.message.message.includes("not a valid Email Address")) {
+          toast.error('Not a valid Email Address', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          return;
+        }
+
         if (data.message && data.message.message.includes("Capitalization doesn't help very much")) {
           toast.error('Use Special Symbols and Digits as well', {
             position: "top-right",
@@ -138,7 +169,7 @@ function SignUp() {
           return;
         }
         
-        if (data.message && data.message.message.includes("not a valid Email Address")) {
+        if (data.message && data.message.message.includes("Not a valid Email Address")) {
           toast.error('Enter valid Email', {
             position: "top-right",
             autoClose: 500,
@@ -152,6 +183,23 @@ function SignUp() {
           });
           return;
         }
+        console.log("----------> Before" , data.message)
+        if (data.message && data.message.message.includes("first_name") && data.message.status === 500) {
+          console.log("----------> Inside")
+          toast.error('Enter Username', {
+            position: "top-right",
+            autoClose: 500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+          });
+          return;
+        }
+        console.log("----------> After")
         
         
         
@@ -256,7 +304,12 @@ function SignUp() {
               className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                const formattedValue = newValue.replace(/[^a-zA-Z0-9@._]/g, '');
+                setEmail(formattedValue);
+            }}
+            
             />
           </div>
           <div className="mt-4">
