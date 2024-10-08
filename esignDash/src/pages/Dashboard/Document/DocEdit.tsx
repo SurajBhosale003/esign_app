@@ -63,7 +63,7 @@ const DocEdit = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(0);
   const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
-  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
+  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(BlankDatapdf);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
@@ -989,6 +989,7 @@ return (
         type="date"
         value={component.content || ''}
         onChange={(e) => handleComponentChange(e, component.id)}
+        readOnly
       />
     )}
     {component.type === 'live_date' && (
@@ -996,7 +997,7 @@ return (
         type="date"
         value={new Date().toISOString().split('T')[0]}
         onChange={(e) => handleComponentChange(e, component.id)}
-        // readOnly
+        readOnly
         
       />
     )}

@@ -1,7 +1,7 @@
-
+import ComingSoon from "../../components/ComingSoon"
 function Dashboard() {
   return (
-    <div>Dashboard</div>
+    <ComingSoon/>
   )
 }
 

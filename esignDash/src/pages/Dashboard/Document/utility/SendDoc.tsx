@@ -77,6 +77,8 @@ function SendDoc({ owner_email, assigned_user, template_tite, document_title , s
   
     const sendMail = async () => {
       setVisible(false)
+
+      
       const DocumentObj = {
         to: JSON.stringify(emails , null , 2) ,
         subject: mailTitle,

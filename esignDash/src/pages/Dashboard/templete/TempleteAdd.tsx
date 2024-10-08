@@ -21,6 +21,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [templeteName, setTempleteName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [buttonDisable, setButtonDisable] = useState<boolean>(false);
   const fullName = useSelector(selectFullName);
   const email = useSelector(selectEmail);
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   
 
   const saveTemplete = async () => {
+    setButtonDisable(true);
     if (!templeteName) {
       setErrorMessage("No value provided for templete name");
     } else if (templeteName.length < 4) {
@@ -98,7 +100,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
           setTempleteName(null);
           setModalVisible(false);
           setRefreshTempletes((prev: boolean) => !prev); 
-
+          setButtonDisable(false);
 
           handleEdit(result.message.data)
           
@@ -114,6 +116,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
             theme: "dark",
             transition: Flip,
           });
+          setButtonDisable(true);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -124,8 +127,13 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
   useEffect(() => {
     if(modalVisible){
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
-          saveTemplete(); 
+        if (event.key === 'Enter') 
+        {
+          if(buttonDisable == false)
+          {
+            setButtonDisable(true)
+            saveTemplete().then(() =>setButtonDisable(false))
+          }
         }
       };
       
@@ -154,6 +162,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
         footer={[
           <div key="footer-buttons" className="flex gap-2">
             <button
+            disabled={buttonDisable}
               key="save-button"
               onClick={saveTemplete}
               className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
@@ -161,6 +170,7 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
               Save
             </button>
             <button
+       
               key="cancel-button"
               className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#ca2424] hover:bg-white hover:text-[#ca2424] transition-colors duration-300"
               onClick={cancelModal}

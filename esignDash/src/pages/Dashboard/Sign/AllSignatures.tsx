@@ -190,7 +190,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
           <div key={index} className="inline-block">
             <Card
               style={{ width: 300 }}
-              cover={<img className='mt-10 h-30' alt={`Signature ${index}`} src={signature.sign_blob} />}
+              cover={<img className='mt-10 h-30' alt={`Signature ${index+1}`} src={signature.sign_blob} />}
               actions={[
                 <DeleteOutlined key="delete" onClick={() => handleDelete(signature)} />
               ]}

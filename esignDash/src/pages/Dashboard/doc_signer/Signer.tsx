@@ -4,10 +4,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 // import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
-import { PDFDocument, rgb } from 'pdf-lib';
+import { PDFDocument, rgb ,  } from 'pdf-lib';
 // Helper Custom ---
 import PdfRenderer from '../helper/pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
+import { BlankDatapdf } from '../helper/BlankPDF'
 import { ComponentData } from '../helper/Interface'
 import { splitPDF } from '../helper/GetPages';
 import { pdfToBase64 } from '../helper/PDFtoBase64';
@@ -69,7 +70,7 @@ const Signer = () => {
   const [emailData, setEmailData] = useState<EmailStatus | null>(null);
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(datapdfDemo);
+  const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(BlankDatapdf);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
@@ -629,12 +630,11 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
 };
 
 const mergeAndPrintPDF = async () => {
-  const pdfDoc = await PDFDocument.create(); // Create a new PDF document
-  
+  const pdfDoc = await PDFDocument.create();
   for (let i = 0; i < datapdf.length; i++) {
     const pdfBytes = base64ToUint8Array(datapdf[i].data);
     const pdfToMerge = await PDFDocument.load(pdfBytes);
-
+// Peg Segrt PDF
     const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
     pages.forEach(page => pdfDoc.addPage(page));
   }
@@ -741,6 +741,17 @@ const mergeAndPrintPDF = async () => {
       }
     }
   }
+//   pdfDoc.setMetadata({
+//     UserInfo: JSON.stringify(userInfo),
+//     Date: new Date().toISOString(), // You can add a timestamp as well
+// });
+
+pdfDoc.setTitle(`Document signed by eSign`);
+pdfDoc.setAuthor('Dexciss Technology');
+pdfDoc.setSubject('eSign');
+pdfDoc.setKeywords(['Dexciss Technology','eSign']);
+pdfDoc.setCreationDate(new Date());
+pdfDoc.setModificationDate(new Date());
 
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
