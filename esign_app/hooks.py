@@ -227,5 +227,20 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+# fixtures = [{
+#  'dt': 'Custom Field',
+#  'filters': {
+#    'name': ['in', (
+
+#    "Role Profile-esign",
+  
+#    )]
+#  }
+# }
+# ]
+fixtures = [{"dt":"Role Profile", "filters": [["name", "in",(
+			      "esign",
+		),]]} ,
+]
 
 website_route_rules = [{'from_route': '/esignDash/<path:app_path>', 'to_route': 'esignDash'},]
