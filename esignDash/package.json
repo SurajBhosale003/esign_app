@@ -22,6 +22,7 @@
     "base64-arraybuffer": "^1.0.2",
     "fontkit": "^2.0.2",
     "frappe-react-sdk": "^1.7.0",
+    "jose": "^5.9.4",
     "lodash": "^4.17.21",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^3.11.174",

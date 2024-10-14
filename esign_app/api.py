@@ -27,20 +27,35 @@ def create_user(fullName,password,email):
 # Signature API's_______________________________________________________________________________________________________________________________________________
 # ++++ Save Signature ++++++++++++
 @frappe.whitelist(allow_guest= True)
-def save_signature(signature_data, signature_name, user_full_name, user_email):
+def save_signature(
+    signature_data, signature_name, user_full_name, user_email, 
+    company_name, department, state, country_code, passphrase, 
+    password, public_key, private_key
+):
     try:
-        doc=frappe.get_doc({'doctype':'Esign_signature'})
-        doc.sign_blob=signature_data
-        doc.sign_name=signature_name
-        doc.user_name=user_full_name
-        doc.user_mail=user_email
-        # doc.insert()
+        doc = frappe.get_doc({
+            'doctype': 'Esign_signature',
+            'sign_blob': signature_data,
+            'sign_name': signature_name,
+            'user_name': user_full_name,
+            'user_mail': user_email,
+            'company_name': company_name,
+            'department': department,
+            'state': state,
+            'country_code': country_code,
+            'passphrase': passphrase,
+            'password': password,
+            'public_key': public_key,
+            'private_key': private_key
+        })
+        
         doc.save()
         doc.submit()
-        return {'status':200,'message':'Signature saved successfully'}
+        
+        return {'status': 200, 'message': 'Signature saved successfully'}
     except Exception as e:
-        return {'status':500,'message':str(e)}
-# ++++ Save Signature End ++++++++++++
+        return {'status': 500, 'message': str(e)}
+
 
 # ++++ Get Signature ++++++++++++
 @frappe.whitelist(allow_guest=True)

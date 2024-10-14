@@ -1060,3 +1060,19 @@ return (
 };
 
 export default Signer;
+/*
+
+Your Name
+Email
+
+Company Name:
+Department:
+State:
+Country:
+
+Password
+Verify Password
+Key Passphrase
+Verify Key Passphrase
+
+*/

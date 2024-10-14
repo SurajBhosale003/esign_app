@@ -7,11 +7,21 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_mjvq",
+  "amended_from",
+  "company_name",
+  "department",
+  "column_break_ojtd",
   "user_name",
   "user_mail",
+  "state",
+  "country_code",
+  "column_break_kwrs",
   "sign_name",
   "sign_blob",
-  "amended_from"
+  "passphrase",
+  "password",
+  "public_key",
+  "private_key"
  ],
  "fields": [
   {
@@ -48,12 +58,60 @@
    "fieldtype": "Link",
    "label": "User Email",
    "options": "User"
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Text",
+   "label": "Company Name"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Text",
+   "label": "Department"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Text",
+   "label": "State"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "passphrase",
+   "fieldtype": "Password",
+   "label": "Passphrase"
+  },
+  {
+   "fieldname": "column_break_ojtd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kwrs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "public_key",
+   "fieldtype": "Data",
+   "label": "Public Key"
+  },
+  {
+   "fieldname": "private_key",
+   "fieldtype": "Data",
+   "label": "Private Key"
+  },
+  {
+   "fieldname": "country_code",
+   "fieldtype": "Text",
+   "label": "Country Code"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-09-20 14:47:23.970197",
+ "modified": "2024-10-14 09:35:46.540546",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",
