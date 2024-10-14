@@ -94,12 +94,12 @@
   },
   {
    "fieldname": "public_key",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Public Key"
   },
   {
    "fieldname": "private_key",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Private Key"
   },
   {
@@ -111,7 +111,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-14 09:35:46.540546",
+ "modified": "2024-10-14 15:27:29.747967",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",

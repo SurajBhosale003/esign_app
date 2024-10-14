@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { KEYUTIL } from 'jsrsasign';
 import SignPad from './Sign/SignPad';
 import { selectFullName, selectEmail } from '../../redux/selectors/userSelector';
 import AllSignatures from './Sign/AllSignatures';
 import 'react-toastify/dist/ReactToastify.css';
 import {  toast ,Flip } from 'react-toastify';
+// import { validateSelfSignedCertificate , generateSelfSignedCertificate } from './helper/certificateGenerator';
 
 function Signature() {
   const [publicKey, setPublicKey] = useState<string | null>(null);
@@ -33,6 +35,20 @@ function Signature() {
 
   }
 
+  const generateKeys = async() => {
+    try {
+      console.log('Generating RSA keys...');
+
+      const keyPair = KEYUTIL.generateKeypair('RSA', 2048);
+      const publicKeyPem = KEYUTIL.getPEM(keyPair.pubKeyObj, 'PKCS8PUB');
+      const privateKeyPem = KEYUTIL.getPEM(keyPair.prvKeyObj, 'PKCS1PRV');
+      console.log('After RSA keys...');
+       setPublicKey(publicKeyPem);
+       setPrivateKey(privateKeyPem);
+    } catch (error) {
+      console.error('Error generating keys:', error);
+    }
+  };
   const handleSaveSignature = (dataUrl: string) => {
     setRefreshSignatures(false);
     setSignatureData(dataUrl);
@@ -49,6 +65,7 @@ function Signature() {
   };
 
   const handleSaveSignatureInDB = async () => {
+    generateKeys();
     if(signatureData=='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdYAAAD6CAYAAAAcA2ajAAAKHUlEQVR4Xu3VMQ0AAAzDsJU/6ZHI6QHoYU3KxzhEgQIAAAQKZwLIlQwQIECBAgMAJqycgQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQICKsfIECAAAECoYCwhpimCBAgQICAsPoBAgQIECAQCghriGmKAAECBAgIqx8gQIAAAQKhgLCGmKYIECBAgICw+gECBAgQIBAKCGuIaYoAAQIECAirHyBAgAABAqGAsIaYpggQIECAgLD6AQIECBAgEAoIa4hpigABAgQIPObGAPuo15IPAAAAAElFTkSuQmCC')
     {
       toast.error('Blank Sign-Pad', {
@@ -105,12 +122,14 @@ function Signature() {
       country_code : formData.country,
       passphrase : formData.keyPassphrase,
       password : formData.password,
-      public_key : "ghsaydgyiawgy&5792#",
-      private_key : "ahgsydwh%#$%9817",
+      public_key : publicKey,
+      private_key : privateKey,
     };
-    console.log(signatureObject)
-    console.log(formData)
-    // return;
+    // console.log(signatureObject)
+    // console.log(formData)
+    console.log('public key :',publicKey)
+    console.log('private key :',privateKey)
+    return;
     try {
       const response = await fetch('/api/method/esign_app.api.save_signature', {
         method: 'POST',

@@ -118,6 +118,7 @@
                     |-- PDFtoBase64.ts
                     |-- SignInput.tsx
                     |-- TemplateMaping.ts
+                    |-- certificateGenerator.ts
                     |-- color.css
                     |-- dayjsConfig.ts
                     |-- extractUniqueElements.ts
