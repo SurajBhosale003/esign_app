@@ -4,7 +4,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 // import back canva from "./pdfsb";  
 import Moveable from 'react-moveable';
-import { PDFDocument, rgb ,  } from 'pdf-lib';
+import { PDFDocument, rgb , StandardFonts  } from 'pdf-lib';
+import { PDFArray, PDFDict, PDFName, PDFString, PDFRef } from 'pdf-lib';
 // Helper Custom ---
 import PdfRenderer from '../helper/pdfsb/PdfRenderer';
 import { datapdfDemo } from '../helper/DataPDF'
@@ -511,10 +512,10 @@ const handleComponentChange = (e: React.ChangeEvent<HTMLInputElement>, id: numbe
 };
 
 
-const handleSelectSignComp = (SelectedDataUrl: string) => {
+const handleSelectSignComp = (SelectedDataUrl: string,SelectedPemCert:string) => {
   setComponents((prevComponents) =>
     prevComponents.map((component) =>
-      component.id === selectedId ? { ...component, content: SelectedDataUrl, value: SelectedDataUrl } : component
+      component.id === selectedId ? { ...component, content: SelectedDataUrl, value: SelectedDataUrl , cert_pem: SelectedPemCert } : component
     )
   );
   setTarget(null);
@@ -522,6 +523,7 @@ const handleSelectSignComp = (SelectedDataUrl: string) => {
   setSelectedComponent(null);
   // setSelectSignatureData(SelectedDataUrl);
   // console.log(selectSignatureData,"orrrrr",SelectedDataUrl);
+  console.log("________________________________\n",SelectedPemCert);
 };
 const handleModelSignComp = () => {
   setTarget(null);
@@ -631,6 +633,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
 
 const mergeAndPrintPDF = async () => {
   const pdfDoc = await PDFDocument.create();
+  const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
   for (let i = 0; i < datapdf.length; i++) {
     const pdfBytes = base64ToUint8Array(datapdf[i].data);
     const pdfToMerge = await PDFDocument.load(pdfBytes);
@@ -638,6 +641,23 @@ const mergeAndPrintPDF = async () => {
     const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
     pages.forEach(page => pdfDoc.addPage(page));
   }
+  // Solution 12th -------------------- ( close To solve but not solved ) ---------------------------
+  // pdfDoc.catalog.set(
+  //   PDFName.of('OutputIntent'),
+  //   pdfDoc.context.obj({
+  //     Type: PDFName.of('OutputIntent'),
+  //     S: PDFName.of('GTS_PDFA1'),
+  //     OutputConditionIdentifier: PDFString.of('sRGB'),
+  //     Info: PDFString.of('sRGB IEC61966-2.1'),
+  //   })
+  // );
+  // const metadata = pdfDoc.context.obj({
+  //   Type: PDFName.of('Metadata'),
+  //   Subtype: PDFName.of('XML'),
+  //   Length: Number(0),
+  // });
+  // pdfDoc.catalog.set(PDFName.of('Metadata'), metadata);
+  
 
   const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
     if (!acc[component.pageNo]) acc[component.pageNo] = [];
@@ -664,6 +684,7 @@ const mergeAndPrintPDF = async () => {
           color: rgb(0, 0, 0),
           lineHeight: fontSize * 1.2,
           maxWidth: component.size?.width ?? 0,
+          font: timesRomanFont,
         });
       } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
         const imageData = component.content.split(',')[1];
@@ -671,6 +692,45 @@ const mergeAndPrintPDF = async () => {
           console.error('Invalid image data');
           continue;
         }
+       
+  if (component.type === 'signature') {
+  const signerName = component.name || 'Unknown';
+  const signedAt = new Date().toISOString();
+
+  // Create the annotation contents with the PEM certificate
+  const annotationContents = PDFString.of(
+    `Certificate: ${component.cert_pem}\nSigner: ${signerName}\nSignedAt: ${signedAt}`
+  );
+
+  // Create a new annotation dictionary (PDF object)
+  const signatureAnnotation = pdfDoc.context.obj({
+    Type: PDFName.of('Annot'),
+    Subtype: PDFName.of('Widget'), // Mimicking a signature field
+    T: PDFString.of(`Signature_${pageIndex}_${component.name}`),
+    Contents: annotationContents,
+    Rect: [0, 0, 0, 0], // Invisible annotation (no visible rectangle)
+    P: page.ref, // Reference to the page
+    F: 4, 
+  });
+
+  let annots = page.node.lookup(PDFName.of('Annots')) as PDFArray | undefined;
+  if (!annots) {
+    annots = pdfDoc.context.obj([]) as PDFArray;
+    page.node.set(PDFName.of('Annots'), annots);
+  }
+
+  // Push the new annotation to the annotations array_________________________ Solution 15th
+  annots.push(signatureAnnotation);
+
+  page.node.set(PDFName.of('Group'), pdfDoc.context.obj({
+    Type: PDFName.of('Group'),
+    S: PDFName.of('Transparency'),
+    CS: PDFName.of('DeviceRGB'), // Correct blending color space
+  }));
+  console.log(`Certificate embedded as annotation for ${component.name}`);
+}
+
+        // const cert_pem_key
 
         const imageBytes = base64ToUint8Array(imageData);
         let embeddedImage;
@@ -683,7 +743,7 @@ const mergeAndPrintPDF = async () => {
           console.error('Unsupported image format');
           continue;
         }
-
+        
         const { width: imageWidth, height: imageHeight } = embeddedImage;
         const containerWidth = component.size?.width ?? 0;
         const containerHeight = component.size?.height ?? 0;
@@ -737,6 +797,7 @@ const mergeAndPrintPDF = async () => {
           y: yPosition,
           size: fontSize,
           color: rgb(0, 0, 0),
+          font: timesRomanFont,
         });
       }
     }
@@ -745,6 +806,29 @@ const mergeAndPrintPDF = async () => {
 //     UserInfo: JSON.stringify(userInfo),
 //     Date: new Date().toISOString(), // You can add a timestamp as well
 // });
+ // Set the trailer ID
+//  const id = [pdfDoc.context.obj('UUID1'), pdfDoc.context.obj('UUID2')]; // Replace with actual UUIDs
+//  pdfDoc.trailer.set(PDFName.of('ID'), pdfDoc.context.obj(id));
+  // pdfDoc.context.
+  // Setting OutputIntent
+  pdfDoc.catalog.set(
+    PDFName.of('OutputIntent'),
+    pdfDoc.context.obj({
+      Type: PDFName.of('OutputIntent'),
+      S: PDFName.of('GTS_PDFA1'),
+      OutputConditionIdentifier: PDFString.of('sRGB IEC61966-2.1'),
+      Info: PDFString.of('sRGB IEC61966-2.1'),
+    })
+  );
+
+  // Adding Metadata
+  const metadata = pdfDoc.context.obj({
+    Type: PDFName.of('Metadata'),
+    Subtype: PDFName.of('XML'),
+    Length: 0, // Set to the actual length of the metadata content if known
+  });
+  pdfDoc.catalog.set(PDFName.of('Metadata'), metadata);
+
 
 pdfDoc.setTitle(`Document signed by eSign`);
 pdfDoc.setAuthor('Dexciss Technology');

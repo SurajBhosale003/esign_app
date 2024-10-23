@@ -117,6 +117,7 @@
                     |-- Interface.ts
                     |-- PDFtoBase64.ts
                     |-- SignInput.tsx
+                    |-- SignedCertificate.ts
                     |-- TemplateMaping.ts
                     |-- certificateGenerator.ts
                     |-- color.css

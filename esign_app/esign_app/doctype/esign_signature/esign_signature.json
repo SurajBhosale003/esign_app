@@ -10,6 +10,7 @@
   "amended_from",
   "company_name",
   "department",
+  "certificate",
   "column_break_ojtd",
   "user_name",
   "user_mail",
@@ -18,10 +19,9 @@
   "column_break_kwrs",
   "sign_name",
   "sign_blob",
-  "passphrase",
-  "password",
   "public_key",
-  "private_key"
+  "private_key",
+  "cert_pem"
  ],
  "fields": [
   {
@@ -75,16 +75,6 @@
    "label": "State"
   },
   {
-   "fieldname": "password",
-   "fieldtype": "Password",
-   "label": "Password"
-  },
-  {
-   "fieldname": "passphrase",
-   "fieldtype": "Password",
-   "label": "Passphrase"
-  },
-  {
    "fieldname": "column_break_ojtd",
    "fieldtype": "Column Break"
   },
@@ -106,12 +96,22 @@
    "fieldname": "country_code",
    "fieldtype": "Text",
    "label": "Country Code"
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "JSON",
+   "label": "Certificate"
+  },
+  {
+   "fieldname": "cert_pem",
+   "fieldtype": "Long Text",
+   "label": "cert pem"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-14 15:27:29.747967",
+ "modified": "2024-10-16 12:10:55.716696",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",

@@ -16,6 +16,7 @@ interface Signature {
   user_mail: string;
   user_name: string;
   creation: string;
+  certificate: string | any;
 }
 
 interface ApiResponse {
@@ -57,6 +58,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
         });
 
         const result: ApiResponse = await response.json();
+        
 
         if (response.status === 200) {
           setSignatures(result.message.data);
@@ -196,7 +198,9 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
               ]}
             >
               <Meta title={signature.sign_name} description={new Date(signature.creation).toLocaleString()} />
+            
             </Card>
+            {/* {signature.certificate} */}
           </div>
         ))}
       </div>

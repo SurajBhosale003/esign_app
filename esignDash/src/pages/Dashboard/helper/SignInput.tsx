@@ -10,7 +10,7 @@ import { ToastContainer, toast ,Flip } from 'react-toastify';
 const { TabPane } = Tabs;
 
 interface SignatureSelectorProps {
-  onSelect: (SelectedDataUrl: string) => void; 
+  onSelect: (SelectedDataUrl: string , SelectedPemCert:string) => void; 
   onClickbtn: () => void;
 }
 interface Signature {
@@ -20,6 +20,8 @@ interface Signature {
   user_mail: string;
   user_name: string;
   creation: string;
+  cert: any;
+  cert_pem: string;
 }
 interface ApiResponse {
   status: number;
@@ -114,10 +116,9 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
         });
   
         const result: ApiResponse = await response.json();
-        // // console.log('API Response:', result);
-  
         if (response.status === 200) {
           setSignatures(result.message.data);
+          console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n",result.message.data);
         } else {
         }
       } catch (error) {
@@ -136,8 +137,8 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
   const closeModal = () => {
     setModalVisible(false);
   };
-  const handleSignatureClick = (signBlob: string) => {
-    onSelect(signBlob);  
+  const handleSignatureClick = (signBlob: string , SelectedPemCert:string) => {
+    onSelect(signBlob , SelectedPemCert);  
     closeModal();
   };
 
@@ -167,7 +168,7 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
             <div 
             key={index}
               className="card"
-              onClick={() => handleSignatureClick(signature.sign_blob)}
+              onClick={() => handleSignatureClick(signature.sign_blob ,signature.cert_pem )}
             >
               <img alt={`Signature ${index}`} src={signature.sign_blob}  className="card__image" />
               <div className="card__content">

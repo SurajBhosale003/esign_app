@@ -14,4 +14,6 @@ export interface ComponentData {
     fontSize?: number;
     assign?: string[];
     checked?: boolean;
+    cert?: string;
+    cert_pem?:string;
   }

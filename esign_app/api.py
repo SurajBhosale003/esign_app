@@ -29,10 +29,10 @@ def create_user(fullName,password,email):
 @frappe.whitelist(allow_guest= True)
 def save_signature(
     signature_data, signature_name, user_full_name, user_email, 
-    company_name, department, state, country_code, passphrase, 
-    password, public_key, private_key
+    company_name, department, state, country_code, public_key, private_key ,selfSigned_cert, cert_pem
 ):
     try:
+        cert = json.loads(selfSigned_cert)
         doc = frappe.get_doc({
             'doctype': 'Esign_signature',
             'sign_blob': signature_data,
@@ -43,10 +43,10 @@ def save_signature(
             'department': department,
             'state': state,
             'country_code': country_code,
-            'passphrase': passphrase,
-            'password': password,
             'public_key': public_key,
-            'private_key': private_key
+            'private_key': private_key,
+            'certificate': cert,
+            'cert_pem' : cert_pem
         })
         
         doc.save()
@@ -64,7 +64,7 @@ def get_signatures(user_mail):
         signatures = frappe.get_all(
             'Esign_signature',
             filters={'user_mail': user_mail},
-            fields=['name', 'sign_blob', 'sign_name', 'user_mail', 'user_name', 'creation']
+            fields=['name', 'sign_blob', 'sign_name', 'user_mail', 'user_name', 'creation', 'certificate','cert_pem']
         )
         return {'status': 200, 'data': signatures}
     except Exception as e:
