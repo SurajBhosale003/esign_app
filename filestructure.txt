@@ -214,42 +214,44 @@
             |-- NotoSansJP-Regular.otf
             |-- NotoSerifJP-Regular.otf
             |-- assets
-                |-- ButtonUtilities-BE1fDbF8.js
+                |-- BlankPDF-Ddv_LtDs.js
+                |-- ButtonUtilities-oFDmsWpm.js
                 |-- CardsSignature IMG-BQSy7hg3.png
-                |-- ConfirmDeleteModal-CU6XQCgQ.js
-                |-- Dashboard-CAa9lNV8.js
+                |-- ComingSoon-D_cFl2lr.js
+                |-- ConfirmDeleteModal-D1qqXaD9.js
+                |-- Dashboard-BweJaS5A.js
                 |-- Dexciss_logo-DBvTm4ob.png
+                |-- DocEdit-0Aecm2XR.js
                 |-- DocEdit-BY7Vp54_.css
-                |-- DocEdit-ByHAMhmJ.js
-                |-- Documents-Dqz44B-4.js
+                |-- Documents-DeY-onrN.js
                 |-- Group 5DocumentsIMG-Cd38Y1iH.png
                 |-- Group 6sentIMG-CW6eLmVP.png
                 |-- Group 7InboxIMG-CXRIKgGL.png
-                |-- Inbox-Bd8Gw_g3.js
-                |-- Login_Auth-B1-nZVnn.js
-                |-- PdfRenderer-Vnp3SLeS.js
-                |-- Profile-CYOnIOe7.js
-                |-- Sent-Uix5aqd6.js
-                |-- SignPad-C23qWZmz.js
-                |-- Signature-D1CZyPi1.js
-                |-- Signer-B5BGVa3g.js
+                |-- Inbox-VoEdsGm5.js
+                |-- Login_Auth-CQzpggxI.js
+                |-- Profile-iNBQu4dw.js
+                |-- Sent-BkX0_Ddo.js
+                |-- SignPad-BXJeiNDi.js
+                |-- Signature-tbD55Kj_.js
+                |-- Signer-B6IIcnMj.js
                 |-- Signer-BKBIE47W.css
-                |-- Signin_Auth-icO0AHj2.js
+                |-- Signin_Auth-BOmSeR-K.js
                 |-- Template ImagesTemplateIMG-DHgef6HD.png
-                |-- Templete-ng_L5o22.js
-                |-- TempleteDash-BXNEYrhB.js
-                |-- TempleteEdit-Bcj_7LrE.js
+                |-- Templete-BTRZUKcR.js
+                |-- TempleteDash-CkdOYmzg.js
+                |-- TempleteEdit-B98ZOlQX.js
                 |-- TempleteEdit-D_bpIU1j.css
-                |-- dayjsConfig-C_ACzzqD.js
-                |-- extractUniqueElements-BE9Ekn4P.js
-                |-- index-1dJBMb1S.js
-                |-- index-BbY9fkgA.js
-                |-- index-BlA-VN7q.js
-                |-- index-Bs8bVgtG.js
-                |-- index-C7CicfpT.css
-                |-- index-CwOAVtDj.js
+                |-- ___vite-browser-external_commonjs-proxy-D80mF6fv.js
+                |-- dayjsConfig-Bwel-uW4.js
+                |-- extractUniqueElements-Cb8tlYgU.js
+                |-- index-BsSPGaKC.js
+                |-- index-C6WT9_kl.js
+                |-- index-CxuabyUq.js
+                |-- index-DULrc8To.css
+                |-- index-Dm-DcEXU.js
+                |-- index-mMcdbbvq.js
                 |-- react-toastify-BTGsrsBX.css
-                |-- react-toastify.esm-C37bckj3.js
+                |-- react-toastify.esm-SEpWC5Jn.js
                 |-- sign-BgsH1KkZ.jpg
                 |-- sign2-D4mO_rwh.jpg
             |-- fonts
