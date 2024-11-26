@@ -10,7 +10,6 @@
   "amended_from",
   "company_name",
   "department",
-  "certificate",
   "column_break_ojtd",
   "user_name",
   "user_mail",
@@ -98,11 +97,6 @@
    "label": "Country Code"
   },
   {
-   "fieldname": "certificate",
-   "fieldtype": "JSON",
-   "label": "Certificate"
-  },
-  {
    "fieldname": "cert_pem",
    "fieldtype": "Long Text",
    "label": "cert pem"
@@ -111,7 +105,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-16 12:10:55.716696",
+ "modified": "2024-11-26 16:06:10.088796",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",

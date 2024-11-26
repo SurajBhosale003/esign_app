@@ -1,7 +1,14 @@
+import json 
+import base64
 import frappe
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
-import json 
+
+from datetime import datetime
+from OpenSSL import crypto
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 
 from datetime import datetime
 # ++++ Save or Create User ++++++++++++
@@ -26,13 +33,78 @@ def create_user(fullName,password,email):
 
 # Signature API's_______________________________________________________________________________________________________________________________________________
 # ++++ Save Signature ++++++++++++
-@frappe.whitelist(allow_guest= True)
+
+def generate_rsa_key_pair():
+    """
+    Generates an RSA private and public key pair.
+    """
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048
+    )
+
+    private_key_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+
+    public_key = private_key.public_key()
+    public_key_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+
+    return private_key_pem.decode('utf-8'), public_key_pem.decode('utf-8')
+
+def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name, company_name, country_code, state):
+    """
+    Generates a self-signed certificate using the provided private key and public key.
+    Signs the certificate using SHA-256.
+    """
+    # Load the private and public keys
+    private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key_pem.encode('utf-8'))
+    public_key = crypto.load_publickey(crypto.FILETYPE_PEM, public_key_pem.encode('utf-8'))
+
+    # Create a self-signed certificate
+    cert = crypto.X509()
+    cert.set_version(2)
+    cert.set_serial_number(1000)
+    cert.get_subject().CN = full_name
+    cert.get_subject().O = company_name
+    cert.get_subject().C = country_code
+    cert.get_subject().ST = state
+    cert.set_issuer(cert.get_subject())  # Self-signed, so issuer is the subject
+    cert.set_notBefore(b'20231126000000Z')  # Set to current date-time
+    cert.set_notAfter(b'20241226000000Z')  # One-year validity
+
+    cert.set_pubkey(public_key)
+
+    # Use SHA-256 to sign the certificate
+    cert.sign(private_key, 'sha256')
+
+    # Export the certificate in PEM format
+    cert_pem = crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode('utf-8')
+
+    return cert_pem
+@frappe.whitelist(allow_guest=True)
 def save_signature(
     signature_data, signature_name, user_full_name, user_email, 
-    company_name, department, state, country_code, public_key, private_key ,selfSigned_cert, cert_pem
+    company_name, department, state, country_code
 ):
     try:
-        cert = json.loads(selfSigned_cert)
+        # Generate RSA Key pair
+        private_key, public_key = generate_rsa_key_pair()
+        print("Generating RSA Key , Prv", private_key, "Pub", public_key)
+
+        # Generate a self-signed certificate using RSA and SHA-256
+        cert_pem = generate_self_signed_certificate(private_key, public_key, user_full_name, company_name, country_code, state)
+       
+        print("Cert:", cert_pem)
+
+        # Log document fields to ensure correct values
+        # print(f"Saving document with user_mail: {user_email}, certificate size: {len(cert_base64)} bytes")
+
         doc = frappe.get_doc({
             'doctype': 'Esign_signature',
             'sign_blob': signature_data,
@@ -45,15 +117,18 @@ def save_signature(
             'country_code': country_code,
             'public_key': public_key,
             'private_key': private_key,
-            'certificate': cert,
-            'cert_pem' : cert_pem
+            'cert_pem': cert_pem
         })
-        
+
+        # Ensure no null values or unexpected types are present
+        # print("Before saving the document: ", doc.as_dict())
+
         doc.save()
         doc.submit()
-        
+
         return {'status': 200, 'message': 'Signature saved successfully'}
     except Exception as e:
+        print("Exception:", e)
         return {'status': 500, 'message': str(e)}
 
 

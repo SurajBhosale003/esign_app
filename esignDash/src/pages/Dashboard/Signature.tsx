@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 // import { KEYUTIL } from 'jsrsasign';
-import { pki } from 'node-forge';
-import forge from 'node-forge';
+// import { pki } from 'node-forge';
+// import forge from 'node-forge';
 import SignPad from './Sign/SignPad';
 import { selectFullName, selectEmail } from '../../redux/selectors/userSelector';
 import AllSignatures from './Sign/AllSignatures';
@@ -11,23 +11,23 @@ import {  toast ,Flip } from 'react-toastify';
 import { CertificateSigned } from './helper/SignedCertificate'
 // import { validateSelfSignedCertificate , generateSelfSignedCertificate } from './helper/certificateGenerator';
 
-interface Keys {
-  publicKey: string | null;
-  privateKey: string | null;
-  certificate: CertificateSigned | null;
-  cert_pem : string | null;
-}
+// interface Keys {
+//   publicKey: string | null;
+//   privateKey: string | null;
+//   certificate: CertificateSigned | null;
+//   cert_pem : string | null;
+// }
 
 function Signature() {
-  const [publicKey, setPublicKey] = useState<string | null>(null);
-  const [privateKey, setPrivateKey] = useState<string | null>(null);
-  const [certificate, setCertificate] = useState<CertificateSigned | null>(null);
-  const [keys,setKeys] = useState<Keys | null>({
-    publicKey: null,
-    privateKey: null,
-    certificate: null,
-    cert_pem : null,
-  });
+  // const [publicKey, setPublicKey] = useState<string | null>(null);
+  // const [privateKey, setPrivateKey] = useState<string | null>(null);
+  // const [certificate, setCertificate] = useState<CertificateSigned | null>(null);
+  // const [keys,setKeys] = useState<Keys | null>({
+  //   publicKey: null,
+  //   privateKey: null,
+  //   certificate: null,
+  //   cert_pem : null,
+  // });
 
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -48,53 +48,53 @@ function Signature() {
     setSignName(null);
 
   }
-  useEffect(() => {
-    console.log("use effect for keys ran");
+  // useEffect(() => {
+  //   console.log("use effect for keys ran");
   
-    if (!keys?.publicKey) return;  
-    handleSaveSignatureInDB();
-  }, [keys]);
+  //   if (!keys?.publicKey) return;  
+  //   handleSaveSignatureInDB();
+  // }, [keys]);
   
 
-  const generateKeys = async () => {
-    try {
-      console.log('Generating RSA keys...');
-      const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
-      const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
-      const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
-      console.log('After RSA keys...');
-      const cert = forge.pki.createCertificate();
-      cert.publicKey = publicKey;
-      cert.serialNumber = String(Date.now()); 
-      cert.validFrom = new Date();
-      cert.validTo = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-      cert.setSubject([
-        { name: 'commonName', value: fullName },
-        { name: 'organizationName', value: formData.companyName },
-        { name: 'countryName', value: formData.country },
-        { name: 'emailAddress', value: email },
-        { name: 'stateOrProvinceName', value: formData.state }
-      ]);
-      const sha256 = forge.md.sha256.create();
-      cert.sign(privateKey, sha256);
+  // const generateKeys = async () => {
+  //   try {
+  //     console.log('Generating RSA keys...');
+  //     const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
+  //     const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+  //     const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
+  //     console.log('After RSA keys...');
+  //     const cert = forge.pki.createCertificate();
+  //     cert.publicKey = publicKey;
+  //     cert.serialNumber = String(Date.now()); 
+  //     cert.validFrom = new Date();
+  //     cert.validTo = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+  //     cert.setSubject([
+  //       { name: 'commonName', value: fullName },
+  //       { name: 'organizationName', value: formData.companyName },
+  //       { name: 'countryName', value: formData.country },
+  //       { name: 'emailAddress', value: email },
+  //       { name: 'stateOrProvinceName', value: formData.state }
+  //     ]);
+  //     const sha256 = forge.md.sha256.create();
+  //     cert.sign(privateKey, sha256);
 
-      const certPem = forge.pki.certificateToPem(cert);
-      console.log('Certificate PEM:', certPem);
-      // Set use State values 
-      console.log("\n Public",publicKeyPem,"\n Private" , privateKeyPem);
+  //     const certPem = forge.pki.certificateToPem(cert);
+  //     console.log('Certificate PEM:', certPem);
+  //     // Set use State values 
+  //     console.log("\n Public",publicKeyPem,"\n Private" , privateKeyPem);
       
-      // await setCertificate(cert);
-      // await setPublicKey(publicKeyPem);
-      // await setPrivateKey(privateKeyPem);
-      setKeys({ publicKey: publicKeyPem, privateKey: privateKeyPem, certificate: cert , cert_pem : certPem });
+  //     // await setCertificate(cert);
+  //     // await setPublicKey(publicKeyPem);
+  //     // await setPrivateKey(privateKeyPem);
+  //     setKeys({ publicKey: publicKeyPem, privateKey: privateKeyPem, certificate: cert , cert_pem : certPem });
 
 
-      console.log('Certificate generated successfully!');
+  //     console.log('Certificate generated successfully!');
       
-    } catch (error) {
-      console.error('Error generating keys:', error);
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Error generating keys:', error);
+  //   }
+  // };
 
   const handleSaveSignature = (dataUrl: string) => {
     setRefreshSignatures(false);
@@ -167,10 +167,10 @@ function Signature() {
       department : formData.department,
       state : formData.state,
       country_code : formData.country,
-      public_key : keys?.publicKey,
-      private_key : keys?.privateKey,
-      selfSigned_cert : JSON.stringify(keys?.certificate),
-      cert_pem : keys?.cert_pem,
+      // public_key : keys?.publicKey,
+      // private_key : keys?.privateKey,
+      // selfSigned_cert : JSON.stringify(keys?.certificate),
+      // cert_pem : keys?.cert_pem,
     };
     // console.log(signatureObject)
     // console.log(formData)
@@ -327,7 +327,7 @@ function Signature() {
                   onChange={handleSignatureInput}
                 />
                 <button
-                  onClick={generateKeys}
+                  onClick={handleSaveSignatureInDB}
                   className="bg-white text-[#283C42] px-4 py-2 rounded border-2 border-[#283C42] hover:bg-[#283C42] hover:text-white hover:border-transparent transition-colors duration-300"
                   >
                   Save Signature
