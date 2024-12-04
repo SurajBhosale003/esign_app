@@ -381,7 +381,7 @@ const submitFinalDocument = async () => {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      progress: undefined,
+      progress: undefined, 
       theme: "dark",
       transition: Flip,
     });
@@ -447,21 +447,21 @@ const sendToAPI = async (updatedData: EmailStatus) => {
   }
 };
 
-const logComponentData = () => {
-  const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
-    id,
-    type,
-    content,
-    pageNo,
-    value,
-    position,
-    size,
-    name,
-    fontSize,
-    assign,
-  }));
-  console.log(JSON.stringify(data, null, 2));
-};
+// const logComponentData = () => {
+//   const data = components.map(({ id, type, content,pageNo, value, position, size, name, fontSize, assign }) => ({
+//     id,
+//     type,
+//     content,
+//     pageNo,
+//     value,
+//     position,
+//     size,
+//     name,
+//     fontSize,
+//     assign,
+//   }));
+//   console.log(JSON.stringify(data, null, 2));
+// };
 
 const handlePreviousPage = () => {
   if (currentPage > 0) {
@@ -469,47 +469,47 @@ const handlePreviousPage = () => {
   }
 };
 
-const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setUserInput(e.target.value);
-};
+// const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//   setUserInput(e.target.value);
+// };
 
 
-const handleComponentChange = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
-  const { type, value, files } = e.target;
+// const handleComponentChange = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+//   const { type, value, files } = e.target;
 
-  setComponents(prevComponents =>
-    prevComponents.map(component => {
-      if (component.id !== id) return component;
+//   setComponents(prevComponents =>
+//     prevComponents.map(component => {
+//       if (component.id !== id) return component;
 
-      switch (component.type) {
-        case 'text':
-          return { ...component, content: value, value };
-        case 'image':
-        case 'v_image':
-          if (files && files[0]) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setComponents(prevComponents =>
-                prevComponents.map(c =>
-                  c.id === id ? { ...c, content: reader.result as string } : c
-                )
-              );
-            };
-            reader.readAsDataURL(files[0]);
-          }
-          return component;
-        case 'checkbox':
-          return { ...component, checked: e.target.checked };
-        case 'm_date':
-        case 'live_date':
-        case 'fix_date':
-          return { ...component, content: value };
-        default:
-          return component;
-      }
-    })
-  );
-};
+//       switch (component.type) {
+//         case 'text':
+//           return { ...component, content: value, value };
+//         case 'image':
+//         case 'v_image':
+//           if (files && files[0]) {
+//             const reader = new FileReader();
+//             reader.onloadend = () => {
+//               setComponents(prevComponents =>
+//                 prevComponents.map(c =>
+//                   c.id === id ? { ...c, content: reader.result as string } : c
+//                 )
+//               );
+//             };
+//             reader.readAsDataURL(files[0]);
+//           }
+//           return component;
+//         case 'checkbox':
+//           return { ...component, checked: e.target.checked };
+//         case 'm_date':
+//         case 'live_date':
+//         case 'fix_date':
+//           return { ...component, content: value };
+//         default:
+//           return component;
+//       }
+//     })
+//   );
+// };
 
 
 const handleSelectSignComp = (SelectedDataUrl: string,SelectedPemCert:string) => {
@@ -565,20 +565,20 @@ const handleDeselect = (e: React.MouseEvent) => {
   }
 };
 
-const changeTextSize = (increment: boolean) => {
-  if (selectedId !== null) {
-    setComponents((prevComponents) =>
-      prevComponents.map((component) =>
-        component.id === selectedId
-          ? {
-              ...component,
-              fontSize: (component.fontSize || 16) + (increment ? 2 : -2),
-            }
-          : component
-      )
-    );
-  }
-};
+// const changeTextSize = (increment: boolean) => {
+//   if (selectedId !== null) {
+//     setComponents((prevComponents) =>
+//       prevComponents.map((component) =>
+//         component.id === selectedId
+//           ? {
+//               ...component,
+//               fontSize: (component.fontSize || 16) + (increment ? 2 : -2),
+//             }
+//           : component
+//       )
+//     );
+//   }
+// };
 
 
 useEffect(() => {
@@ -630,6 +630,86 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
     reader.readAsDataURL(file);
   }
 };
+
+const printFromBackEnd = async () => {
+  const formData = {
+    components: JSON.stringify(components),
+    pages: JSON.stringify(datapdf),
+    private_key_pem: `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCUjwT+PHfQGSXS
+TWFIWn/JlwaLP1cuexz9nfydGNx6FcvP9OAKU+X83f0yCQ2diOknYrISlDxqncu1
+dmq8i9exEH84Dui6u5gI9gr8aXClpHu7/fD7hq1zvhGA39NiKxraANpbVM/FhW/9
+cV+6YTf3N99SUnp+3NoHTP0m4ogQV+PtgdrcT9sU59c+wLGv1raLURRATeekw7ea
+NbwfUeM957iJ7F+4idPVGvfbNkI3nB7oVZu11x5Hhlo2iZf/YhWkeh4rptfzi3Wh
+mCXMsV2XTJNC1D1DICSS/j6PJWSE9ViQ8sbM9YsFCPu97iHuRWFhItmbdBSWEYqU
+pHsbOd9zAgMBAAECggEAAyMJTXRUaVSmm6FeUlX1iHmuaIakCMtjtNKUW3LYxkvV
+27nFeKJbOF2C86laRr8ggTWQd1uhnPS2W59jqJXhWOVKx7xqMKCLw3YCjGA47Ikj
+ww1H0d/UTh3aJm5TeylYLfiXo8G6M2cFEtpv1YfTqTOI/SbYXFETL3/yK9MxC/tE
+Nq1hCCHzAXJ8sSfUhgb58C2qGG5fFuk/mXnVy+b4dAAaEbfFJfd++nkGjaIbZ+cz
+yCEIitJrt1hYVxdFMFHomQYHrCDWrbEF9hmW+BOKj6Rrgo3tFsrbVE8NDQ35ZCky
+Fwq/qp85g3ejZXM1PjeboO6iOmSNwjbEjkW2gUEGtQKBgQDH0q4Eq4nBhZktqxIl
+bxHQAXK6pe/p4NP/ytaTelYAPNiPWDRyx+AyCHWc7UvIjj3QOQ00ZnWbl9r46Jix
++CpZB6fVcBuEgPkQcEf2RM5m9wwhr4t/+Krg/PQ4EpLkKD3zPpls66jeB0xZQ0WQ
+wRuVbrRu4ZPmXpCVLE0Wi/PT/QKBgQC+UtUfsUFXbauwNdMNCOay9VyOraycEUNF
+eTUtMc6XEdpFUNO66s8CxcUD3E/YKRYYTAmJKOi7zMtpTUXpthxnX7/+xIOvOsJP
+piCJf9ZjpUfoYGw7SuZVh9j/SH3yQyPww0FyyR3JIuR23bQAP3lvGo6jRHnhy71+
+evH3FJ4ELwKBgQCOTatACCmCd/IuY7X4krDMwTtDUQkaNdLER1+oh2bXpH1VGCvB
+0jYHa57WsudVXHcI4phUyOLYe7ylpn+XvnPqE1mi1sPCCVdWLaAR8c5L5YPuOWXP
+LPgEYiBKDnAtq7ryj5ITz3/jHq9wokfYXq2WLdCxZlQ9qvqsQXBkriZmwQKBgCzQ
+BhyDOPZj/UPtOHdePCuw+A0kOXs52VQXWPz+OD1715/wixn8xadKd7wT+LzV17z6
+0lf4SOxHKTHvHuILnh58/hD3pmXw+OWWIR0e+5TUytydL366gQdsiBx7riQHyQOc
+heGIFzpPu+l9BC/2whn179Xjfqs6tLB+NFDQCvDDAoGAP7uSds3lR/MPOmPFedH0
+CFUgnk+/l59bw91NHjXG/uGmXC5vhgNzd9mqyS8yZsXxy0tGinaqNSVGFn7XbH1g
+e+NjGVrXHUlJKeAe0IFYNgRCodoF5WD5wqpjXrd6cxmnw8OjLwuPWqYrq7hlEeDM
+3IlGnTSCUgXEvkdqY0oH8sM=
+-----END PRIVATE KEY-----`,
+    certificate_pem: `-----BEGIN CERTIFICATE-----
+MIIDCjCCAfKgAwIBAgICA+gwDQYJKoZIhvcNAQELBQAwRjEZMBcGA1UEAwwQU3Vy
+YWogUi4gQmhvc2FsZTEQMA4GA1UECgwHU0JTQlNCUzELMAkGA1UEBhMCVVMxCjAI
+BgNVBAgMAVMwIhgPMjAyMzExMjYwMDAwMDBaGA8yMDI0MTIyNjAwMDAwMFowRjEZ
+MBcGA1UEAwwQU3VyYWogUi4gQmhvc2FsZTEQMA4GA1UECgwHU0JTQlNCUzELMAkG
+A1UEBhMCVVMxCjAIBgNVBAgMAVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQCUjwT+PHfQGSXSTWFIWn/JlwaLP1cuexz9nfydGNx6FcvP9OAKU+X83f0y
+CQ2diOknYrISlDxqncu1dmq8i9exEH84Dui6u5gI9gr8aXClpHu7/fD7hq1zvhGA
+39NiKxraANpbVM/FhW/9cV+6YTf3N99SUnp+3NoHTP0m4ogQV+PtgdrcT9sU59c+
+wLGv1raLURRATeekw7eaNbwfUeM957iJ7F+4idPVGvfbNkI3nB7oVZu11x5Hhlo2
+iZf/YhWkeh4rptfzi3WhmCXMsV2XTJNC1D1DICSS/j6PJWSE9ViQ8sbM9YsFCPu9
+7iHuRWFhItmbdBSWEYqUpHsbOd9zAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAC4I
+hjXX/Gg4eExxjTaCJSQ6eiamjZNOCRh6ZuAU8lpNBloB95RgjYHOcMN8TyhJgXLM
+1xXhUixTp5xhNyO/0k/AJiN4VS/str+hBShcqbd/Z6NPyV+qxoQbIEUIhEh2ORx6
+2Tuyq9Zl0sl23Tjk1Jb2923gUp2ftXnMtYSlk5eEIJoDv/KKAr7Rfw0mrNL+bTro
+bDCzzGF8EB/su8hDXkD+rg2sncI64LsGVwjDF2yb7Kuw0AXJYZXo9rg4xGl8yhiT
+piax3FWGhW6XlzbOzueu0ydzZxm3sdVSM/mPGQE+YP/AWqGkqg6Ho8NWG/vTZBY5
+QieTHQvF9azztycxwOc=
+-----END CERTIFICATE-----`,
+  };
+  
+  console.log('\n\n\n data: ' + JSON.stringify(formData) + '\n\n\n');
+
+  try {
+    const response = await fetch("/api/method/esign_app.api.generate_signed_pdf", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    console.log('\n\n\n\n data: -----', JSON.stringify(data));
+
+    if (data.signed_pdf) {
+      const blob = new Blob([atob(data.signed_pdf)], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+    } else {
+      console.error(data.error);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+  
+}
 
 const mergeAndPrintPDF = async () => {
   const pdfDoc = await PDFDocument.create();
@@ -909,6 +989,8 @@ return (
           Next
         </button>
           { isCompleted == 1 && (
+            <>
+            {/* Actual print Button */}
             <button
             className="bg-[#283C42] text-white px-4 py-2 rounded border-2  border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onClick={mergeAndPrintPDF}
@@ -922,6 +1004,12 @@ return (
               <path d="M7 10a1 1 0 101 1 1 1 0 00-1-1zm12-4h-1V3a1 1 0 00-1-1H7a1 1 0 00-1 1v3H5a3 3 0 00-3 3v6a3 3 0 003 3h1v3a1 1 0 001 1h10a1 1 0 001-1v-3h1a3 3 0 003-3V9a3 3 0 00-3-3zM8 4h8v2H8zm8 16H8v-4h8zm4-5a1 1 0 01-1 1h-1v-1a1 1 0 00-1-1H7a1 1 0 00-1 1v1H5a1 1 0 01-1-1V9a1 1 0 011-1h14a1 1 0 011 1z" />
             </svg>
           </button>
+            {/* trial Print button  */}
+
+            <button onClick={printFromBackEnd}>
+              click me 
+            </button>
+          </>
           )}
 
           {documentStatusUser &&  isCompleted == 0 &&(

@@ -1,6 +1,8 @@
 import json 
 import base64
 import frappe
+import io
+
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
 
@@ -10,7 +12,125 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
+
 from datetime import datetime
+
+# ++++ PDF Doc Creation and signing +++++++++++++++
+@frappe.whitelist(allow_guest=True)  # Expose as a Frappe API
+def generate_signed_pdf(components, pages, private_key_pem, certificate_pem):
+    """
+    Generate and sign a PDF using components, pages, and certificates.
+    """
+    print("inside generate_signed_pdf ")
+    try:
+        def base64_to_pdf(base64_str):
+            """Convert base64 string to binary PDF data."""
+            print("\n\n\n-------------> base64ToPDF : " + base64.b64encode(base64_str))
+            return base64.b64decode(base64_str)
+
+        def add_components_to_page(pdf_writer, page, components):
+            """Add components to a given page."""
+            packet = io.BytesIO()
+            can = canvas.Canvas(packet, pagesize=letter)
+            print("\n\n\n-------------> inside add components to page")
+            for component in components:
+                pos = component["position"]
+                top = pos["top"]
+                left = pos["left"]
+
+                if component["type"] == "text":
+                    can.setFont("Helvetica", component.get("fontSize", 12))
+                    can.drawString(left, letter[1] - top, component["content"])
+
+            can.save()
+            packet.seek(0)
+
+            # Overlay the canvas onto the page
+            overlay_pdf = PdfReader(packet)
+            overlay_page = overlay_pdf.pages[0]
+            page.merge_page(overlay_page)
+            print("\n\n\n-------------> Completed add component to page ")
+            pdf_writer.add_page(page)
+
+        def merge_pdfs_with_components(pages, components):
+            """Merge PDFs with components."""
+            pdf_writer = PdfWriter()
+            component_map = {int(comp["pageNo"]): [] for comp in components}
+            print("\n\n\n-------------> components " , component_map)
+            # print("\n\n\n-------------> page_data " , page_data)
+            for comp in components:
+                component_map[int(comp["pageNo"])].append(comp)
+
+            for page_data in pages:
+                pdf_bytes = base64_to_pdf(page_data["data"])
+                reader = PdfReader(io.BytesIO(pdf_bytes))
+                for page_no, page in enumerate(reader.pages, start=1):
+                    comps = component_map.get(page_no, [])
+                    add_components_to_page(pdf_writer, page, comps)
+
+            output_pdf = io.BytesIO()
+            print("\n\n\n-------------> Output Data : " , output_pdf)
+            pdf_writer.write(output_pdf)
+            return output_pdf.getvalue()
+
+        def sign_pdf(pdf_data, private_key_pem, certificate_pem):
+            """Digitally sign a PDF."""
+            timestamp = datetime.now().isoformat()
+            signed_pdf = io.BytesIO()
+
+            print("______________> Signed PDF in sign pdf function", signed_pdf)
+            # Load private key and certificate
+            private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key_pem)
+            certificate = crypto.load_certificate(crypto.FILETYPE_PEM, certificate_pem)
+
+            print('\n\n\n+++++++++++++++++++++ Private Key :', private_key)
+            print('\n\n\n+++++++++++++++++++++ Certificate :', certificate)
+
+            # Sign the PDF
+            writer = PdfWriter()
+            reader = PdfReader(io.BytesIO(pdf_data))
+
+            for page in reader.pages:
+                writer.add_page(page)
+
+            writer.add_metadata({
+                "Author": "Frappe Service",
+                "Title": "Digitally Signed PDF",
+                "Subject": "Signed Document",
+                "Producer": "PDF Generator",
+                "CreationDate": timestamp
+            })
+
+            # Add signature field
+            writer.write(signed_pdf)
+            return signed_pdf.getvalue()
+
+        # Parse input
+        components = frappe.parse_json(components)
+        pages = frappe.parse_json(pages)
+        print("\n\n\n-------------> pages main function " , pages)
+        print("\n\n\n-------------> components main function" , components)
+        # Merge the PDFs with components
+        merged_pdf = merge_pdfs_with_components(pages, components)
+
+        # Digitally sign the merged PDF
+        signed_pdf = sign_pdf(merged_pdf, private_key_pem, certificate_pem)
+        print('\n\n\n================================ signed pdf', sign_pdf)
+        # Return signed PDF as base64
+        signed_pdf_base64 = base64.b64encode(signed_pdf).decode()
+        print('\n\n\n================================ signed pdf 64 base :', signed_pdf_base64)
+        return {"signed_pdf": signed_pdf_base64}
+
+    except Exception as e:
+        print('\n\n\n================================ error', e)
+        frappe.log_error(f"Error in generate_signed_pdf: {str(e)}")
+        return {"error": str(e)}
+
+
 # ++++ Save or Create User ++++++++++++
 @frappe.whitelist(allow_guest= True)
 def create_user(fullName,password,email):
