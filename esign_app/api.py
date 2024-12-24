@@ -6,7 +6,7 @@ import io
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
 
-from datetime import datetime
+from datetime import datetime , timedelta
 from OpenSSL import crypto
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -185,7 +185,9 @@ def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name,
     # Load the private and public keys
     private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key_pem.encode('utf-8'))
     public_key = crypto.load_publickey(crypto.FILETYPE_PEM, public_key_pem.encode('utf-8'))
-
+    current_time = datetime.utcnow().strftime('%Y%m%d%H%M%SZ')
+    print("_________________--------------------------------> Current time : " , current_time)
+    one_year_later = (datetime.utcnow() + timedelta(days=365)).strftime('%Y%m%d%H%M%SZ')
     # Create a self-signed certificate
     cert = crypto.X509()
     cert.set_version(2)
@@ -195,8 +197,8 @@ def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name,
     cert.get_subject().C = country_code
     cert.get_subject().ST = state
     cert.set_issuer(cert.get_subject())  # Self-signed, so issuer is the subject
-    cert.set_notBefore(b'20231126000000Z')  # Set to current date-time
-    cert.set_notAfter(b'20241226000000Z')  # One-year validity
+    cert.set_notBefore(current_time.encode())  # Set to the current UTC date-time
+    cert.set_notAfter(one_year_later.encode())   # One-year validity
 
     cert.set_pubkey(public_key)
 
