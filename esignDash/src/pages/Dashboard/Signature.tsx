@@ -33,12 +33,12 @@ function Signature() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [signName, setSignName] = useState<string | null>(null);
   const [refreshSignatures, setRefreshSignatures] = useState<boolean>(false); 
-  const [formData, setFormData] = useState({
-    companyName: '',
-    department: '',
-    state: '',
-    country: '',
-  });
+  // const [formData, setFormData] = useState({
+  //   companyName: '',
+  //   department: '',
+  //   state: '',
+  //   country: '',
+  // });
   const fullName = useSelector(selectFullName);
   const email = useSelector(selectEmail);
 
@@ -101,10 +101,10 @@ function Signature() {
     setSignatureData(dataUrl);
     setUploadedImage(null); 
   };
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
-  };
+  // const handleInputChange = (e: any) => {
+  //   const { name, value } = e.target;
+  //   setFormData(prevData => ({ ...prevData, [name]: value }));
+  // };
   const handleSignatureInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const formattedValue = newValue.replace(/\s{2,}/g, ' ');
@@ -163,10 +163,10 @@ function Signature() {
       signature_name: signName,
       user_full_name: fullName,
       user_email: email,
-      company_name : formData.companyName,
-      department : formData.department,
-      state : formData.state,
-      country_code : formData.country,
+      // company_name : formData.companyName,
+      // department : formData.department,
+      // state : formData.state,
+      // country_code : formData.country,
       // public_key : keys?.publicKey,
       // private_key : keys?.privateKey,
       // selfSigned_cert : JSON.stringify(keys?.certificate),
@@ -241,7 +241,7 @@ function Signature() {
       <SignPad onSave={handleSaveSignature} onUpload={handleUploadImage} />
       
       { (signatureData || uploadedImage) && ( 
-        <div className="bg-gray-200 p-4 mt-4 flex flex-row">
+        <div className="bg-gray-200 p-4 mt-4 flex flex-col">
         {signatureData ? (
           <>
             <div>
@@ -269,7 +269,7 @@ function Signature() {
         ) : null}
       <div className='p-5'>
         <div>
-        <form className="grid grid-cols-2 gap-4">
+        {/* <form className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">Company Name</label>
             <input
@@ -315,7 +315,7 @@ function Signature() {
             />
           </div>
 
-        </form>
+        </form> */}
         </div>
 
               <div className="flex items-center space-x-2 mt-2 gap-1">

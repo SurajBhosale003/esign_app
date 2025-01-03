@@ -134,7 +134,7 @@ const TempleteAllList: React.FC<AllTempletesProps> = ({ refreshTempletes, setRef
   }
 
   return (
-    <div className="relative mt-6 min-w-[1000px] max-w-[1000px] mx-auto">
+<div className="relative mt-6 min-w-[1000px] max-w-[1000px] mx-auto">
  <div className="flex flex-wrap gap-5">
   {templetes.map((templete, index) => (
     <div key={index} className="relative flex w-[200px] h-[100px]">

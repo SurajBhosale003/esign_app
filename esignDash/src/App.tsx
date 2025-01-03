@@ -26,6 +26,7 @@ const Inbox = React.lazy(() => import('./pages/Dashboard/Inbox'));
 const Profile = React.lazy(() => import('./pages/Dashboard/Profile'));
 const Sent = React.lazy(() => import('./pages/Dashboard/Sent'));
 const Signature = React.lazy(() => import('./pages/Dashboard/Signature'));
+const OpenSSL = React.lazy(() => import('./pages/Dashboard/OpenSSL'));
 const Templete = React.lazy(() => import('./pages/Dashboard/Templete'));
 const DocEdit = React.lazy(() => import('./pages/Dashboard/Document/DocEdit'));
 const TempleteDash = React.lazy(() => import('./pages/Dashboard/TempleteDash'));
@@ -83,6 +84,7 @@ function App() {
     { path: '/profile', element: <ProtectedRoute element={<Profile />} /> },
     { path: '/sent', element: <ProtectedRoute element={<Sent />} /> },
     { path: '/signature', element: <ProtectedRoute element={<Signature />} /> },
+    { path: '/openssl', element: <ProtectedRoute element={<OpenSSL />} /> },
     { path: '/trialTemp', element: <ProtectedRoute element={<Templete />} /> },
     { path: '/templete', element: <ProtectedRoute element={<TempleteDash />} /> },
     { path: '/s1', element: <ProtectedRoute element={<Templete />} /> },

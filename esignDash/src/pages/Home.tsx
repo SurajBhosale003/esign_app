@@ -164,9 +164,9 @@ function Home() {
 </div>
 
       {/* About eSign */}
-      <div className="mt-[10rem] cursor-default grid grid-cols-2 pl-[10rem] pr-[10rem]">
+<div className="mt-[5rem] mb-[5rem] cursor-default grid grid-cols-2 pl-[10rem] pr-[10rem]">
 <div
-  className="w-[30rem] h-[20rem] bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
+  className="w-[30rem] h-[20rem] m-2 bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
 >
 
   <div className="fill-[#283C42] w-12">
@@ -187,7 +187,7 @@ function Home() {
 </div>
 
 <div
-  className="w-[30rem] h-[20rem] bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
+  className="w-[30rem] h-[20rem] m-2 bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
 >
 
   <div className="fill-[#283C42]  w-12">
@@ -209,7 +209,7 @@ function Home() {
 </div>
 
 <div
-  className="w-[30rem] h-[20rem] bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
+  className="w-[30rem] h-[20rem] m-2 bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
 >
 
   <div className="fill-[#283C42]  w-12">
@@ -229,7 +229,7 @@ function Home() {
 </div>
 
 <div
-  className="w-[30rem] h-[20rem] bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
+  className="w-[30rem] h-[20rem] m-2 bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-3 space-y-3 relative overflow-hidden"
 >
  
   <div className="fill-[#283C42]  w-12">

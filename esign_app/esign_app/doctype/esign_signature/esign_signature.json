@@ -7,20 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_mjvq",
-  "amended_from",
-  "company_name",
-  "department",
-  "column_break_ojtd",
   "user_name",
   "user_mail",
-  "state",
-  "country_code",
-  "column_break_kwrs",
+  "column_break_ojtd",
   "sign_name",
-  "sign_blob",
-  "public_key",
-  "private_key",
-  "cert_pem"
+  "column_break_kwrs",
+  "sign_blob"
  ],
  "fields": [
   {
@@ -31,16 +23,6 @@
    "fieldname": "sign_blob",
    "fieldtype": "Signature",
    "label": "Sign Blob"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Esign_signature",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
   },
   {
    "fieldname": "sign_name",
@@ -59,53 +41,18 @@
    "options": "User"
   },
   {
-   "fieldname": "company_name",
-   "fieldtype": "Text",
-   "label": "Company Name"
-  },
-  {
-   "fieldname": "department",
-   "fieldtype": "Text",
-   "label": "Department"
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Text",
-   "label": "State"
-  },
-  {
    "fieldname": "column_break_ojtd",
    "fieldtype": "Column Break"
   },
   {
    "fieldname": "column_break_kwrs",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "public_key",
-   "fieldtype": "Long Text",
-   "label": "Public Key"
-  },
-  {
-   "fieldname": "private_key",
-   "fieldtype": "Long Text",
-   "label": "Private Key"
-  },
-  {
-   "fieldname": "country_code",
-   "fieldtype": "Text",
-   "label": "Country Code"
-  },
-  {
-   "fieldname": "cert_pem",
-   "fieldtype": "Long Text",
-   "label": "cert pem"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-26 16:06:10.088796",
+ "modified": "2025-01-03 10:18:17.903990",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",

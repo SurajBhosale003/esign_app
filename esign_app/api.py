@@ -2,6 +2,7 @@ import json
 import base64
 import frappe
 import io
+import subprocess
 
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
@@ -151,8 +152,244 @@ def create_user(fullName,password,email):
         return {'status':500,'message':str(e)}
 # ++++ Save or Create User End ++++++++++++
 
+
+# ++++ Fetch OpenSSL List ++++++++++++
+@frappe.whitelist(allow_guest=True)
+def get_openssl_list(user_mail):
+    try:
+        openssl_list = frappe.get_all(
+            'openssl',
+            filters={'owner_email': user_mail},
+            fields=['name','openssl_name','country','openssl_name']
+        )
+        return {'status': 200, 'data': openssl_list}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+
 # Signature API's_______________________________________________________________________________________________________________________________________________
-# ++++ Save Signature ++++++++++++
+# ++++ Save Signature and SSL ++++++++++++
+
+def run_command(command):
+    """Execute a shell command and capture the output."""
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"Error running command: {command}")
+        print(result.stderr)
+        return None
+    return result.stdout.strip()
+
+def generate_private_key():
+    """Generate a private key"""
+    command = "openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048"
+    run_command(command)
+    with open("key.pem", "r") as f:
+        private_key = f.read()
+    return private_key
+
+def generate_openssl_conf(C, ST, L, O, CN):
+    """Generate openssl.conf content."""
+    openssl_conf = f"""
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+x509_extensions     = v3_req
+prompt              = no
+
+[ req_distinguished_name ]
+C  = {C}
+ST = {ST}
+L  = {L}
+O  = {O}
+CN = {CN}
+
+[ v3_req ]
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth, emailProtection, codeSigning
+"""
+    return openssl_conf
+
+def generate_self_signed_cert():
+    """Generate a self-signed certificate"""
+    command = "openssl req -x509 -new -key key.pem -out cert.pem -days 365 -config openssl.conf"
+    run_command(command)
+    with open("cert.pem", "r") as f:
+        cert = f.read()
+    return cert
+
+def generate_ca_key():
+    """Generate CA private key"""
+    command = "openssl genpkey -algorithm RSA -out ca_key.pem -pkeyopt rsa_keygen_bits:2048"
+    run_command(command)
+    with open("ca_key.pem", "r") as f:
+        ca_private_key = f.read()
+    return ca_private_key
+
+def generate_ca_cert(C, ST, L, O, CN, email):
+    """Generate CA certificate"""
+    command = f"openssl req -x509 -new -nodes -key ca_key.pem -sha256 -days 1024 -out ca_cert.pem -subj '/C={C}/ST={ST}/L={L}/O={O}/CN={CN}/emailAddress={email}'"
+    run_command(command)
+    with open("ca_cert.pem", "r") as f:
+        ca_cert = f.read()
+    return ca_cert
+
+def generate_csr(C, ST, L, O, CN, email):
+    """Generate CSR"""
+    command = f"openssl req -new -key key.pem -out csr.pem -subj '/C={C}/ST={ST}/L={L}/O={O}/CN={CN}/emailAddress={email}'"
+    run_command(command)
+    with open("csr.pem", "r") as f:
+        csr = f.read()
+    return csr
+
+def sign_csr_with_ca():
+    """Sign CSR with the CA"""
+    command = "openssl x509 -req -in csr.pem -CA ca_cert.pem -CAkey ca_key.pem -CAcreateserial -out cert.pem -days 365 -sha256"
+    run_command(command)
+    with open("cert.pem", "r") as f:
+        signed_cert = f.read()
+    return signed_cert
+
+# Save Keys
+def save_temp_files_to_variables():
+    """Save the content of temporary files to variables."""
+    temp_files = ["key.pem", "ca_key.pem", "ca_cert.pem", "cert.pem", "csr.pem", "openssl.conf"]
+    
+    # Dictionary to hold file contents
+    file_contents = {}
+    
+    for file in temp_files:
+        try:
+            with open(file, "r") as f:
+                file_contents[file] = f.read()  # Read file content and save it in the dictionary
+        except FileNotFoundError:
+            file_contents[file] = None  # If the file doesn't exist, set its value to None
+    
+    # Create separate variables for each file content
+    key_pem = file_contents["key.pem"]
+    ca_key_pem = file_contents["ca_key.pem"]
+    ca_cert_pem = file_contents["ca_cert.pem"]
+    cert_pem = file_contents["cert.pem"]
+    csr_pem = file_contents["csr.pem"]
+    openssl_conf = file_contents["openssl.conf"]
+    
+    # Return the variables as a dictionary for easy access
+    return {
+        "key_pem": key_pem,
+        "ca_key_pem": ca_key_pem,
+        "ca_cert_pem": ca_cert_pem,
+        "cert_pem": cert_pem,
+        "csr_pem": csr_pem,
+        "openssl_conf": openssl_conf,
+    }
+
+def cleanup_temp_files():
+    """Remove temporary files used for signing."""
+    temp_files = ["key.pem", "ca_key.pem", "ca_cert.pem", "cert.pem", "csr.pem", "openssl.conf"]
+    
+    file_data = save_temp_files_to_variables()
+    for var_name, content in file_data.items():
+        print(f"Content of {var_name}:")
+        print(content)
+
+    for file in temp_files:
+        command = f"rm -f {file}"  # -f ensures no error is raised if the file doesn't exist
+        run_command(command)
+
+@frappe.whitelist(allow_guest=True)
+def genrate_and_store_keys(country,state,location,organization,challenge_password,countryCode,username,email,openssl_name):
+    try:
+        C = countryCode
+        ST = state
+        L = location
+        O = organization
+        CN = username
+        eml = email
+        # challenge_password = "Pass123" 
+        generate_private_key()
+        # Step 2: Generate openssl.conf data
+        openssl_conf_content = generate_openssl_conf(C, ST, L, O, CN)
+        print("Generated openssl.conf content:\n", openssl_conf_content)
+        # Save the openssl.conf content to a file
+        with open("openssl.conf", "w") as f:
+            f.write(openssl_conf_content)
+        # Step 3: Generate the self-signed certificate
+        generate_self_signed_cert()
+        # Step 4: Generate CA private key
+        generate_ca_key()
+        # Step 5: Generate CA certificate
+        generate_ca_cert(C, ST, L, O, CN, eml)
+        # Step 6: Generate CSR
+        generate_csr(C, ST, L, O, CN, eml)
+        # Step 7: Sign the CSR with the CA
+        sign_csr_with_ca()
+        # Step 8: Regenerate self-signed cert (if needed)
+        generate_self_signed_cert()
+        # cleanup_temp_files()
+        file_data = save_temp_files_to_variables()
+        for var_name, content in file_data.items():
+            print(f"Content of {var_name}:")
+            print(content)
+        
+        print('\n+++++++++++++++++++++++++++++++++++++####')
+        # print('data ::::', file_data)
+        print('key_pem:', file_data["key_pem"])
+        print('ca_cert_pem:', file_data["ca_cert_pem"])
+        print('csr_pem:', file_data["csr_pem"])
+        print('owner_email:', email)
+        print('ca_key_pem:', file_data["ca_key_pem"])
+        print('cert_pem:', file_data["cert_pem"])
+        print('openssl_conf:', file_data["openssl_conf"])
+        print('+++++++++++++++++++++++++++++++++++++\n')
+        
+        doc1 = frappe.get_doc({
+            'doctype': 'openssl_keys',
+            'openssl_name': openssl_name,
+            'username': username,
+            'key_pem': file_data["key_pem"],  
+            'ca_cert_pem': file_data["ca_cert_pem"],
+            'csr_pem': file_data["csr_pem"],
+            'owner_email': email,
+            'ca_key_pem': file_data["ca_key_pem"],
+            'cert_pem': file_data["cert_pem"],
+            'openssl_conf': file_data["openssl_conf"],
+            })
+        # doc1 = frappe.get_doc({
+        #     'doctype': 'openssl_keys',
+        #     'openssl_name': openssl_name,
+        #     'username': username,
+        #     'key_pem': 'NA',  
+        #     'ca_cert_pem':'NA',
+        #     'csr_pem': 'NA',
+        #     'owner_email': 'NA',
+        #     'ca_key_pem': 'NA',
+        #     'cert_pem': 'NA',
+        #     'openssl_conf': 'NA',
+        #     })
+
+        doc1.save()
+        # doc1.submit()
+
+        doc = frappe.get_doc({
+            'doctype': 'openssl',
+            'country': country,
+            'country_code': countryCode,
+            'state': state,
+            'challenge_password': challenge_password,
+            'city': location,
+            'organization': organization,
+            'username': username,
+            'openssl_keys': '',
+            'owner_email': email,
+            'openssl_name': openssl_name
+        })
+        doc.save()
+
+      
+
+        return {'status': 200, 'message': 'SSL saved successfully'}
+    except Exception as e:
+        print("Exception:", e)
+        return {'status': 500, 'message': str(e) }
 
 def generate_rsa_key_pair():
     """
@@ -212,18 +449,10 @@ def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name,
 @frappe.whitelist(allow_guest=True)
 def save_signature(
     signature_data, signature_name, user_full_name, user_email, 
-    company_name, department, state, country_code
+    
 ):
     try:
         # Generate RSA Key pair
-        private_key, public_key = generate_rsa_key_pair()
-        print("Generating RSA Key , Prv", private_key, "Pub", public_key)
-
-        # Generate a self-signed certificate using RSA and SHA-256
-        cert_pem = generate_self_signed_certificate(private_key, public_key, user_full_name, company_name, country_code, state)
-       
-        print("Cert:", cert_pem)
-
         # Log document fields to ensure correct values
         # print(f"Saving document with user_mail: {user_email}, certificate size: {len(cert_base64)} bytes")
 
@@ -233,13 +462,7 @@ def save_signature(
             'sign_name': signature_name,
             'user_name': user_full_name,
             'user_mail': user_email,
-            'company_name': company_name,
-            'department': department,
-            'state': state,
-            'country_code': country_code,
-            'public_key': public_key,
-            'private_key': private_key,
-            'cert_pem': cert_pem
+
         })
 
         # Ensure no null values or unexpected types are present

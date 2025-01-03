@@ -1,4 +1,5 @@
 import React from 'react';
+import DexcissLogo from '../assets/Dexciss_logo.png';
 
 const Footer: React.FC = () => {
   return (
@@ -7,7 +8,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <img
-              src="https://www.dexciss.com/assets/new_dex_web/images/logo/dexciss_logo_dark.png"
+              src={DexcissLogo}
               alt="Dexciss Logo"
               width={150}
               height={50}

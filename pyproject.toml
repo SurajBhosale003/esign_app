@@ -12,8 +12,11 @@ dependencies = [
     "pypdf2",
     "reportlab",
     "pyopenssl",
-    "cryptography"
+    "cryptography",
+    "pyhanko",
+    "subprocess32"  # Optional for Python 2.7 or specific use cases
 ]
+
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
