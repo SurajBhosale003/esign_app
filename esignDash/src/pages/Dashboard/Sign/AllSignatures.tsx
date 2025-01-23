@@ -16,7 +16,6 @@ interface Signature {
   user_mail: string;
   user_name: string;
   creation: string;
-  certificate: string | any;
 }
 
 interface ApiResponse {

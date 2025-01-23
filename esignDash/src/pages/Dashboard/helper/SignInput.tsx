@@ -10,7 +10,7 @@ import { ToastContainer, toast ,Flip } from 'react-toastify';
 const { TabPane } = Tabs;
 
 interface SignatureSelectorProps {
-  onSelect: (SelectedDataUrl: string , SelectedPemCert:string) => void; 
+  onSelect: (SelectedDataUrl: string , SelectedPemCert:string ,OpenSSLName:string) => void; 
   onClickbtn: () => void;
 }
 interface Signature {
@@ -22,6 +22,7 @@ interface Signature {
   creation: string;
   cert: any;
   cert_pem: string;
+  openssl_name : string;
 }
 interface ApiResponse {
   status: number;
@@ -137,8 +138,8 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
   const closeModal = () => {
     setModalVisible(false);
   };
-  const handleSignatureClick = (signBlob: string , SelectedPemCert:string) => {
-    onSelect(signBlob , SelectedPemCert);  
+  const handleSignatureClick = (signBlob: string , SelectedPemCert:string, OpenSSLName:string) => {
+    onSelect(signBlob , SelectedPemCert,OpenSSLName);  
     closeModal();
   };
 
@@ -168,7 +169,7 @@ const SignInput: React.FC<SignatureSelectorProps> = ({ onSelect ,onClickbtn }:Si
             <div 
             key={index}
               className="card"
-              onClick={() => handleSignatureClick(signature.sign_blob ,signature.cert_pem )}
+              onClick={() => handleSignatureClick(signature.sign_blob ,signature.cert_pem,signature.openssl_name )}
             >
               <img alt={`Signature ${index}`} src={signature.sign_blob}  className="card__image" />
               <div className="card__content">

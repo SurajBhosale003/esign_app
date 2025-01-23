@@ -13,7 +13,7 @@ interface ConfirmDeleteModalProps {
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ visible, onCancel, onConfirm, name , message , module }) => {
   return (
     <Modal
-      title="Confirm Deletion"
+      title=""
       visible={visible}
       onCancel={onCancel}
       footer={null}

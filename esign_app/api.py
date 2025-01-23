@@ -3,6 +3,8 @@ import base64
 import frappe
 import io
 import subprocess
+import string
+import random
 
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
@@ -16,9 +18,100 @@ from cryptography.hazmat.primitives import serialization
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from bs4 import BeautifulSoup
 
 
-from datetime import datetime
+
+import tempfile
+import os
+from io import BytesIO
+from pyhanko.sign import signers
+from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
+
+
+# key1 = """-----BEGIN PRIVATE KEY-----
+# MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDT0juc+FLg9iuE
+# maXgoryoYXUSAFaOWtJPCMAiWePJyeSAITiSbC94GerixF8VtR2wgAZ4dtK87F18
+# Ecx0Hyq7fSUxu3+XP/d3pPi0HiSDNBwxgWR71OZ4fUmXSao2Rzn4SIlAzjsNj8Ru
+# eA1JbmKidpDc0u7+/ziWW/4O+9bmhF80xqtpu9HPjfk9oim6wGEHEXVjqvFmH1DE
+# CU2asVesJaopALCf1+MCtDPGMmhgmBc2igRc4wg325eURfs6vT54Jg5a8+od4K6k
+# LjIcdP/2i0juwZM6vqeETdskGmZ9k6u6BOSHC4bO5nPKnxtym78AaYK3Syvg3bXK
+# afbeQIhpAgMBAAECggEAFRMnNDxuvowvkz9YRiva2mPr6nEXK420vAFSYHiSFdsc
+# /XSQtNzHskrd2FcSYM4G2K88NZMY74wS1wvMTEdnkITohPSzQqCuJfzHc+BF4Ln4
+# DiLiFQH/NkC86Cz/nuviRCYvZb+/F1/U+uq94670aFaknhvshHlvL2KSufnrjT6y
+# 9smkCxUypRriiQ0h8Ae8BRlm/RjnY6PLtLuxN/azOLBJ2Md310M4aJYN+ipUYOX7
+# DJBWYeOWCtAwZvStSEkJju2U27T/Mh6PoJejh2jTa07UGXo5Rpg7CZQZA36x6HzX
+# xR5y617j5e4svWf1/cFGa02KWzMKsgyIU9kAF0nAywKBgQD032duXXdpz+gE8IpK
+# GxqrSO81GBDNQkiwUSH0fyoqG4QG4jQKQ8xYA0E5/0GYt8ue1eC/Ha0o4heRDmZ1
+# RNLVXJMQUw1ki6DH3xFInfJWGAbbEe2e7QmAooAA/K4k/ATeV7MjBrGst3HI23It
+# 9Mi/jLgVFftq+bzcLbxYU+cyVwKBgQDdclel7KIX2v9EYEP7xGiFH+97xoMih1Fm
+# u/3dtGmqjlqYEKB1BPFPXkj20uw8Tf54jXFObNAmf8kK2wbVaAO9a+9/xsXDL8D7
+# Mv5SuxhzQI+4YyBdkaDoYuhtmCHmVdnHwGs8D57/zwRG6gtJBQIfpIj7vqm5SF5M
+# TCk7/AjjPwKBgQDTOueI/51jrFGz+R8Bn/HYcVjPTwwnU5dKaSJGO2/O1N+F5JkJ
+# hcR+44fflL4sE9fVEyAFHH9jteyoV2iwngbUwD+oJEx4QC4YW+cX4g/Kjn1Telqk
+# 7kp1KTgMIevCwZcdiT9g5oRbvf6sSghrdi25dpTQs56mf/mXYOiItQ/JjwKBgQCZ
+# joFywF1CV4ztWCesPO0RayzA0s36MoVizPdkNoeTSnVNvzHVE2FV3RaReX9w7dCI
+# veQVMuU/3RqG2YyqjR8SyfbgzvAxwjp6tkifC7gPq3Q9sxctax9+JZ/w5y6Sr3N9
+# zVNO6bIixuW7Wu4Ka1umn4yRrQu6PJGPLLznKITtNwKBgQCdYK2atpr3uLpzyaqo
+# WbWMl+x06CzcU78kEUKJC1rXeUd7g90lo15Ql1/qOf2b8OdAzFkR9Dvc+HX4WKR3
+# 2RoasVx29BOiJbsM+KclpWBzGt9FS/9wwIn9yPj3GnAp6/EJimCh5IKl+Rs5AdGB
+# ferpM//1ngIeW1mHGrO/5I0hAg==
+# -----END PRIVATE KEY-----
+# """
+# cert1 = """-----BEGIN CERTIFICATE-----
+# MIIDnDCCAoSgAwIBAgIUVbES3hFQkDedBXinesbbc9ihHWswDQYJKoZIhvcNAQEL
+# BQAwVTELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYDVQQHDAZJc2xhbmQx
+# DTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJob3NhbGUwHhcNMjUw
+# MTAzMTIzNjUyWhcNMjYwMTAzMTIzNjUyWjBVMQswCQYDVQQGEwJWSTELMAkGA1UE
+# CAwCVkkxDzANBgNVBAcMBklzbGFuZDENMAsGA1UECgwEWmltbzEZMBcGA1UEAwwQ
+# U3VyYWogUi4gQmhvc2FsZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+# ANPSO5z4UuD2K4SZpeCivKhhdRIAVo5a0k8IwCJZ48nJ5IAhOJJsL3gZ6uLEXxW1
+# HbCABnh20rzsXXwRzHQfKrt9JTG7f5c/93ek+LQeJIM0HDGBZHvU5nh9SZdJqjZH
+# OfhIiUDOOw2PxG54DUluYqJ2kNzS7v7/OJZb/g771uaEXzTGq2m70c+N+T2iKbrA
+# YQcRdWOq8WYfUMQJTZqxV6wlqikAsJ/X4wK0M8YyaGCYFzaKBFzjCDfbl5RF+zq9
+# PngmDlrz6h3grqQuMhx0//aLSO7Bkzq+p4RN2yQaZn2Tq7oE5IcLhs7mc8qfG3Kb
+# vwBpgrdLK+Ddtcpp9t5AiGkCAwEAAaNkMGIwDgYDVR0PAQH/BAQDAgWgMDEGA1Ud
+# JQQqMCgGCCsGAQUFBwMBBggrBgEFBQcDAgYIKwYBBQUHAwQGCCsGAQUFBwMDMB0G
+# A1UdDgQWBBRJVDM2PYyXrO67oLcb/or1s5SxbzANBgkqhkiG9w0BAQsFAAOCAQEA
+# K2+hdQAg/1Y6cQ6Szt5hTSTsfCU+IGObnPjjc7SV+67FrIwPezejD1qnr0qMNqcU
+# /A2wn6AFrhtFn4eeNphRi3CPOnfexBsQk4VpEmI5/o27nqmsdzdlGRJt7eS02dS0
+# QM8v3uvKgt/iXJlyhVLqWUU3E8Oj5KgrYzoVVNcEaonkbY8zrZN6KD2DJXYQy3Kw
+# +jCDELwM/9qbeSrJidMaXY3GTRK3YPJPpHBsshjAE5Vlmg5hYFK4+FA8S8a40qdE
+# Oe3/xGoizj0xGnX9jRMoYI7R+ZMIRSLsPE2Ae5dsylM14VCWUWfrrv42jNuSgcbq
+# zmWeS/FKqvePw47+h4qPAQ==
+# -----END CERTIFICATE-----
+# """
+# ca_cert1 = """-----BEGIN CERTIFICATE-----
+# MIID1TCCAr2gAwIBAgIUIasTEjEQwnNCdrMwXdYBIaIuIeYwDQYJKoZIhvcNAQEL
+# BQAwejELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYDVQQHDAZJc2xhbmQx
+# DTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJob3NhbGUxIzAhBgkq
+# hkiG9w0BCQEWFHNiaG9zYWxlQGRleGNpc3MuY29tMB4XDTI1MDEwMzEyMzY1MloX
+# DTI3MTAyNDEyMzY1MlowejELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYD
+# VQQHDAZJc2xhbmQxDTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJo
+# b3NhbGUxIzAhBgkqhkiG9w0BCQEWFHNiaG9zYWxlQGRleGNpc3MuY29tMIIBIjAN
+# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzhCu9eOrMZ/T2uVwag3YUmdQi/Ds
+# 1voNm6Mkp19wBMqPyRG20kWf5KIigGOYTu5e9CZd9uPV1xjJYaWEHuw2lX9jR8aF
+# FPOniBUKjEKHfELPJjkmak8noXEoWkVuQQVHLzdXXlhLUP+7PSOVbnXahUqdWIfB
+# 7TiYIARuaxWdGPLHY1+gIhQvbLuLEKOSRcXpZGOfaKL3i78Co8zdavDhF0gYjcsP
+# YuhsKtzpDaCRcn/hKLi8NicD4JLrgq3ougZq4k4hP4eNEbnFM8BXi3SJup3s389D
+# XxKqFZ68eFfDqSnBv1XTEYPNOZ+8gMBjZT36PS1bjfy82W1zuXR8aRp7KQIDAQAB
+# o1MwUTAdBgNVHQ4EFgQUOKIAIn97HRq/wGJi8nvy1/bM6FcwHwYDVR0jBBgwFoAU
+# OKIAIn97HRq/wGJi8nvy1/bM6FcwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B
+# AQsFAAOCAQEAhvHPpAN8lKIdIR50tDeUc6oCDwkKJr2Krdxn1dQ3lD0UBGUFdPX9
+# zVqmGxQ4eGLj2+94o3m7Wvmiz9UIF9VSVRKK//HReS9GluE5vun34T5wFl+H9hpQ
+# iL52rtq/mV1qG6WT94jUEk4MrluX+zD0BzZtMWvOEDKks2cSzFXrSzhbqdKCcb1P
+# 2+JRXhBrjMJYGr7RFn/fch2n19s9cZ+CT5+jfK4WVi2kbRqAskHElRzYgs4ULqRg
+# PAmrlEIIpZnb3hjUFkn2dpbBKzjkG3gUXlS0PBKT+VFPQsCNBE2XBVFcQqsE8c1/
+# OCA9w/BtL04lmi9gUmaeYASRC95QVoQhYA==
+# -----END CERTIFICATE-----
+# """
+
+
+
+def generate_random_string():
+    random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
+    return f"Signature_Eisgn_{random_part}"
+
 
 # ++++ PDF Doc Creation and signing +++++++++++++++
 @frappe.whitelist(allow_guest=True)  # Expose as a Frappe API
@@ -160,7 +253,7 @@ def get_openssl_list(user_mail):
         openssl_list = frappe.get_all(
             'openssl',
             filters={'owner_email': user_mail},
-            fields=['name','openssl_name','country','openssl_name']
+            fields=['name','openssl_name','country']
         )
         return {'status': 200, 'data': openssl_list}
     except Exception as e:
@@ -168,6 +261,11 @@ def get_openssl_list(user_mail):
 
 
 # Signature API's_______________________________________________________________________________________________________________________________________________
+
+# ++++ OpenSSL List ++++++++++++
+
+
+
 # ++++ Save Signature and SSL ++++++++++++
 
 def run_command(command):
@@ -262,7 +360,7 @@ def save_temp_files_to_variables():
             with open(file, "r") as f:
                 file_contents[file] = f.read()  # Read file content and save it in the dictionary
         except FileNotFoundError:
-            file_contents[file] = None  # If the file doesn't exist, set its value to None
+            file_contents[file] = None  
     
     # Create separate variables for each file content
     key_pem = file_contents["key.pem"]
@@ -340,10 +438,11 @@ def genrate_and_store_keys(country,state,location,organization,challenge_passwor
         print('cert_pem:', file_data["cert_pem"])
         print('openssl_conf:', file_data["openssl_conf"])
         print('+++++++++++++++++++++++++++++++++++++\n')
-        
+        UTC_time = datetime.utcnow().strftime('%Y%m%d%H%M%SZ')
+        openssl_name_with_timestamp = f"{openssl_name}_{UTC_time}"
         doc1 = frappe.get_doc({
             'doctype': 'openssl_keys',
-            'openssl_name': openssl_name,
+            'openssl_name': openssl_name_with_timestamp,
             'username': username,
             'key_pem': file_data["key_pem"],  
             'ca_cert_pem': file_data["ca_cert_pem"],
@@ -380,7 +479,7 @@ def genrate_and_store_keys(country,state,location,organization,challenge_passwor
             'username': username,
             'openssl_keys': '',
             'owner_email': email,
-            'openssl_name': openssl_name
+            'openssl_name': openssl_name_with_timestamp
         })
         doc.save()
 
@@ -448,7 +547,7 @@ def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name,
     return cert_pem
 @frappe.whitelist(allow_guest=True)
 def save_signature(
-    signature_data, signature_name, user_full_name, user_email, 
+    signature_data, signature_name, user_full_name, user_email,openssl_name,expiry_date
     
 ):
     try:
@@ -462,7 +561,8 @@ def save_signature(
             'sign_name': signature_name,
             'user_name': user_full_name,
             'user_mail': user_email,
-
+            'expiry_date':expiry_date,
+            'openssl_name':openssl_name
         })
 
         # Ensure no null values or unexpected types are present
@@ -484,7 +584,7 @@ def get_signatures(user_mail):
         signatures = frappe.get_all(
             'Esign_signature',
             filters={'user_mail': user_mail},
-            fields=['name', 'sign_blob', 'sign_name', 'user_mail', 'user_name', 'creation', 'certificate','cert_pem']
+            fields=['name', 'sign_blob', 'sign_name', 'user_mail', 'user_name', 'creation','openssl_name']
         )
         return {'status': 200, 'data': signatures}
     except Exception as e:
@@ -827,7 +927,8 @@ def get_assigned_users_list_check(user_document_name):
         document = frappe.get_doc('DocumentList', user_document_name)
         doc_data = {
             'assigned_users': document.assigned_users,
-            'iscompleted': document.iscompleted
+            'iscompleted': document.iscompleted,
+            'opensslusedlist': document.opensslusedlist
         }
         
         return {'status': 200, 'data': doc_data}
@@ -847,16 +948,47 @@ def update_document_status_confirm(user_document_name):
         return {'status': 500, 'message': str(e)}
 
 
+def create_temp_file(content):
+    """Create a temporary file with the given content and return its file path."""
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    with open(temp_file.name, 'w') as f:
+        f.write(content)
+    return temp_file.name
+
+def load_signer_from_variables(key_data, cert_data, ca_data=None):
+    """Load the signer using key, cert, and optional CA data from variables."""
+    # Create temporary files for the key, certificate, and CA chain
+    key_file = create_temp_file(key_data)
+    cert_file = create_temp_file(cert_data)
+    ca_file = create_temp_file(ca_data) if ca_data else None
+    
+    # Load the signer using the created temporary files
+    signer = signers.SimpleSigner.load(
+        key_file=key_file,
+        cert_file=cert_file,
+        ca_chain_files=(ca_file,) if ca_file else ()
+    )
+
+    # Cleanup the temporary files
+    os.remove(key_file)
+    os.remove(cert_file)
+    if ca_file:
+        os.remove(ca_file)
+    
+    return signer
+
+
 # Finl Doc Confirmation 
 @frappe.whitelist(allow_guest=True)
-def submit_final_document(document_title,document_json_data):
+def submit_final_document(document_title,document_json_data,opensslusedlist):
     try:
         # Parse JSON data
         document_json_data1 = json.loads(document_json_data)
+        Document_openSSLName1 = json.dumps(opensslusedlist)
         print("Document data __________________",document_json_data1)
         doc = frappe.get_doc("DocumentList", document_title)
         doc.document_json_data = document_json_data
-     
+        doc.opensslusedlist = Document_openSSLName1
         message = 'Document completed successfully'
         doc.save()
         return {'status': 200, 'message': message}
@@ -864,3 +996,366 @@ def submit_final_document(document_title,document_json_data):
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # ++++ Save/Update Template End ++++++++++++
+@frappe.whitelist(allow_guest=True)
+def mergeAndPrintSave(document_title,validated_pdf):
+    soup = BeautifulSoup(validated_pdf, "html.parser")
+    beautified_html = soup.prettify() 
+    print(beautified_html)
+    try:
+        doc = frappe.get_doc("DocumentList", document_title)
+        doc.validated_pdf = beautified_html
+        doc.ismerged = True
+        doc.save()
+        frappe.db.commit()
+        return {'status': 200, 'message': 'Document saved successfully.'}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
+
+def get_merged_pdf_base64(document_name):
+    try:
+        # Fetching the document list
+        Merged = frappe.get_all(
+            'DocumentList',
+            filters={'name': document_name},
+            fields=['validated_pdf']
+        )
+        # Ensure the result is not empty and contains the expected field
+        if Merged and isinstance(Merged, list) and 'validated_pdf' in Merged[0]:
+            return Merged[0]['validated_pdf']  # Return only the base64 string
+
+        # Return an error message if the structure is not as expected
+        return None  # Or return a custom error message
+    except Exception as e:
+        # Handle and return the exception details
+        return {'status': 500, 'message': str(e)}
+
+
+def get_assigned_users_OPENSSL(document_name):
+    try:
+        # Fetching the document list
+        OpenSSLList = frappe.get_all(
+            'DocumentList',
+            filters={'name': document_name},
+            fields=['opensslusedlist']
+        )
+
+        # Extracting the list of OpenSSL data names
+        if OpenSSLList:
+            openssl_data_list = []
+            for item in OpenSSLList:
+                # Parsing the JSON string from the response
+                openssl_used_list = json.loads(item['opensslusedlist'])
+                
+                # Extracting the entire 'name' and adding them to the result list
+                for entry in openssl_used_list:
+                    openssl_data_list.append(entry['name'])
+            
+            return openssl_data_list
+        else:
+            return []
+
+    except Exception as e:
+        # Handle and return the exception details
+        return {'status': 500, 'message': str(e)}
+
+def get_OpenSSL_Name(OpenSSlname):
+    try:
+        # Fetching the document list
+        Name = frappe.get_all(
+            'openssl',
+            filters={'name': OpenSSlname},
+            fields=['openssl_name']
+        )
+        openssl_name_value = Name[0]['openssl_name'] if Name else None
+        OpenSSLKeys = get_OpenSSL_keys(openssl_name_value)
+        return OpenSSLKeys  
+    except Exception as e:
+        # Handle and return the exception details
+        return {'status': 500, 'message': str(e)}
+
+def get_OpenSSL_keys(SSLname):
+    try:
+        OpenSSLKeys = frappe.get_all(
+            'openssl_keys',
+            filters={'openssl_name':SSLname},
+            fields=['key_pem','cert_pem','ca_cert_pem']
+        )
+        return OpenSSLKeys  
+    except Exception as e:
+        # Handle and return the exception details
+        return {'status': 500, 'message': str(e)}
+
+def split_pdf(base64_pdf):
+    """
+    Splits a base64 encoded PDF into individual pages and returns an array of base64 strings for each page.
+    
+    :param base64_pdf: The base64 encoded PDF.
+    :return: A list of dictionaries containing page numbers and base64 data.
+    """
+    try:
+        # Decode the base64 PDF
+        pdf_bytes = base64.b64decode(base64_pdf)
+        pdf_reader = PdfReader(BytesIO(pdf_bytes))
+        page_count = len(pdf_reader.pages)
+
+        # List to hold the split pages' base64 data
+        pages_base64 = []
+
+        for i in range(page_count):
+            # Create a new PDF writer for the current page
+            pdf_writer = PdfWriter()
+            pdf_writer.add_page(pdf_reader.pages[i])
+
+            # Write the single page PDF to a bytes buffer
+            pdf_buffer = BytesIO()
+            pdf_writer.write(pdf_buffer)
+            pdf_buffer.seek(0)
+
+            # Encode the single page PDF back to base64
+            new_pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+
+            # Append the page data to the list
+            pages_base64.append({"page": i, "data": new_pdf_base64})
+
+        return pages_base64
+
+    except Exception as e:
+        # Handle errors and return an empty list
+        print(f"Error splitting PDF: {str(e)}")
+        return []
+
+def format_keys_data(keys_data_raw):
+    keys = []
+    certs = []
+    ca_certs = []
+    
+    for data in keys_data_raw:
+        keys.append(data['key_pem'])
+        certs.append(data['cert_pem'])
+        ca_certs.append(data['ca_cert_pem'])
+    
+    return "\n".join(keys).strip(), "\n".join(certs).strip(), "\n".join(ca_certs).strip()
+
+
+def process_and_merge_pages(Merged_PDF_data):
+    """
+    Process and merge the pages from the provided base64 data.
+    Returns the merged PDF buffer.
+    """
+    merged_pdf_buffer = BytesIO()
+    writer = PdfWriter()
+
+    try:
+        for page_entry in Merged_PDF_data:
+            page_number = page_entry.get("page")
+            page_data_base64 = page_entry.get("data")
+
+            if not page_data_base64:
+                raise ValueError(f"Page {page_number} is missing base64 data.")
+
+            # Decode the base64 data to binary PDF
+            try:
+                page_data = base64.b64decode(page_data_base64)
+            except Exception as e:
+                raise ValueError(f"Invalid base64 data for page {page_number}.") from e
+
+            # Validate the page PDF
+            try:
+                page_reader = PdfReader(BytesIO(page_data))
+                if len(page_reader.pages) != 1:
+                    raise ValueError(f"Page {page_number} does not contain exactly one page.")
+                writer.add_page(page_reader.pages[0])  # Add the page to the merged PDF
+            except Exception as e:
+                raise ValueError(f"Failed to process page {page_number}: {str(e)}") from e
+
+        # Write all merged pages to a single PDF buffer
+        writer.write(merged_pdf_buffer)
+        merged_pdf_buffer.seek(0)
+
+    except Exception as e:
+        raise RuntimeError("Failed to merge and validate pages.") from e
+
+    return merged_pdf_buffer
+
+
+def sign_merged_pdf(merged_pdf_buffer, keys, certs, ca_certs):
+    """
+    Sign the merged PDF and return the signed PDF as a base64-encoded string.
+    """
+    try:
+        signer = load_signer_from_variables(keys, certs, ca_certs)
+    except Exception as e:
+        raise RuntimeError("Failed to load signing credentials.") from e
+
+    try:
+        signed_pdf_buffer = BytesIO()
+        reader = IncrementalPdfFileWriter(merged_pdf_buffer)
+
+        random_string = generate_random_string()
+        sig_meta = signers.PdfSignatureMetadata(field_name=random_string)
+
+        # Sign the PDF and write the result to the buffer
+        signers.sign_pdf(
+            reader,
+            signature_meta=sig_meta,
+            signer=signer,
+            output=signed_pdf_buffer
+        )
+        signed_pdf_buffer.seek(0)
+    except Exception as e:
+        raise RuntimeError("Failed to sign the PDF.") from e
+
+    try:
+        signed_pdf_base64 = base64.b64encode(signed_pdf_buffer.read()).decode("utf-8")
+    except Exception as e:
+        raise RuntimeError("Failed to encode the signed PDF to base64.") from e
+
+    return signed_pdf_base64
+
+@frappe.whitelist(allow_guest=True)
+def generate_and_sign_pdf(document_name):
+    """
+    Validate, merge, and sign the provided base64-encoded pages,
+    and return the signed PDF as a base64-encoded string with multiple signatures.
+    """
+    # Get the list of OpenSSL names
+    SSL_list = get_assigned_users_OPENSSL(document_name)
+    
+    # Get the initial PDF data (the base un-signed document)
+    Merged_PDF_data = split_pdf(get_merged_pdf_base64(document_name))
+    
+    # Process and merge the pages into a buffer
+    merged_pdf_buffer = process_and_merge_pages(Merged_PDF_data)
+    
+    # Initialize the final signed PDF buffer (to keep adding signatures)
+    signed_pdf_base64 = ''
+    
+    for OpenSSlname in SSL_list:
+        # Fetch the keys, certs, and ca_certs for the current OpenSSL name
+        print('Open SSL names: ', OpenSSlname)
+        keys, certs, ca_certs = format_keys_data(get_OpenSSL_Name(OpenSSlname))
+        
+        # Sign the merged PDF using the current keys and certificates
+        signed_pdf_base64 = sign_merged_pdf(merged_pdf_buffer, keys, certs, ca_certs)
+        
+        # Re-load the signed PDF into the buffer to retain all signatures
+        signed_pdf_buffer = base64.b64decode(signed_pdf_base64)
+        merged_pdf_buffer = BytesIO(signed_pdf_buffer)  # Reassign the buffer
+
+    # Cleanup temporary files after all signatures have been applied
+    cleanup_temp_files()
+
+    # Return the final signed PDF base64 (which includes all signatures)
+    return signed_pdf_base64
+
+
+
+# @frappe.whitelist(allow_guest=True)
+# def generate_and_sign_pdf(document_name):
+#     """
+#     Validate, merge, and sign the provided base64-encoded pages,
+#     and return the signed PDF as a base64-encoded string.
+#     """
+#     OpenSSlname = 'openssl_data-0000000565-utctime-2025-01-20 14:58:00.167842'
+
+#     SSL_list = get_assigned_users_OPENSSL(document_name)
+#     Merged_PDF_data = split_pdf(get_merged_pdf_base64(document_name))
+
+#     merged_pdf_buffer = process_and_merge_pages(Merged_PDF_data)
+#     keys, certs, ca_certs = format_keys_data(get_OpenSSL_Name(OpenSSlname))
+
+#     # Sign the merged PDF
+#     signed_pdf_base64 = sign_merged_pdf(merged_pdf_buffer, keys, certs, ca_certs)
+    
+
+#     # Cleanup temporary files
+#     cleanup_temp_files()
+
+#     return signed_pdf_base64
+
+
+
+
+# @frappe.whitelist(allow_guest=True)
+# def generate_and_sign_pdf(document_name):
+#     """
+#     Validate, merge, and sign the provided base64-encoded pages, 
+#     and return the signed PDF as a base64-encoded string.
+#     """
+#     # Validate and decode each page's base64 data
+#     merged_pdf_buffer = BytesIO()
+#     OpenSSlname = 'openssl_data-0000000565-utctime-2025-01-20 14:58:00.167842'
+#     writer = PdfWriter()
+#     Merged_PDF_data = split_pdf(get_merged_pdf_base64(document_name))
+#     keys, certs, ca_certs = format_keys_data(get_OpenSSL_Name(OpenSSlname))
+
+
+#     # print('-------------++++++++++++++++++++++++++++++++>',Merged_PDF_data)
+#     try:
+#         for page_entry in Merged_PDF_data:
+#             page_number = page_entry.get("page")
+#             page_data_base64 = page_entry.get("data")
+
+#             if not page_data_base64:
+#                 raise ValueError(f"Page {page_number} is missing base64 data.")
+
+#             # Decode the base64 data to binary PDF
+#             try:
+#                 page_data = base64.b64decode(page_data_base64)
+#             except Exception as e:
+#                 raise ValueError(f"Invalid base64 data for page {page_number}.") from e
+
+#             # Validate the page PDF
+#             try:
+#                 page_reader = PdfReader(BytesIO(page_data))
+#                 if len(page_reader.pages) != 1:
+#                     raise ValueError(f"Page {page_number} does not contain exactly one page.")
+#                 writer.add_page(page_reader.pages[0])  # Add the page to the merged PDF
+#             except Exception as e:
+#                 raise ValueError(f"Failed to process page {page_number}: {str(e)}") from e
+
+#         # Write all merged pages to a single PDF buffer
+#         writer.write(merged_pdf_buffer)
+#         merged_pdf_buffer.seek(0)
+#     except Exception as e:
+#         raise RuntimeError("Failed to merge and validate pages.") from e
+
+#     # Load signing credentials
+#     try:
+#         signer = load_signer_from_variables(keys, certs, ca_certs)
+#     except Exception as e:
+#         raise RuntimeError("Failed to load signing credentials.",e) from e
+
+#     # Sign the merged PDF
+#     try:
+#         signed_pdf_buffer = BytesIO()
+#         reader = IncrementalPdfFileWriter(merged_pdf_buffer)
+        
+#         random_string = generate_random_string()
+#         sig_meta = signers.PdfSignatureMetadata(field_name=random_string)
+
+#         # Sign the PDF and write the result to the buffer
+#         signers.sign_pdf(
+#             reader,
+#             signature_meta=sig_meta,
+#             signer=signer,
+#             output=signed_pdf_buffer
+#         )
+#         signed_pdf_buffer.seek(0)
+#     except Exception as e:
+#         raise RuntimeError("Failed to sign the PDF.") from e
+
+#     # Encode the signed PDF to base64
+#     try:
+#         signed_pdf_base64 = base64.b64encode(signed_pdf_buffer.read()).decode("utf-8")
+#     except Exception as e:
+#         raise RuntimeError("Failed to encode the signed PDF to base64.") from e
+
+#     # Cleanup temporary files
+#     cleanup_temp_files()
+
+#     return signed_pdf_base64
+
+
+# ____________________________________________________________________________-

@@ -163,8 +163,6 @@ function Navbar_vertical() {
   }
 };
 
-
-
 const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   setLanguage(e.target.value as Language);
 };

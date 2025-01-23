@@ -11,13 +11,17 @@
   "user_mail",
   "column_break_ojtd",
   "sign_name",
+  "openssl_name",
   "column_break_kwrs",
-  "sign_blob"
+  "sign_blob",
+  "expiry_date",
+  "amended_from"
  ],
  "fields": [
   {
    "fieldname": "section_break_mjvq",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Expiry Date"
   },
   {
    "fieldname": "sign_blob",
@@ -47,12 +51,32 @@
   {
    "fieldname": "column_break_kwrs",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "openssl_name",
+   "fieldtype": "Text",
+   "label": "OpenSSL Name"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Datetime",
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Esign_signature",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-01-03 10:18:17.903990",
+ "modified": "2025-01-06 13:12:22.761932",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "Esign_signature",

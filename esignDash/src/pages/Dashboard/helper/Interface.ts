@@ -17,3 +17,16 @@ export interface ComponentData {
     cert?: string;
     cert_pem?:string;
   }
+
+  export interface ApiResponse {
+    message: {
+      status: number;
+      data: OpenSSLList[];
+    };
+  }
+  
+  export interface OpenSSLList {
+    name: string;
+    openssl_name: string;
+    country: string;
+  }

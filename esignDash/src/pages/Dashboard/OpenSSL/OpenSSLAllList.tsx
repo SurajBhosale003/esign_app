@@ -1,19 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectEmail } from '../../../redux/selectors/userSelector';
+import { ApiResponse, OpenSSLList } from '../helper/Interface';
 
-interface ApiResponse {
-  message: {
-    status: number;
-    data: OpenSSLList[];
-  };
-}
 
-interface OpenSSLList {
-  name: string;
-  openssl_name: string;
-  country: string;
-}
 interface OpenSSLAllListProps {
   refresh: boolean; // Indicates when to refresh
 }
@@ -22,7 +12,7 @@ interface OpenSSLAllListProps {
 const OpenSSLAllList: React.FC<OpenSSLAllListProps> = ({ refresh }) => {
   const email = useSelector<string>(selectEmail);
   const [openSSLList, setOpenSSLList] = useState<OpenSSLList[]>([]);
-  const [flags, setFlags] = useState<{ [key: string]: string }>({}); // Store flag URLs
+  const [flags, setFlags] = useState<{ [key: string]: string }>({}); 
 
   useEffect(() => {
     const fetchTemplates = async () => {

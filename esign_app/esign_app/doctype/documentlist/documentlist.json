@@ -11,13 +11,17 @@
   "owner_email",
   "assigned_users",
   "document_created_at",
+  "opensslusedlist",
+  "validated_pdf",
   "document_subject_column",
   "document_subject",
   "description",
   "document_json_data",
   "base_pdf_datad",
   "isnoteditable",
-  "iscompleted"
+  "iscompleted",
+  "ismerged",
+  "issignedverified"
  ],
  "fields": [
   {
@@ -84,11 +88,33 @@
    "fieldname": "iscompleted",
    "fieldtype": "Check",
    "label": "isCompleted"
+  },
+  {
+   "fieldname": "opensslusedlist",
+   "fieldtype": "JSON",
+   "label": "OpenSSLUsedList"
+  },
+  {
+   "fieldname": "validated_pdf",
+   "fieldtype": "Text Editor",
+   "label": "Validated PDF"
+  },
+  {
+   "default": "0",
+   "fieldname": "ismerged",
+   "fieldtype": "Check",
+   "label": "isMerged"
+  },
+  {
+   "default": "0",
+   "fieldname": "issignedverified",
+   "fieldtype": "Check",
+   "label": "isSignedVerified"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-10 11:15:33.406663",
+ "modified": "2025-01-20 14:26:01.872105",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "DocumentList",

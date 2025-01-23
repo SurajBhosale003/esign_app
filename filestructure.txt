@@ -114,8 +114,11 @@
                 |-- fonts
                     |-- Montserrat-Light.ttf
                 |-- helper
+                    |-- Base64ToBlob.ts
                     |-- BlankPDF.ts
+                    |-- BlobToBase64.ts
                     |-- ButtonUtilities.tsx
+                    |-- Constents.ts
                     |-- DataPDF.ts
                     |-- GetPages.ts
                     |-- Interface.ts
@@ -159,6 +162,7 @@
     |-- vite.config.ts.timestamp-1719548055708-f442fb9285463.mjs
     |-- vite.config.ts.timestamp-1724038822508-88f664757518e.mjs
     |-- vite.config.ts.timestamp-1728536922365-f476af27d0e9b.mjs
+    |-- vite.config.ts.timestamp-1736145697006-d6b8e4351c86a.mjs
 |-- esign_app
     |-- __init__.py
     |-- __pycache__
@@ -236,44 +240,45 @@
             |-- NotoSansJP-Regular.otf
             |-- NotoSerifJP-Regular.otf
             |-- assets
-                |-- BlankPDF-CZRtHREX.js
-                |-- ButtonUtilities-BMJSYcOQ.js
+                |-- BlankPDF-D8W4LhSD.js
+                |-- ButtonUtilities-uPZJb-5l.js
                 |-- CardsSignature IMG-BQSy7hg3.png
-                |-- ComingSoon-BPwbCzQ3.js
-                |-- ConfirmDeleteModal-8k4p4pw2.js
-                |-- Dashboard-BZLPtK5Y.js
+                |-- ComingSoon-D6tBxvr-.js
+                |-- ConfirmDeleteModal-BplCrkZB.js
+                |-- Dashboard-BBxBjvl3.js
                 |-- Dexciss_logo-DBvTm4ob.png
                 |-- DocEdit-BY7Vp54_.css
-                |-- DocEdit-NExJE2DI.js
-                |-- Documents-ViXPULLs.js
+                |-- DocEdit-c7687LEs.js
+                |-- Documents-BqT5Xh8G.js
                 |-- Group 5DocumentsIMG-Cd38Y1iH.png
                 |-- Group 6sentIMG-CW6eLmVP.png
                 |-- Group 7InboxIMG-CXRIKgGL.png
-                |-- Inbox-1r44GToI.js
-                |-- Login_Auth-QQJ9mHSS.js
-                |-- OpenSSL-zGMzC80T.js
-                |-- Profile-B01af24S.js
-                |-- Sent-nEFd6SRQ.js
-                |-- SignPad-DWl9dyq_.js
-                |-- Signature-BV3G0Wph.js
-                |-- Signer-B9kudhZz.js
+                |-- Inbox-D-bieNPs.js
+                |-- Login_Auth-Zu_5LOHt.js
+                |-- OpenSSL-CUV2oRXz.js
+                |-- OpenSSLAllList-k_wNzwUa.js
+                |-- Profile-7MU2XPR5.js
+                |-- Sent-0pWJWfdP.js
+                |-- SignPad-BfIOtYNN.js
+                |-- Signature-U6JjiRsc.js
+                |-- Signer-A2C2c3kS.js
                 |-- Signer-BKBIE47W.css
-                |-- Signin_Auth-B32Rj1OX.js
+                |-- Signin_Auth-ChomeoJX.js
                 |-- Template ImagesTemplateIMG-DHgef6HD.png
-                |-- Templete-ByVg_XMc.js
-                |-- TempleteDash-CGs1eYzA.js
-                |-- TempleteEdit-DKGb_RGN.js
+                |-- Templete-C0fZ53sq.js
+                |-- TempleteDash-GBHfBu1i.js
                 |-- TempleteEdit-D_bpIU1j.css
-                |-- dayjsConfig--gnZ1fqe.js
+                |-- TempleteEdit-cSQdlUlV.js
+                |-- dayjsConfig-CLdWLdG0.js
                 |-- extractUniqueElements-Cb8tlYgU.js
-                |-- index-B54muZ2V.css
-                |-- index-B_YNSGLD.js
-                |-- index-CHG0Zyb1.js
-                |-- index-CM3UFs-d.js
-                |-- index-CP83d0q4.js
-                |-- index-l_3urzvE.js
+                |-- index-BAHGxOMI.js
+                |-- index-BYr9wGWP.js
+                |-- index-DXheqXzT.css
+                |-- index-DyKzE7Rf.js
+                |-- index-_LrMaOWL.js
+                |-- index-oQbtXFUV.js
                 |-- react-toastify-BTGsrsBX.css
-                |-- react-toastify.esm-Dt4eK3tc.js
+                |-- react-toastify.esm-DTBjVVsm.js
                 |-- sign-BgsH1KkZ.jpg
                 |-- sign2-D4mO_rwh.jpg
             |-- fonts

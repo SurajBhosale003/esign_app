@@ -38,7 +38,6 @@ const OpenSSLButton: React.FC<OpenSSLButtonProps> = ({ onAdd }) => {
       email: email
     }));
 
-    // Fetch list of countries
     async function fetchCountries() {
       try {
         const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
@@ -60,10 +59,8 @@ const OpenSSLButton: React.FC<OpenSSLButtonProps> = ({ onAdd }) => {
   const showModal = () => {
     setModalVisible(true);
   };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setFormData({
+  const clearDataFields = () =>{
+       setFormData({
       country: '',
       state: '',
       location: '',
@@ -74,6 +71,10 @@ const OpenSSLButton: React.FC<OpenSSLButtonProps> = ({ onAdd }) => {
       email: email,
       openssl_name:'',
     });
+  }
+  const closeModal = () => {
+    setModalVisible(false);
+    clearDataFields();
   };
   const handleSave= async()=>{
     setButtonDisable(true);
@@ -104,7 +105,7 @@ const OpenSSLButton: React.FC<OpenSSLButtonProps> = ({ onAdd }) => {
         onAdd();
         setModalVisible(false);
         setButtonDisable(false);
-
+        clearDataFields();
       } else {
         toast.error('Error while creating OpenSSL', {
           position: "top-right",

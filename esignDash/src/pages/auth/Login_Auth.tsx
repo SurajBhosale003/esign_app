@@ -62,7 +62,7 @@ function SignIn() {
     
     const onSubmit = () => {
       if( email== '' && password== '' )
-        {
+        { 
           toast.error('Login Enter Email & Password', {
             position: "top-right",
             autoClose: 500,
@@ -149,6 +149,7 @@ function SignIn() {
                 className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" 
                 type="email" 
                 value={email}
+                
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>

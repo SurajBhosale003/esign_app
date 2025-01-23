@@ -133,40 +133,43 @@ const Inbox = () => {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-5">
-  {filteredDocuments.map((document, index) => {
-    const assignedUsers = parseAssignedUsers(document.assigned_users);
-    const userStatus = Object.values(assignedUsers).find(user => user.email === email)?.status;
+      <div className="h-[90vh] overflow-y-auto">
+  <div className="flex flex-wrap gap-5">
+    {filteredDocuments.map((document, index) => {
+      const assignedUsers = parseAssignedUsers(document.assigned_users);
+      const userStatus = Object.values(assignedUsers).find(user => user.email === email)?.status;
 
-    let themeClass = "";
-    if (userStatus === "unseen") {
-      themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] relative";
-    } else if (userStatus === "open") {
-      themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42]";
-    } else if (userStatus === "close") {
-      themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] opacity-50";
-    }
+      let themeClass = "";
+      if (userStatus === "unseen") {
+        themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] relative";
+      } else if (userStatus === "open") {
+        themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42]";
+      } else if (userStatus === "close") {
+        themeClass = "bg-[#283C42] text-white border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] opacity-50";
+      }
 
-    return (
-      <div key={index} className="w-[200px] h-[100px] relative">
-        <div
-          className={`p-4 rounded border-2 transition-colors duration-300 cursor-pointer ${themeClass}`}
-          onClick={() => handleEdit(document)}
-        >
-          <h3 className={`mt-2 font-bold ${userStatus === "close" ? "line-through" : ""} text-ellipsis overflow-hidden whitespace-nowrap`}>
-            {document.document_title}
-          </h3>
-          <p className="text-sm text-ellipsis overflow-hidden whitespace-nowrap">
-            {new Date(document.document_created_at).toLocaleString()}
-          </p>
-          {userStatus === "unseen" && (
-            <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-500 rounded-full shadow-md"></div>
-          )}
+      return (
+        <div key={index} className="w-[200px] h-[100px] relative">
+          <div
+            className={`p-4 rounded border-2 transition-colors duration-300 cursor-pointer ${themeClass}`}
+            onClick={() => handleEdit(document)}
+          >
+            <h3 className={`mt-2 font-bold ${userStatus === "close" ? "line-through" : ""} text-ellipsis overflow-hidden whitespace-nowrap`}>
+              {document.document_title}
+            </h3>
+            <p className="text-sm text-ellipsis overflow-hidden whitespace-nowrap">
+              {new Date(document.document_created_at).toLocaleString()}
+            </p>
+            {userStatus === "unseen" && (
+              <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-500 rounded-full shadow-md"></div>
+            )}
+          </div>
         </div>
-      </div>
-    );
-  })}
+      );
+    })}
+  </div>
 </div>
+
 
       <ToastContainer />
     </div>
