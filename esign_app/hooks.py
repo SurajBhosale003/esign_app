@@ -12,7 +12,7 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/esign_app/css/esign_app.css"
 # app_include_js = "/assets/esign_app/js/esign_app.js"
-
+app_include_js = "esign.bundle.js"
 # include js, css files in header of web template
 # web_include_css = "/assets/esign_app/css/esign_app.css"
 # web_include_js = "/assets/esign_app/js/esign_app.js"
@@ -32,7 +32,13 @@ app_license = "mit"
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-
+doctype_js = {
+    "openssl": "public/js/global_script.js"
+}
+# app_include_js = [
+#     "public/js/form_timeline_override.js"
+# ]
+# app_include_js = "/assets/esign_app/public/js/form_timeline_override.js"
 # Svg Icons
 # ------------------
 # include app icons in desk

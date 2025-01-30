@@ -29,85 +29,6 @@ from pyhanko.sign import signers
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 
 
-# key1 = """-----BEGIN PRIVATE KEY-----
-# MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDT0juc+FLg9iuE
-# maXgoryoYXUSAFaOWtJPCMAiWePJyeSAITiSbC94GerixF8VtR2wgAZ4dtK87F18
-# Ecx0Hyq7fSUxu3+XP/d3pPi0HiSDNBwxgWR71OZ4fUmXSao2Rzn4SIlAzjsNj8Ru
-# eA1JbmKidpDc0u7+/ziWW/4O+9bmhF80xqtpu9HPjfk9oim6wGEHEXVjqvFmH1DE
-# CU2asVesJaopALCf1+MCtDPGMmhgmBc2igRc4wg325eURfs6vT54Jg5a8+od4K6k
-# LjIcdP/2i0juwZM6vqeETdskGmZ9k6u6BOSHC4bO5nPKnxtym78AaYK3Syvg3bXK
-# afbeQIhpAgMBAAECggEAFRMnNDxuvowvkz9YRiva2mPr6nEXK420vAFSYHiSFdsc
-# /XSQtNzHskrd2FcSYM4G2K88NZMY74wS1wvMTEdnkITohPSzQqCuJfzHc+BF4Ln4
-# DiLiFQH/NkC86Cz/nuviRCYvZb+/F1/U+uq94670aFaknhvshHlvL2KSufnrjT6y
-# 9smkCxUypRriiQ0h8Ae8BRlm/RjnY6PLtLuxN/azOLBJ2Md310M4aJYN+ipUYOX7
-# DJBWYeOWCtAwZvStSEkJju2U27T/Mh6PoJejh2jTa07UGXo5Rpg7CZQZA36x6HzX
-# xR5y617j5e4svWf1/cFGa02KWzMKsgyIU9kAF0nAywKBgQD032duXXdpz+gE8IpK
-# GxqrSO81GBDNQkiwUSH0fyoqG4QG4jQKQ8xYA0E5/0GYt8ue1eC/Ha0o4heRDmZ1
-# RNLVXJMQUw1ki6DH3xFInfJWGAbbEe2e7QmAooAA/K4k/ATeV7MjBrGst3HI23It
-# 9Mi/jLgVFftq+bzcLbxYU+cyVwKBgQDdclel7KIX2v9EYEP7xGiFH+97xoMih1Fm
-# u/3dtGmqjlqYEKB1BPFPXkj20uw8Tf54jXFObNAmf8kK2wbVaAO9a+9/xsXDL8D7
-# Mv5SuxhzQI+4YyBdkaDoYuhtmCHmVdnHwGs8D57/zwRG6gtJBQIfpIj7vqm5SF5M
-# TCk7/AjjPwKBgQDTOueI/51jrFGz+R8Bn/HYcVjPTwwnU5dKaSJGO2/O1N+F5JkJ
-# hcR+44fflL4sE9fVEyAFHH9jteyoV2iwngbUwD+oJEx4QC4YW+cX4g/Kjn1Telqk
-# 7kp1KTgMIevCwZcdiT9g5oRbvf6sSghrdi25dpTQs56mf/mXYOiItQ/JjwKBgQCZ
-# joFywF1CV4ztWCesPO0RayzA0s36MoVizPdkNoeTSnVNvzHVE2FV3RaReX9w7dCI
-# veQVMuU/3RqG2YyqjR8SyfbgzvAxwjp6tkifC7gPq3Q9sxctax9+JZ/w5y6Sr3N9
-# zVNO6bIixuW7Wu4Ka1umn4yRrQu6PJGPLLznKITtNwKBgQCdYK2atpr3uLpzyaqo
-# WbWMl+x06CzcU78kEUKJC1rXeUd7g90lo15Ql1/qOf2b8OdAzFkR9Dvc+HX4WKR3
-# 2RoasVx29BOiJbsM+KclpWBzGt9FS/9wwIn9yPj3GnAp6/EJimCh5IKl+Rs5AdGB
-# ferpM//1ngIeW1mHGrO/5I0hAg==
-# -----END PRIVATE KEY-----
-# """
-# cert1 = """-----BEGIN CERTIFICATE-----
-# MIIDnDCCAoSgAwIBAgIUVbES3hFQkDedBXinesbbc9ihHWswDQYJKoZIhvcNAQEL
-# BQAwVTELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYDVQQHDAZJc2xhbmQx
-# DTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJob3NhbGUwHhcNMjUw
-# MTAzMTIzNjUyWhcNMjYwMTAzMTIzNjUyWjBVMQswCQYDVQQGEwJWSTELMAkGA1UE
-# CAwCVkkxDzANBgNVBAcMBklzbGFuZDENMAsGA1UECgwEWmltbzEZMBcGA1UEAwwQ
-# U3VyYWogUi4gQmhvc2FsZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-# ANPSO5z4UuD2K4SZpeCivKhhdRIAVo5a0k8IwCJZ48nJ5IAhOJJsL3gZ6uLEXxW1
-# HbCABnh20rzsXXwRzHQfKrt9JTG7f5c/93ek+LQeJIM0HDGBZHvU5nh9SZdJqjZH
-# OfhIiUDOOw2PxG54DUluYqJ2kNzS7v7/OJZb/g771uaEXzTGq2m70c+N+T2iKbrA
-# YQcRdWOq8WYfUMQJTZqxV6wlqikAsJ/X4wK0M8YyaGCYFzaKBFzjCDfbl5RF+zq9
-# PngmDlrz6h3grqQuMhx0//aLSO7Bkzq+p4RN2yQaZn2Tq7oE5IcLhs7mc8qfG3Kb
-# vwBpgrdLK+Ddtcpp9t5AiGkCAwEAAaNkMGIwDgYDVR0PAQH/BAQDAgWgMDEGA1Ud
-# JQQqMCgGCCsGAQUFBwMBBggrBgEFBQcDAgYIKwYBBQUHAwQGCCsGAQUFBwMDMB0G
-# A1UdDgQWBBRJVDM2PYyXrO67oLcb/or1s5SxbzANBgkqhkiG9w0BAQsFAAOCAQEA
-# K2+hdQAg/1Y6cQ6Szt5hTSTsfCU+IGObnPjjc7SV+67FrIwPezejD1qnr0qMNqcU
-# /A2wn6AFrhtFn4eeNphRi3CPOnfexBsQk4VpEmI5/o27nqmsdzdlGRJt7eS02dS0
-# QM8v3uvKgt/iXJlyhVLqWUU3E8Oj5KgrYzoVVNcEaonkbY8zrZN6KD2DJXYQy3Kw
-# +jCDELwM/9qbeSrJidMaXY3GTRK3YPJPpHBsshjAE5Vlmg5hYFK4+FA8S8a40qdE
-# Oe3/xGoizj0xGnX9jRMoYI7R+ZMIRSLsPE2Ae5dsylM14VCWUWfrrv42jNuSgcbq
-# zmWeS/FKqvePw47+h4qPAQ==
-# -----END CERTIFICATE-----
-# """
-# ca_cert1 = """-----BEGIN CERTIFICATE-----
-# MIID1TCCAr2gAwIBAgIUIasTEjEQwnNCdrMwXdYBIaIuIeYwDQYJKoZIhvcNAQEL
-# BQAwejELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYDVQQHDAZJc2xhbmQx
-# DTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJob3NhbGUxIzAhBgkq
-# hkiG9w0BCQEWFHNiaG9zYWxlQGRleGNpc3MuY29tMB4XDTI1MDEwMzEyMzY1MloX
-# DTI3MTAyNDEyMzY1MlowejELMAkGA1UEBhMCVkkxCzAJBgNVBAgMAlZJMQ8wDQYD
-# VQQHDAZJc2xhbmQxDTALBgNVBAoMBFppbW8xGTAXBgNVBAMMEFN1cmFqIFIuIEJo
-# b3NhbGUxIzAhBgkqhkiG9w0BCQEWFHNiaG9zYWxlQGRleGNpc3MuY29tMIIBIjAN
-# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzhCu9eOrMZ/T2uVwag3YUmdQi/Ds
-# 1voNm6Mkp19wBMqPyRG20kWf5KIigGOYTu5e9CZd9uPV1xjJYaWEHuw2lX9jR8aF
-# FPOniBUKjEKHfELPJjkmak8noXEoWkVuQQVHLzdXXlhLUP+7PSOVbnXahUqdWIfB
-# 7TiYIARuaxWdGPLHY1+gIhQvbLuLEKOSRcXpZGOfaKL3i78Co8zdavDhF0gYjcsP
-# YuhsKtzpDaCRcn/hKLi8NicD4JLrgq3ougZq4k4hP4eNEbnFM8BXi3SJup3s389D
-# XxKqFZ68eFfDqSnBv1XTEYPNOZ+8gMBjZT36PS1bjfy82W1zuXR8aRp7KQIDAQAB
-# o1MwUTAdBgNVHQ4EFgQUOKIAIn97HRq/wGJi8nvy1/bM6FcwHwYDVR0jBBgwFoAU
-# OKIAIn97HRq/wGJi8nvy1/bM6FcwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B
-# AQsFAAOCAQEAhvHPpAN8lKIdIR50tDeUc6oCDwkKJr2Krdxn1dQ3lD0UBGUFdPX9
-# zVqmGxQ4eGLj2+94o3m7Wvmiz9UIF9VSVRKK//HReS9GluE5vun34T5wFl+H9hpQ
-# iL52rtq/mV1qG6WT94jUEk4MrluX+zD0BzZtMWvOEDKks2cSzFXrSzhbqdKCcb1P
-# 2+JRXhBrjMJYGr7RFn/fch2n19s9cZ+CT5+jfK4WVi2kbRqAskHElRzYgs4ULqRg
-# PAmrlEIIpZnb3hjUFkn2dpbBKzjkG3gUXlS0PBKT+VFPQsCNBE2XBVFcQqsE8c1/
-# OCA9w/BtL04lmi9gUmaeYASRC95QVoQhYA==
-# -----END CERTIFICATE-----
-# """
-
-
-
 def generate_random_string():
     random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
     return f"Signature_Eisgn_{random_part}"
@@ -1359,3 +1280,25 @@ def generate_and_sign_pdf(document_name):
 
 
 # ____________________________________________________________________________-
+
+# Send to eSign Button Apis &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+@frappe.whitelist()
+def fetch_and_print_data(custom_docname, selectedValue, pdfBase64, email):
+    """Fetch data using custom_docname and print 'message'."""
+
+    print(split_pdf(pdfBase64))
+    template_data = get_template_data(selectedValue)
+    document_data = {
+        'doctype': 'DocumentList', 
+        'document_title': custom_docname,
+        'template_title': selectedValue,
+        'owner_email': email,
+        'document_json_data': template_data.get('templete_json_data', '[]'),
+        'base_pdf_datad': json.dumps(split_pdf(pdfBase64)),
+        'document_created_at': datetime.now()
+    }
+    document_doc = frappe.get_doc(document_data)
+    document_doc.insert()
+    return 0
