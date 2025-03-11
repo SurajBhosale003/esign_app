@@ -106,6 +106,7 @@ function App() {
         <BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
           <DndProvider backend={HTML5Backend}>
             <Routes>
+              
               <Route element={<HorizontalLayout />}>
                 <Route path="/" element={<Suspense fallback={<BookAnimation2 />}><Home /></Suspense>} />
               </Route>

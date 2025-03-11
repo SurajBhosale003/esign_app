@@ -78,9 +78,11 @@ const SentModal: React.FC<{ modalContent: any; isModalVisible: boolean; handleMo
           <p className="mb-2 text-lg text-gray-600 px-4 font-bold tracking-tight">
             Description
           </p>
-          <p className="text-justify text-gray-500 leading-relaxed mt-2 mb-4 px-4">
-            {modalContent?.description}
-          </p>
+          <p
+            className="text-justify text-gray-500 leading-relaxed mt-2 mb-4 px-4"
+            dangerouslySetInnerHTML={{ __html: modalContent?.description }}
+          ></p>
+
 
         </div>
         <p className="mt-4 px-4">

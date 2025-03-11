@@ -359,7 +359,20 @@ const Print_PDF_Merged_Valid = async() =>{
     URL.revokeObjectURL(url);
 
     if (result.message.status < 300) {
-      window.open(result.message.pdf_url, '_blank');
+       toast.success('PDF genrated Successfully', {
+        position: "top-right",
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Flip,
+        });
+      setTimeout(() => {
+        window.open(result.message.pdf_url, '_blank');
+      }, 2500);
     } else {
       console.error('Error printing PDF:', result.message.error);
     }
@@ -910,6 +923,18 @@ pdfDoc.setModificationDate(new Date());
   const base64String = await BlobToBase64(blob);
   console.log('lvl1')
   mergeAndPrintSave(base64String)
+
+  toast.success('PDF Has Been Merged', {
+  position: "top-right",
+  autoClose: 500,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "dark",
+  transition: Flip,
+  });
   // const base64blob  = await Base64ToBlob(base64String)
   // console.log(base64String)
   // const url = URL.createObjectURL(base64blob);
@@ -1010,12 +1035,12 @@ return (
           { isCompleted == 1 && (
             <>
             {/* Actual print Button */}
-            <button
+            {/* <button
             className="bg-[#283C42] text-white px-4 py-2 rounded border-2  border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
           onClick={mergeAndPrintPDF}
           >
            Re-Merge
-          </button>
+          </button> */}
 
             {/* Verify Signatures */}
           <button

@@ -61,31 +61,47 @@
                   templateOptions = Object.fromEntries(templates.map((t) => [t.label, t.value]));
                 }
                 let dialog = new frappe.ui.Dialog({
-                  title: "Send 2 Esign",
+                  title: "Send to eSign",
                   fields: [
-                    {
-                      fieldname: "doctype",
-                      label: "Doctype",
-                      fieldtype: "Data",
-                      default: doctype2,
-                      read_only: 1
-                    },
-                    {
-                      fieldname: "docname",
-                      label: "Document Name",
-                      fieldtype: "Data",
-                      default: docname,
-                      read_only: 1
-                    },
                     {
                       fieldname: "user_details",
                       label: "User Details",
                       fieldtype: "HTML",
-                      options: `<p><b>Name:</b> ${fullName}<br><b>Email:</b> ${email}</p>`
+                      options: `<div style="
+                              font-family: 'Arial', sans-serif;
+                              font-size: 16px;
+                              line-height: 1.6;
+                              color: #333;
+                              background: #f9f9f9;
+                              padding: 15px 20px;
+                              border: 1px solid #ddd;
+                              border-radius: 10px;
+                              max-width: 400px;
+                              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                          ">
+                              <p style="
+                                  margin: 0 0 5px;
+                                  font-weight: 600;
+                                  font-size: 18px;
+                                  color: #222;
+                              ">
+                                  ${fullName}
+                              </p>
+                              <p style="
+                                  margin: 0;
+                                  font-size: 14px;
+                                  color: #555;
+                              ">
+                                  ${email}
+                              </p>
+                          </div>
+                          </br>
+                          `
                     },
                     {
                       fieldname: "custom_docname",
-                      label: "Enter Document Name",
+                      label: "Enter Name",
+                      default: docname,
                       fieldtype: "Data",
                       reqd: 1
                     },
@@ -134,4 +150,4 @@
   $(document).on("app_ready", function() {
   });
 })();
-//# sourceMappingURL=esign.bundle.QCMCGOOK.js.map
+//# sourceMappingURL=esign.bundle.EBCZFBH3.js.map

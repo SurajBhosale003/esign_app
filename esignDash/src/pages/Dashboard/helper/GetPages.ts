@@ -19,7 +19,7 @@ export async function splitPDF(base64PDF: string): Promise<Array<{ page: number,
     const newPdfBytes = await newPdf.save();
     const newPdfBase64 = encode(newPdfBytes.buffer);
 
-    pagesBase64.push({ page: i, data: newPdfBase64 });
+    pagesBase64.push({ page: i+1, data: newPdfBase64 });
   }
 
   return pagesBase64;

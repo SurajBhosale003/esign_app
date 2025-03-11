@@ -61,7 +61,7 @@ const TempleteEdit = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectSignatureData, setSelectSignatureData] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null)
-  
+  const [isFixed, setIsFixed] = useState()
   const [datapdf , setdatapdf] = useState<BasePDFInterface[]>(BlankDatapdf);
   const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>(null);
   const moveableRef = useRef<Moveable | null>(null);
@@ -70,13 +70,19 @@ const TempleteEdit = () => {
   const location = useLocation();
   const { templete } = location.state as { templete?: TemplateUserDetails } || {};
   const navigate = useNavigate();
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChangePDF = (e :React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
+  };
 
   useEffect(() => {
     const fetchTemplateData = async () => {
       try {
         const response = await fetch(`/api/method/esign_app.api.get_template_json?templete_name=${templete?templete.name:''}`);
         const result = await response.json();
-        // // console.log(result);
+        console.log(result);
+        setIsChecked(result.message.use_default_base_pdf);
         if(result.message.templete_json_data == null || result.message.base_pdf_data == null)
         {
           return ;
@@ -91,6 +97,7 @@ const TempleteEdit = () => {
           ? JSON.parse(result.message.base_pdf_data)
           : result.message.base_pdf_data;
 
+        
         setComponents(parsedData);
         setdatapdf(BasePDFData);
           // setComponents(result.message.templete_json_data); --- gives \n \n data,null,2 JSON
@@ -741,7 +748,8 @@ const handleSaveTemplete = async() => {
   const templeteObject = {
     templete_name: templete.name,
     templete_json_data: JSON.stringify(JSON.stringify(Componentdata, null, 2)),
-    base_pdf_data: JSON.stringify(JSON.stringify(datapdf, null, 2))
+    base_pdf_data: JSON.stringify(JSON.stringify(datapdf, null, 2)),
+    use_default_base_pdf : isChecked
   };
   try {
     const response = await fetch('/api/method/esign_app.api.update_template', {
@@ -786,6 +794,10 @@ const handleSaveTemplete = async() => {
 
  }
 
+ function checkboxFun()
+ {
+    console.log('Checkbox is:', isChecked ? 'Checked' : 'Unchecked');
+ }
 
 
 if (!templete) {
@@ -794,17 +806,7 @@ if (!templete) {
 //-------------------------------------------React UI part -------------------------------------------------
 return (
     <>
-    
-    {/* <div>
-      <h4>Name: {templete.name}</h4>
-      <h4>Title: {templete.templete_title}</h4>
-      <h4>Owner Email: {templete.templete_owner_email}</h4>
-      <h4>Owner Name: {templete.templete_owner_name}</h4>
-      <h4>Created At: {new Date(templete.templete_created_at).toLocaleString()}</h4>
-    </div> */}
-
 <div className="text-xs flex gap-3 items-center relative p-6 bg-[#283C42] text-white border-2 border-transparent hover:border-[#283C42] transition-colors duration-300">
-
 <div>
   <button className="button" onClick={() => navigate(-1)}>
   <div className="button-box">
@@ -855,10 +857,19 @@ return (
 
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={LoadBlankPage}>Load Blank Page</button>
-
-      {/* <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
-      onClick={mergeAndPrintPDF}>Merge and Print PDF</button>    */}
-
+       
+       <div className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] transition-colors duration-300" 
+        ><label className="container flex min-w-full">
+          <input type="checkbox" checked={isChecked} onChange={handleCheckboxChangePDF} />
+          <svg viewBox="0 0 64 64" height="2em" width="2em">
+            <path d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16" pathLength="575.0541381835938" className="path"></path>
+          </svg>
+          <div className="ml-5 flex items-center justify-center ">
+            <p className="text-center">Fixed Document</p>
+        </div>
+        </label>
+       </div>
+      {/* <button onClick={checkboxFun}>click me</button> */}
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={handleSaveTemplete}>Save Templete</button>   
     </div>

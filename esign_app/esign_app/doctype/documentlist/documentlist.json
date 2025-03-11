@@ -21,7 +21,8 @@
   "isnoteditable",
   "iscompleted",
   "ismerged",
-  "issignedverified"
+  "issignedverified",
+  "isrejected"
  ],
  "fields": [
   {
@@ -64,7 +65,7 @@
   },
   {
    "fieldname": "description",
-   "fieldtype": "Text",
+   "fieldtype": "Text Editor",
    "label": "Description"
   },
   {
@@ -110,11 +111,17 @@
    "fieldname": "issignedverified",
    "fieldtype": "Check",
    "label": "isSignedVerified"
+  },
+  {
+   "default": "0",
+   "fieldname": "isrejected",
+   "fieldtype": "Check",
+   "label": "isRejected"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-20 14:26:01.872105",
+ "modified": "2025-03-11 15:12:44.188705",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "DocumentList",

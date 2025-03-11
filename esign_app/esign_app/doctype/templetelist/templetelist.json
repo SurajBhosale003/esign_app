@@ -7,10 +7,14 @@
  "engine": "InnoDB",
  "field_order": [
   "templete_title",
+  "templete_created_at",
+  "use_default_base_pdf",
+  "column_break_qzdr",
   "templete_owner_email",
   "templete_owner_name",
-  "templete_created_at",
+  "section_break_iauj",
   "templete_json_data",
+  "column_break_rvpd",
   "base_pdf_data"
  ],
  "fields": [
@@ -47,11 +51,29 @@
    "fieldname": "base_pdf_data",
    "fieldtype": "JSON",
    "label": "base pdf data"
+  },
+  {
+   "fieldname": "column_break_qzdr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_iauj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_rvpd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_default_base_pdf",
+   "fieldtype": "Check",
+   "label": "Use Default Base PDF"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-20 14:48:39.298135",
+ "modified": "2025-03-06 17:07:19.831872",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "TempleteList",

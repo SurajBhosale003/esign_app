@@ -5,6 +5,8 @@ import io
 import subprocess
 import string
 import random
+from io import BytesIO
+import base64
 
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
@@ -373,21 +375,8 @@ def genrate_and_store_keys(country,state,location,organization,challenge_passwor
             'cert_pem': file_data["cert_pem"],
             'openssl_conf': file_data["openssl_conf"],
             })
-        # doc1 = frappe.get_doc({
-        #     'doctype': 'openssl_keys',
-        #     'openssl_name': openssl_name,
-        #     'username': username,
-        #     'key_pem': 'NA',  
-        #     'ca_cert_pem':'NA',
-        #     'csr_pem': 'NA',
-        #     'owner_email': 'NA',
-        #     'ca_key_pem': 'NA',
-        #     'cert_pem': 'NA',
-        #     'openssl_conf': 'NA',
-        #     })
 
         doc1.save()
-        # doc1.submit()
 
         doc = frappe.get_doc({
             'doctype': 'openssl',
@@ -411,61 +400,6 @@ def genrate_and_store_keys(country,state,location,organization,challenge_passwor
         print("Exception:", e)
         return {'status': 500, 'message': str(e) }
 
-def generate_rsa_key_pair():
-    """
-    Generates an RSA private and public key pair.
-    """
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048
-    )
-
-    private_key_pem = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
-    )
-
-    public_key = private_key.public_key()
-    public_key_pem = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
-
-    return private_key_pem.decode('utf-8'), public_key_pem.decode('utf-8')
-
-def generate_self_signed_certificate(private_key_pem, public_key_pem, full_name, company_name, country_code, state):
-    """
-    Generates a self-signed certificate using the provided private key and public key.
-    Signs the certificate using SHA-256.
-    """
-    # Load the private and public keys
-    private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key_pem.encode('utf-8'))
-    public_key = crypto.load_publickey(crypto.FILETYPE_PEM, public_key_pem.encode('utf-8'))
-    current_time = datetime.utcnow().strftime('%Y%m%d%H%M%SZ')
-    print("_________________--------------------------------> Current time : " , current_time)
-    one_year_later = (datetime.utcnow() + timedelta(days=365)).strftime('%Y%m%d%H%M%SZ')
-    # Create a self-signed certificate
-    cert = crypto.X509()
-    cert.set_version(2)
-    cert.set_serial_number(1000)
-    cert.get_subject().CN = full_name
-    cert.get_subject().O = company_name
-    cert.get_subject().C = country_code
-    cert.get_subject().ST = state
-    cert.set_issuer(cert.get_subject())  # Self-signed, so issuer is the subject
-    cert.set_notBefore(current_time.encode())  # Set to the current UTC date-time
-    cert.set_notAfter(one_year_later.encode())   # One-year validity
-
-    cert.set_pubkey(public_key)
-
-    # Use SHA-256 to sign the certificate
-    cert.sign(private_key, 'sha256')
-
-    # Export the certificate in PEM format
-    cert_pem = crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode('utf-8')
-
-    return cert_pem
 @frappe.whitelist(allow_guest=True)
 def save_signature(
     signature_data, signature_name, user_full_name, user_email,openssl_name,expiry_date
@@ -575,6 +509,19 @@ def get_templetes(user_mail):
         return {'status': 500, 'message': str(e)}
 # ++++ Get Templete End ++++++++++++
 
+@frappe.whitelist(allow_guest=True)
+def get_templetes_fixstatus(name):
+    try:
+        fix_status = frappe.get_all(
+            'TempleteList',
+            filters={'name': name},
+            fields=['use_default_base_pdf']
+        )
+        return {'status': 200, 'data': fix_status}
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+# ++++ Get Templete End ++++++++++++
+
 #+++++ Delete Templete +++++++++++++++++
 @frappe.whitelist()
 def delete_esign_templete(user_mail, name):
@@ -595,7 +542,7 @@ def delete_esign_templete(user_mail, name):
 # Templete APIs --------------------------------------------------------------------
 # ++++ Update Template ++++++++++++
 @frappe.whitelist(allow_guest=True)
-def update_template(templete_name,templete_json_data, base_pdf_data):
+def update_template(templete_name,templete_json_data, base_pdf_data,use_default_base_pdf):
     try:
         templete_json_data = json.loads(templete_json_data)
         base_pdf_data = json.loads(base_pdf_data)
@@ -603,6 +550,7 @@ def update_template(templete_name,templete_json_data, base_pdf_data):
         doc = frappe.get_doc("TempleteList", templete_name)
         doc.templete_json_data = templete_json_data
         doc.base_pdf_data = base_pdf_data
+        doc.use_default_base_pdf = use_default_base_pdf
         message = 'Template Updated successfully'
         doc.save()
         return {'status': 200, 'message': message}
@@ -621,7 +569,8 @@ def get_template_json(templete_name):
         response = {
             'status': 200,
             'templete_json_data': doc.templete_json_data,
-            'base_pdf_data': doc.base_pdf_data
+            'base_pdf_data': doc.base_pdf_data,
+            'use_default_base_pdf' : doc.use_default_base_pdf
         }
         return response
 
@@ -647,22 +596,28 @@ def get_templetes_list_doc(user_mail):
 #END================================================
 # Save Document data
 @frappe.whitelist(allow_guest=True)
-def save_template_document(templete_name, document_name, user_email):
+def save_template_document(templete_name, document_name, user_email,manual_data_pdf,isFixedPdf):
     try:
         template_data = get_template_data(templete_name)
+        if isFixedPdf == 1:
+            base_pdf_data = template_data['base_pdf_data']
+        else:
+            base_pdf_data = json.dumps(manual_data_pdf)
+
         document_data = {
             'doctype': 'DocumentList', 
             'document_title': document_name,
             'template_title': templete_name,
             'owner_email': user_email,
             'document_json_data': template_data['templete_json_data'],
-            'base_pdf_datad': template_data['base_pdf_data'],
+            'base_pdf_datad': base_pdf_data,
             'document_created_at': datetime.now()
         }
         document_doc = frappe.get_doc(document_data)
         document_doc.insert()
+        new_document = frappe.get_value('DocumentList', document_doc.name,['name', 'document_title', 'template_title', 'owner_email', 'document_created_at', 'isnoteditable'], as_dict=True)
 
-        return {'status': 200, 'message': 'Template and Document created successfully'}
+        return {'status': 200, 'message': 'Template and Document created successfully', 'data': new_document}
     except Exception as e:
         return {'status': 500, 'message': str(e)}
         
@@ -801,19 +756,6 @@ def send_url_email(to, subject , message):
         )
     except Exception as e:
         print('Error-----------> URL',e)
-
-# def test_send_url_email(to=["sbhosale@dexciss.com"], subject='GGGG', message='OP'):
-#     try:
-#         frappe.sendmail(
-#             recipients=to,
-#             subject=subject,
-#             message=message
-#         )
-#         print('Email sent successfully')
-#     except Exception as e:
-#         print('Error-----------> URL', e)
-
-
 
 # get List for User of Doc Assigned Fetch +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
 @frappe.whitelist(allow_guest=True)
@@ -1302,3 +1244,30 @@ def fetch_and_print_data(custom_docname, selectedValue, pdfBase64, email):
     document_doc = frappe.get_doc(document_data)
     document_doc.insert()
     return 0
+
+@frappe.whitelist(allow_guest=True)
+def send_img_to_server(name,image_data,doc_name):
+    """
+    Save the image to the File DocType and return the file name.
+    """
+    if image_data:
+        image_data1 = base64.b64decode(image_data.split(",")[1])  
+        file_doc = frappe.get_doc({
+            'doctype': 'File',
+            'file_name': f"{name}_vehicle_image.jpg",  
+            'file_url': f"/files/{name}_vehicle_image.jpg",  
+            'content': image_data1
+        })
+        file_doc.save()
+        frappe.db.set_value('File',file_doc.name,{
+            'is_private': 1,
+        })
+
+        # Save the vehicle image URL
+        # self.vehicle_image = f"/files/{self.name}_vehicle_image.jpg"
+                    # 'attached_to_doctype' : 'Gate Entry',
+            # 'attached_to_name' : doc_name
+
+@frappe.whitelist(allow_guest=True)
+def testAPI():
+    return 'working api...'

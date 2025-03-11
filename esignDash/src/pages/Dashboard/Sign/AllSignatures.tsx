@@ -167,7 +167,7 @@ const AllSignatures: React.FC<AllSignaturesProps> = ({ refreshSignatures, setRef
 
   return (
     <div className="relative mt-6 w-[70vw] mx-auto overflow-hidden">
-      {signatures.length >= 3 && (
+      {(signatures?.length ?? 0) >= 3 && (
         <>
           <button
             className="scroll-button left absolute left-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-300 rounded-full shadow-md p-2 cursor-pointer z-10"
