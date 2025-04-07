@@ -10,27 +10,16 @@
             if (((_b = (_a = frm.footer) == null ? void 0 : _a.frm) == null ? void 0 : _b.timeline) && !buttonAdded) {
               let send_esign = async () => {
                 var _a2, _b2, _c;
-                console.log("inside send button");
                 let user = frappe.session.user;
-                console.log("got user section", user);
-                let userDetails = await frappe.db.get_value("User", user, [
-                  "full_name",
-                  "email"
-                ]);
-                console.log("got user details section", userDetails);
+                let userDetails = await frappe.db.get_value("User", user, ["full_name", "email"]);
                 let doctype2 = frm.doctype;
-                console.log("got doctype ", doctype2);
                 let docname = frm.docname;
-                console.log("got docname ", docname);
                 let fullName = ((_a2 = userDetails == null ? void 0 : userDetails.message) == null ? void 0 : _a2.full_name) || "Unknown User";
                 let email = ((_b2 = userDetails == null ? void 0 : userDetails.message) == null ? void 0 : _b2.email) || "No Email";
                 let templates = [];
                 try {
-                  let response = await fetch(
-                    `/api/method/esign_app.api.get_templetes?user_mail=${email}`
-                  );
+                  let response = await fetch(`/api/method/esign_app.api.get_templetes?user_mail=${email}`);
                   let data = await response.json();
-                  console.log("got response", data);
                   if (((_c = data.message) == null ? void 0 : _c.status) === 200 && Array.isArray(data.message.data)) {
                     templates = data.message.data.map((temp) => ({
                       label: temp.templete_title.trim(),
@@ -40,49 +29,21 @@
                 } catch (error) {
                   console.error("Error fetching templates:", error);
                 }
-                console.log("Fetched Templates:", templates);
                 let templateOptions = {};
                 if (templates.length) {
                   templateOptions = Object.fromEntries(templates.map((t) => [t.label, t.value]));
                 }
-                console.log("*************************", Object.keys(templateOptions));
                 let dialog = new frappe.ui.Dialog({
-                  title: "Send to eSign test",
+                  title: "Send to eSign",
                   fields: [
                     {
                       fieldname: "user_details",
                       label: "User Details",
                       fieldtype: "HTML",
-                      options: `<div style="
-                              font-family: 'Arial', sans-serif;
-                              font-size: 16px;
-                              line-height: 1.6;
-                              color: #333;
-                              background: #f9f9f9;
-                              padding: 15px 20px;
-                              border: 1px solid #ddd;
-                              border-radius: 10px;
-                              max-width: 400px;
-                              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                          ">
-                              <p style="
-                                  margin: 0 0 5px;
-                                  font-weight: 600;
-                                  font-size: 18px;
-                                  color: #222;
-                              ">
-                                  ${fullName}
-                              </p>
-                              <p style="
-                                  margin: 0;
-                                  font-size: 14px;
-                                  color: #555;
-                              ">
-                                  ${email}
-                              </p>
-                          </div>
-                          </br>
-                          `
+                      options: `<div style="font-family: 'Arial'; font-size: 16px; line-height: 1.6; color: #333; background: #f9f9f9; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; max-width: 400px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <p style="margin: 0 0 5px; font-weight: 600; font-size: 18px; color: #222;">${fullName}</p>
+                                <p style="margin: 0; font-size: 14px; color: #555;">${email}</p>
+                              </div><br/>`
                     },
                     {
                       fieldname: "custom_docname",
@@ -104,9 +65,7 @@
                       options: "Print Format",
                       get_query: function() {
                         return {
-                          filters: {
-                            "doc_type": cur_frm.doc.doctype
-                          }
+                          filters: { doc_type: cur_frm.doc.doctype }
                         };
                       }
                     },
@@ -122,25 +81,44 @@
                           }
                         };
                       }
+                    },
+                    {
+                      fieldname: "assignments",
+                      label: "Component Assignments",
+                      fieldtype: "Table",
+                      cannot_add_rows: true,
+                      in_list_view: 0,
+                      depends_on: "eval:doc.template_select",
+                      fields: [
+                        {
+                          fieldname: "component",
+                          label: "Component",
+                          fieldtype: "Data",
+                          read_only: 1,
+                          in_list_view: 1
+                        },
+                        {
+                          fieldname: "email",
+                          label: "Assign To",
+                          fieldtype: "Link",
+                          options: "User",
+                          in_list_view: 1
+                        }
+                      ]
                     }
                   ],
-                  primary_action_label: "Submit",
+                  primary_action_label: "Save as Doc",
                   primary_action: async (values) => {
                     frappe.show_alert({ message: "Processing...", indicator: "orange" });
-                    console.log("LLLLLKKLKLKL", values.print_format, values.letterhead);
                     function getPDFUrl() {
                       let doctype3 = cur_frm.doc.doctype;
                       let docname2 = cur_frm.doc.name;
                       let printFormat = values.print_format || "Standard";
                       let letterhead = values.letterhead || "No Letterhead";
                       let noLetterhead = letterhead === "No Letterhead" ? 1 : 0;
-                      let pdfUrl2 = `/api/method/frappe.utils.print_format.download_pdf?doctype=${doctype3}&name=${docname2}&format=${printFormat}&no_letterhead=${noLetterhead}&letterhead=${encodeURIComponent(letterhead)}&settings=%7B%7D&_lang=en`;
-                      return pdfUrl2;
+                      return `/api/method/frappe.utils.print_format.download_pdf?doctype=${doctype3}&name=${docname2}&format=${printFormat}&no_letterhead=${noLetterhead}&letterhead=${encodeURIComponent(letterhead)}&settings=%7B%7D&_lang=en`;
                     }
-                    let pdfUrl = getPDFUrl();
-                    console.log(pdfUrl);
-                    console.log("PDF URL Loaded:", pdfUrl);
-                    async function fetchPdfBase64(url) {
+                    let pdfBase64 = await async function fetchPdfBase64(url) {
                       try {
                         let response = await fetch(url);
                         let blob = await response.blob();
@@ -154,8 +132,7 @@
                         console.error("Error fetching PDF:", error);
                         return null;
                       }
-                    }
-                    let pdfBase64 = await fetchPdfBase64(pdfUrl);
+                    }(getPDFUrl());
                     if (!pdfBase64) {
                       frappe.msgprint({
                         title: "Error",
@@ -164,20 +141,18 @@
                       });
                       return;
                     }
-                    console.log("PDF Base64:", pdfBase64);
-                    let selectedLabel = values.template_select;
-                    console.log("User Email:", email);
                     frappe.call({
                       method: "esign_app.api.fetch_and_print_data",
                       args: {
                         custom_docname: values.custom_docname,
-                        selectedValue: selectedLabel,
+                        selectedValue: values.template_select,
                         pdfBase64,
-                        email
+                        email,
+                        assignments: values.assignments || []
                       },
                       callback: function(response) {
-                        var _a3;
-                        if (response.message && response.message.status === 200) {
+                        var _a3, _b3;
+                        if (((_a3 = response.message) == null ? void 0 : _a3.status) === 200) {
                           frappe.hide_progress();
                           frappe.msgprint({
                             title: "Success",
@@ -187,7 +162,7 @@
                         } else {
                           frappe.msgprint({
                             title: "Error",
-                            message: ((_a3 = response.message) == null ? void 0 : _a3.error) || "Something went wrong!",
+                            message: ((_b3 = response.message) == null ? void 0 : _b3.error) || "Something went wrong!",
                             indicator: "red"
                           });
                         }
@@ -206,6 +181,38 @@
                   }
                 });
                 dialog.show();
+                dialog.fields_dict.template_select.df.onchange = async function() {
+                  var _a3;
+                  const selectedTemplate = dialog.get_value("template_select");
+                  if (!selectedTemplate)
+                    return;
+                  try {
+                    let response = await frappe.call({
+                      method: "frappe.client.get_value",
+                      args: {
+                        doctype: "TempleteList",
+                        filters: { name: selectedTemplate },
+                        fieldname: "templete_json_data"
+                      }
+                    });
+                    let templateData = (_a3 = response.message) == null ? void 0 : _a3.templete_json_data;
+                    if (templateData) {
+                      let parsed = JSON.parse(templateData);
+                      let assignmentTable = dialog.fields_dict.assignments.grid;
+                      assignmentTable.df.data = [];
+                      parsed.forEach((item) => {
+                        var _a4;
+                        assignmentTable.df.data.push({
+                          component: item.name,
+                          email: ((_a4 = item.assign) == null ? void 0 : _a4[0]) || ""
+                        });
+                      });
+                      assignmentTable.refresh();
+                    }
+                  } catch (error) {
+                    console.error("Error fetching template data:", error);
+                  }
+                };
               };
               var timeline = frm.footer.frm.timeline;
               timeline.add_action_button(
@@ -226,4 +233,4 @@
   $(document).on("app_ready", function() {
   });
 })();
-//# sourceMappingURL=esign.bundle.4O23XSOD.js.map
+//# sourceMappingURL=esign.bundle.SVPSWIVI.js.map
