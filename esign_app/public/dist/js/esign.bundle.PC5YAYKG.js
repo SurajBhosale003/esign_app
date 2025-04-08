@@ -10,6 +10,23 @@
             if (((_b = (_a = frm.footer) == null ? void 0 : _a.frm) == null ? void 0 : _b.timeline) && !buttonAdded) {
               let send_esign = async () => {
                 var _a2, _b2, _c;
+                console.log("------------------------------------------>");
+                let userEmailList = [];
+                try {
+                  const res = await frappe.call({
+                    method: "frappe.client.get_list",
+                    args: {
+                      doctype: "User",
+                      filters: { enabled: 1 },
+                      fields: ["email"],
+                      limit_page_length: 1e3
+                    }
+                  });
+                  userEmailList = res.message.map((user2) => user2.email);
+                } catch (e) {
+                  console.error("Failed to fetch user emails:", e);
+                }
+                console.log("===", userEmailList);
                 let user = frappe.session.user;
                 let userDetails = await frappe.db.get_value("User", user, ["full_name", "email"]);
                 let doctype2 = frm.doctype;
@@ -100,14 +117,100 @@
                         {
                           fieldname: "email",
                           label: "Assign To",
-                          fieldtype: "Link",
-                          options: "User",
+                          fieldtype: "Autocomplete",
+                          options: userEmailList,
                           in_list_view: 1
                         }
                       ]
                     }
                   ],
-                  primary_action_label: "Save as Doc",
+                  secondary_action_label: "Assign & Send",
+                  secondary_action: async () => {
+                    frappe.show_alert({ message: "Processing...", indicator: "orange" });
+                    try {
+                      const templateSelected = dialog.get_value("template_select");
+                      const printFormat = dialog.get_value("print_format") || "Standard";
+                      const letterhead = dialog.get_value("letterhead") || "No Letterhead";
+                      const customDocname = dialog.get_value("custom_docname");
+                      const updatedAssignments = dialog.get_value("assignments");
+                      let updatedComponentData = JSON.parse(JSON.stringify(dialog.componentData));
+                      updatedComponentData.forEach((component) => {
+                        const updated = updatedAssignments.find((row) => row.component === component.name);
+                        if (updated) {
+                          component.assign = updated.email ? [updated.email] : [];
+                        }
+                      });
+                      const doctype3 = cur_frm.doc.doctype;
+                      const docname2 = cur_frm.doc.name;
+                      const noLetterhead = letterhead === "No Letterhead" ? 1 : 0;
+                      const pdfUrl = `/api/method/frappe.utils.print_format.download_pdf?doctype=${doctype3}&name=${docname2}&format=${printFormat}&no_letterhead=${noLetterhead}&letterhead=${encodeURIComponent(letterhead)}&settings=%7B%7D&_lang=en`;
+                      const fetchPdfBase64 = async (url) => {
+                        try {
+                          const response = await fetch(url);
+                          const blob = await response.blob();
+                          return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(blob);
+                            reader.onloadend = () => resolve(reader.result.split(",")[1]);
+                            reader.onerror = (err) => reject(err);
+                          });
+                        } catch (err) {
+                          console.error("Error fetching PDF:", err);
+                          return null;
+                        }
+                      };
+                      const pdfBase64 = await fetchPdfBase64(pdfUrl);
+                      if (!pdfBase64) {
+                        frappe.msgprint({
+                          title: "Error",
+                          message: "Failed to fetch and convert PDF!",
+                          indicator: "red"
+                        });
+                        return;
+                      }
+                      frappe.call({
+                        method: "esign_app.api.create_updated_document",
+                        args: {
+                          custom_docname: customDocname,
+                          selectedValue: templateSelected,
+                          pdfBase64,
+                          email,
+                          updatedComponentData
+                        },
+                        callback: function(response) {
+                          var _a3, _b3;
+                          if (((_a3 = response.message) == null ? void 0 : _a3.status) === 200) {
+                            frappe.hide_progress();
+                            frappe.msgprint({
+                              title: "Success",
+                              message: "Document Created Successfully!",
+                              indicator: "green"
+                            });
+                          } else {
+                            frappe.msgprint({
+                              title: "Error",
+                              message: ((_b3 = response.message) == null ? void 0 : _b3.error) || "Something went wrong!",
+                              indicator: "red"
+                            });
+                          }
+                        },
+                        error: function(error) {
+                          frappe.hide_progress();
+                          frappe.msgprint({
+                            title: "Error",
+                            message: "Failed to create the document!",
+                            indicator: "red"
+                          });
+                          console.error("API Call Failed:", error);
+                        }
+                      });
+                      dialog.hide();
+                    } catch (error) {
+                      console.error("Error in secondary action submit:", error);
+                      frappe.msgprint("Error submitting data.");
+                    }
+                  },
+                  primary_action_label: "Save as Draft",
                   primary_action: async (values) => {
                     frappe.show_alert({ message: "Processing...", indicator: "orange" });
                     function getPDFUrl() {
@@ -198,6 +301,7 @@
                     let templateData = (_a3 = response.message) == null ? void 0 : _a3.templete_json_data;
                     if (templateData) {
                       let parsed = JSON.parse(templateData);
+                      console.log(parsed);
                       let assignmentTable = dialog.fields_dict.assignments.grid;
                       assignmentTable.df.data = [];
                       parsed.forEach((item) => {
@@ -208,6 +312,7 @@
                         });
                       });
                       assignmentTable.refresh();
+                      dialog.componentData = parsed;
                     }
                   } catch (error) {
                     console.error("Error fetching template data:", error);
@@ -233,4 +338,4 @@
   $(document).on("app_ready", function() {
   });
 })();
-//# sourceMappingURL=esign.bundle.SVPSWIVI.js.map
+//# sourceMappingURL=esign.bundle.PC5YAYKG.js.map
