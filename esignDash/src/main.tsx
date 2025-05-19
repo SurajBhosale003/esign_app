@@ -5,6 +5,11 @@ import './index.css'
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './redux/store.js';
+declare global {
+  interface Window {
+    csrf_token: string;
+  }
+}
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

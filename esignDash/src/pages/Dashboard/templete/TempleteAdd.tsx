@@ -79,6 +79,8 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Frappe-CSRF-Token': window.csrf_token,
+
           },
           body: JSON.stringify(templeteObject),
         });
