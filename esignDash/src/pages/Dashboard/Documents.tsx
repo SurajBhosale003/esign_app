@@ -295,124 +295,149 @@ if(visible)
       <DocumentAllList refreshTempletes={refreshTempletes} setRefreshTempletes={setRefreshTempletes} />    
       </div>
 
-      <Modal
-        title="Create Document"
-        open={visible}
-        onCancel={() => setVisible(false)}
-        footer={null}
+  <Modal
+  title="Create Document"
+  open={visible}
+  onCancel={() => setVisible(false)}
+  footer={null}
+  className="glass-modal"
+>
+  <div>
+    <Tabs activeKey={currentTab} onChange={(key) => setCurrentTab(key)}>
+      {/* --- Tab 1: Title --- */}
+      <TabPane
+        tab={
+          <span className={currentTab === '1' ? 'text-white font-semibold' : 'text-gray-400'}>
+            Title
+          </span>
+        }
+        key="1"
+        disabled
       >
-        <Tabs 
-          activeKey={currentTab} 
-          onChange={key => setCurrentTab(key)}>
-          <TabPane 
-           tab={
-            <span
-              style={{
-                color: currentTab === '1' ? '#283C42' : '#a0aec0',
-              }}
-            >
-              Title
-            </span>
-          }
-          disabled key="1">
-              <input
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                placeholder="Enter Document Title"
-                value={title}
-                onChange={e =>{
-                  const newValue = e.target.value;
-                  const formattedValue = newValue.replace(/\s{2,}/g, ' ');
-                  setTitle(formattedValue);
-                }
-                } 
-              />
-            <div style={{ textAlign: 'right', marginTop: 20 }}>
-              <button 
+        <div className="space-y-4">
+          <input
+            className="bg-white/70 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+            placeholder="Enter Document Title"
+            value={title}
+            onChange={(e) => {
+              const formattedValue = e.target.value.replace(/\s{2,}/g, ' ');
+              setTitle(formattedValue);
+            }}
+          />
+          <div className="text-right">
+            <button
               className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={nextTab}>Next</button>
-            </div>
-          </TabPane>
-          <TabPane  tab={
-            <span
-              style={{
-                color: currentTab === '2' ? '#283C42' : '#a0aec0',
-              }}
+              onClick={nextTab}
             >
-              Templates
-            </span>
-          } disabled key="2">
-            <div 
-            className="doc-temp-scroll-container"
-            style={{ maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
-              <List
-                grid={{ gutter: 16, column: 2 }}
-                dataSource={templateNames}
-                renderItem={item => (
-                  <List.Item>
-                    <Card
-                      hoverable
-                      onClick={() => setSelectedTemplate(item)}
-                      style={{ backgroundColor: selectedTemplate === item ? '#283C42' : '#fff' ,  color: selectedTemplate === item ? '#fff' : '#000' }}
-                    >
-                       {(item as string).split('-').slice(0, -1).join('-')}
-                    </Card>
-                  </List.Item>
-                )}
-              />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
-              <button 
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={previousTab}>Previous</button>
-              <button 
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={nextTab}>Next</button>
-            </div>
-          </TabPane>
-          <TabPane  tab={
-            <span
-              style={{
-                color: currentTab === '3' ? '#283C42' : '#a0aec0',
-              }}
-            >
-              Confirm
-            </span>
-          } disabled key="3">
-            <div>
-              <p>Title: {title}</p>
-              <p>Email: {email as React.ReactNode}</p>
-              <p>Template Name: {selectedTemplate}</p>
-            </div>
-            {flagForField === 0 && (
-            <div style={{ marginTop: 20 }}>
-                 <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="items-center content-center space-x-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer grid place-items-center"
-                  >
-                
-                    <span>{fileName ? 'Change File' : 'Upload PDF'}</span>
-                  </label>
-            </div>
-          )}
+              Next
+            </button>
+          </div>
+        </div>
+      </TabPane>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
-              <button 
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={previousTab}>Previous</button>
-              <button 
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={() =>saveTemplateDocument()}>Confirm</button>
-            </div>
-          </TabPane>
-        </Tabs>
-      </Modal>
+      {/* --- Tab 2: Templates --- */}
+      <TabPane
+        tab={
+          <span className={currentTab === '2' ? 'text-white font-semibold' : 'text-gray-400'}>
+            Templates
+          </span>
+        }
+        key="2"
+        disabled
+      >
+        <div className="max-h-[300px] overflow-y-auto overflow-x-hidden rounded">
+          <List
+            grid={{ gutter: 16, column: 2 }}
+            dataSource={templateNames}
+            renderItem={(item) => (
+              <List.Item>
+                <Card
+                  hoverable
+                  onClick={() => setSelectedTemplate(item)}
+                  style={{
+                    backgroundColor: selectedTemplate === item ? '#283C42' : 'rgba(255, 255, 255, 0.6)',
+                    color: selectedTemplate === item ? '#fff' : '#000',
+                    border: '1px solid #ccc',
+                    borderRadius: '10px',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                >
+                  {(item as string).split('-').slice(0, -1).join('-')}
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
+        <div className="flex justify-between mt-4">
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={previousTab}
+          >
+            Previous
+          </button>
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={nextTab}
+          >
+            Next
+          </button>
+        </div>
+      </TabPane>
+
+      {/* --- Tab 3: Confirm --- */}
+      <TabPane
+        tab={
+          <span className={currentTab === '3' ? 'text-white font-semibold' : 'text-gray-400'}>
+            Confirm
+          </span>
+        }
+        key="3"
+        disabled
+      >
+        <div className="space-y-2 text-white">
+          <p>Title: <span className="font-semibold">{title}</span></p>
+          <p>Email: <span className="font-semibold">{email as React.ReactNode}</span></p>
+          <p>Template Name: <span className="font-semibold">{selectedTemplate}</span></p>
+        </div>
+
+        {flagForField === 0 && (
+          <div className="mt-6">
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="w-full block text-center bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300 cursor-pointer"
+            >
+              {fileName ? 'Change File' : 'Upload PDF'}
+            </label>
+          </div>
+        )}
+
+        <div className="flex justify-between mt-6">
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={previousTab}
+          >
+            Previous
+          </button>
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={saveTemplateDocument}
+          >
+            Confirm
+          </button>
+        </div>
+      </TabPane>
+    </Tabs>
+  </div>
+</Modal>
+
+      
       <ToastContainer
       limit={1}
       />

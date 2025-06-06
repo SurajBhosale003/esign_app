@@ -77,47 +77,71 @@ const SignPad: React.FC<SignatureProps> = ({ onSave, onUpload }) => {
         <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" onClick={showModal}>Add Signature</button>
       </div>
 
-      <Modal
-        title="Draw Your Signature"
-        open={modalVisible}
-        onCancel={closeModal}
-        footer={[
-          ,
-        ]}
+<Modal
+
+  open={modalVisible}
+  onCancel={closeModal}
+  footer={null}
+  className="glass-modal"
+>
+  <div>
+    <Tabs defaultActiveKey="1">
+      {/* --- Tab 1: Draw Signature --- */}
+      <TabPane
+        tab={<span className="text-white font-semibold">Draw Signature</span>}
+        key="1"
       >
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Draw Signature" key="1">
-            <SignatureCanvas
-              ref={signatureRef}
-              penColor="black"
-              canvasProps={{ width: 470, height: 250, className: 'sigCanvas' }}
-            />
-            <button className='bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300' key="clear" onClick={handleClear}>
+        <SignatureCanvas
+          ref={signatureRef}
+          penColor="black"
+          canvasProps={{
+            width: 420,
+            height: 200,
+            className: 'sigCanvas border border-gray-300 rounded bg-white/60 backdrop-blur-sm',
+          }}
+        />
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={handleClear}
+          >
             Clear Signature
           </button>
-          <button className='ml-2 bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300' key="save" onClick={handleSave}>
+          <button
+            className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+            onClick={handleSave}
+          >
             Save Signature
-          </button> 
-          </TabPane>
-          <TabPane tab="Upload Signature" key="2">
-            <div
-              className="w-full h-80 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 hover:border-gray-400 rounded-lg"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept=".png, .jpg, .jpeg"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                Drag & Drop or Click to Upload
-              </label>
-            </div>
-          </TabPane>
-        </Tabs>
-      </Modal>
+          </button>
+        </div>
+      </TabPane>
+
+      {/* --- Tab 2: Upload Signature --- */}
+      <TabPane
+        tab={<span className="text-white font-semibold">Upload Signature</span>}
+        key="2"
+      >
+        <div
+          className="w-full h-80 border-2 border-dashed border-white/50 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white hover:border-white/80 rounded-lg transition-all duration-300"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept=".png, .jpg, .jpeg"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+            Drag & Drop or Click to Upload
+          </label>
+        </div>
+      </TabPane>
+    </Tabs>
+  </div>
+</Modal>
+
     </>
   );
 };

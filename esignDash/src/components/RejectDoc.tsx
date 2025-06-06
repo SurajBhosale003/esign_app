@@ -64,51 +64,69 @@ const RejectDoc: React.FC<ConfirmRejectModalProps> = ({ visible, onCancel, onCon
       }   
   }
   return (
-    <Modal
-      title=""
-      visible={visible}
-      onCancel={onCancel}
-      footer={null}
-      width={'fit-content'}
-      className="confirm-delete-modal"
-    >
-      <div className="confirm-delete-card min-w-[40vw] p-6">
-        <div className="confirm-delete-header">
-          <div className="confirm-delete-image">
-            <svg aria-hidden="true" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <div className="confirm-delete-content">
-            <span className="confirm-delete-title">{module}</span>
-            <p className="confirm-delete-message">{message}</p>
-          </div>
-        </div>
-
-        {/* Reason Input with Spacing */}
-        <div className="reject-reason-input" style={{ marginTop: '16px', marginBottom: '16px' }}>
-          <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>Reason for Rejection:</label>
-          <ReactQuill theme="snow" value={mailBody} onChange={setMailBody} />
-        </div>
-
-        <button 
-          className="confirm-delete-desactivate" 
-          type="button" 
-          onClick={() => ConfirmData(name, mailBody)}
-          disabled={!mailBody.trim()} 
-          style={{ marginTop: '12px' }}
+   <Modal
+  title=""
+  visible={visible}
+  onCancel={onCancel}
+  footer={null}
+  width="fit-content"
+  className="!p-0 glass-modal"
+>
+  <div className="min-w-[40vw] p-6  text-white ">
+    {/* Header */}
+    <div>
+      <div className="flex mx-auto bg-red-500/20 shrink-0 justify-center items-center w-12 h-12 rounded-full">
+        <svg
+          aria-hidden="true"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="w-6 h-6 text-red-500"
         >
-          Confirm
-        </button>
-        <button className="confirm-delete-cancel" type="button" onClick={onCancel} style={{ marginTop: '8px' }}>
-          Cancel
-        </button>
+          <path
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        </svg>
       </div>
-    </Modal>
+
+      <div className="mt-4 text-center">
+        <span className="text-white text-base font-semibold leading-6">{module}</span>
+        <p className="mt-2 text-gray-300 text-sm leading-5">{message}</p>
+      </div>
+    </div>
+
+    {/* Reason Input */}
+    <div className="mt-6 mb-4">
+      <label className="block font-semibold text-white mb-2">Reason for Rejection:</label>
+      <div className="bg-white rounded-md overflow-hidden">
+        <ReactQuill theme="snow" value={mailBody} className='text-black' onChange={setMailBody} />
+      </div>
+    </div>
+
+    {/* Buttons */}
+    <div className="mt-4 space-y-2">
+      <button
+        type="button"
+        onClick={() => ConfirmData(name, mailBody)}
+        disabled={!mailBody.trim()}
+        className="w-full inline-flex justify-center rounded-md bg-red-600 text-white px-4 py-2 text-sm font-medium border border-transparent shadow-sm hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Confirm
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="w-full inline-flex justify-center rounded-md bg-white/10 text-white px-4 py-2 text-sm font-medium border border-white/20 shadow-sm hover:bg-white/20 transition"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</Modal>
+
   );
 };
 

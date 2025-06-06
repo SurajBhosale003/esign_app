@@ -153,6 +153,8 @@
                 |-- userSelector.ts
             |-- store.d.ts
             |-- store.js
+        |-- svg
+            |-- TrashBin2BoldDuotone.tsx
         |-- types
             |-- EsignApp
                 |-- EsignSignature.ts

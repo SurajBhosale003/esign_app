@@ -158,43 +158,43 @@ const TempleteAdd: React.FC<TempleteAddProps> = ({ setRefreshTempletes }) => {
         </button>
       </div>
       <Modal
-        title="Add Templete"
-        open={modalVisible}
-        onCancel={closeModal}
-        footer={[
-          <div key="footer-buttons" className="flex gap-2">
-            <button
-            disabled={buttonDisable}
-              key="save-button"
-              onClick={saveTemplete}
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-            >
-              Save
-            </button>
-            <button
-       
-              key="cancel-button"
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#ca2424] hover:bg-white hover:text-[#ca2424] transition-colors duration-300"
-              onClick={cancelModal}
-            >
-              Cancel
-            </button>
-          </div>
-        ]}
+  title="Add Template"
+  open={modalVisible}
+  onCancel={cancelModal}
+  rootClassName="glass-modal"
+  footer={[
+    <div key="footer-buttons" className="flex justify-end gap-2 px-4 pb-4">
+      <button
+        disabled={buttonDisable}
+        onClick={saveTemplete}
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
       >
-        <div className="mt-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Templete Name</label>
-          <input
-            className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            type="text"
-            value={templeteName || ""}
-            onChange={handleTempleteNameInput}
-          />
-          {errorMessage && (
-            <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
-          )}
-        </div>
-      </Modal>
+        Save
+      </button>
+      <button
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#ca2424] hover:bg-white hover:text-[#ca2424] transition-colors duration-300"
+        onClick={cancelModal}
+      >
+        Cancel
+      </button>
+    </div>,
+  ]}
+>
+  <div className="px-2 pb-4">
+    {/* <label className="block text-white text-sm font-semibold mb-2">Template Name</label> */}
+    <input
+      className="w-full mt-5 bg-white/20 text-white placeholder:text-white/60 backdrop-blur-md border border-white/30 rounded py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
+      type="text"
+      value={templeteName || ""}
+      onChange={handleTempleteNameInput}
+      placeholder="Enter template name"
+    />
+    {errorMessage && (
+      <p className="text-red-400 text-sm mt-2">{errorMessage}</p>
+    )}
+  </div>
+</Modal>
+
       <ToastContainer limit={1} />
     </>
   );

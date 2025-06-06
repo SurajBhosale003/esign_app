@@ -418,8 +418,8 @@ const submitFinalDocument = async () => {
       });
 
       setTimeout(() => {
-        navigate('/inbox');
-      }, 1500);
+        window.location.reload();
+      }, 2000);
     } else {
       toast.error('Error Submitting Document...', {
         position: "top-right",
@@ -509,8 +509,8 @@ const handleRejectConfirm = () => {
   });
 
   setTimeout(() => {
-    navigate('/inbox');
-  }, 1500);
+    window.location.reload();
+  }, 2000);
   setIsRejectModalVisible(false); 
 };
 const sendToAPI = async (updatedData: EmailStatus) => {

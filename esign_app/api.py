@@ -727,11 +727,12 @@ def patch_user_status_document(document_title, assigned_user_list):
 # update document and assign to users [ Frezzee the document ]
 
 @frappe.whitelist(allow_guest=True)
-def send_document_data(to, subject, body, document_name, user_mail, isChecked):
+def send_document_data(to, mailUsers, subject, body, document_name, user_mail, isChecked):
     try:
         doc = frappe.get_doc("DocumentList", document_name)
         
         doc.assigned_users = to
+        doc.document_status_mail = mailUsers
         doc.document_subject = subject
         doc.description = body
         doc.user_mail = user_mail
@@ -751,7 +752,7 @@ def send_url_email(to, subject , message):
     to_users=json.loads(to)
     try: 
         full_url = f"http://192.168.10.189:8080/"
-        emb_message = f"Dear User,<br><br>You Have been assigned to sign A Document by: <a href='{full_url}'>{full_url}</a><br><br>Thank you. <div>Discription: {message}</div>"
+        emb_message = f"Dear User,<br><br>You Have been assigned to sign A Document by: <a href='{full_url}'>{full_url}</a> <div>Discription: {message}</div> <br><br>Thank you."
         emails = [entry["email"] for entry in to_users.values()]
         print(emails)
         frappe.sendmail(
@@ -1246,28 +1247,6 @@ def generate_and_sign_pdf(document_name):
 
 
 # ____________________________________________________________________________-
-
-# Send to eSign Button Apis &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-@frappe.whitelist(allow_guest=True)
-def send_document_data(to, subject, body, document_name, user_mail, isChecked):
-    try:
-        doc = frappe.get_doc("DocumentList", document_name)
-        
-        doc.assigned_users = to
-        doc.document_subject = subject
-        doc.description = body
-        doc.user_mail = user_mail
-        doc.isnoteditable = isChecked
-        
-        doc.save()
-        send_url_email(to, subject ,body)
-
-        return {'status': 200, 'message': 'Document Assigned Successfully'}
-    
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "send_document_data")
-        return {'status': 500, 'message': str(e)}
-# End ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def return_to_data_list(updatedComponentData):
     """Generate recipient structure from updatedComponentData."""

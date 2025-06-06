@@ -156,131 +156,85 @@ const OpenSSLButton: React.FC<OpenSSLButtonProps> = ({ onAdd }) => {
           Add OpenSSL
         </button>
       </div>
-      <Modal
-        title="Add Template"
-        open={modalVisible}
-        onCancel={closeModal}
-        footer={[
-          <div key="footer-buttons" className="flex gap-2">
-            <button
-              disabled={buttonDisable}
-              key="save-button"
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
-              onClick={handleSave}
-            >
-              Save
-            </button>
-            <button
-              key="cancel-button"
-              className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#ca2424] hover:bg-white hover:text-[#ca2424] transition-colors duration-300"
-              onClick={closeModal}
-            >
-              Cancel
-            </button>
-          </div>
-        ]}
+ <Modal
+  title="Add Template"
+  open={modalVisible}
+  onCancel={closeModal}
+  rootClassName="glass-modal"
+  footer={[
+    <div key="footer-buttons" className="flex justify-end gap-2 px-4 pb-4">
+      <button
+        disabled={buttonDisable}
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300"
+        onClick={handleSave}
       >
-        <div className="mt-4 space-y-4">
-        <div className='flex space-x-4'>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Country</label>
-            <select
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            >
-              <option value="">Select Country</option>
-              {filteredCountries.map((country) => (
-                <option key={country.code} value={country.name}>{country.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Country Code</label>
-            <input
-              type="text"
-              name="countryCode"
-              value={formData.countryCode}
-              readOnly
-              className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>  
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">OpenSSL Name</label>
-            <input
-              type="text"
-              name="openssl_name"
-              value={formData.openssl_name}
-              onChange={handleChange}
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">State/Province</label>
-            <input
-              type="text"
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Location</label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Organization</label>
-            <input
-              type="text"
-              name="organization"
-              value={formData.organization}
-              onChange={handleChange}
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Challenge Password</label>
-              <input
-              type="text"
-              name="challenge_password"
-              value={formData.challenge_password}
-              onChange={handleChange}
-              placeholder="Ex. Pass123"
-              className="bg-[#d1e0e4] text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-        
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              readOnly
-              className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-            <input
-              type="text"
-              name="email"
-              value={formData.email}
-              readOnly
-              className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-            />
-          </div>
-        </div>
-      </Modal>
+        Save
+      </button>
+      <button
+        className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#ca2424] hover:bg-white hover:text-[#ca2424] transition-colors duration-300"
+        onClick={closeModal}
+      >
+        Cancel
+      </button>
+    </div>,
+  ]}
+>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2 pb-2 text-white">
+    {/* Country + Code */}
+    <div>
+      <label className="block text-xs font-semibold mb-1">Country</label>
+      <select
+        name="country"
+        value={formData.country}
+        onChange={handleChange}
+        className="w-full bg-white/20 text-white placeholder:text-white/60 backdrop-blur-md border border-white/30 rounded py-2 px-3 text-sm"
+      >
+        <option value="">Select Country</option>
+        {filteredCountries.map((country) => (
+          <option key={country.code} value={country.name}>
+            {country.name}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div>
+      <label className="block text-xs font-semibold mb-1">Country Code</label>
+      <input
+        type="text"
+        name="countryCode"
+        value={formData.countryCode}
+        readOnly
+        className="w-full bg-white/10 text-white backdrop-blur border border-white/30 rounded py-2 px-3 text-sm"
+      />
+    </div>
+
+    {/* Next fields */}
+    {[
+      { label: "OpenSSL Name", name: "openssl_name" },
+      { label: "State/Province", name: "state" },
+      { label: "Location", name: "location" },
+      { label: "Organization", name: "organization" },
+      { label: "Challenge Password", name: "challenge_password", placeholder: "Ex. Pass123" },
+      { label: "Username", name: "username", readOnly: true },
+      { label: "Email", name: "email", readOnly: true },
+    ].map(({ label, name, placeholder, readOnly }) => (
+      <div key={name} className={name === 'organization' ? "md:col-span-2" : ""}>
+        <label className="block text-xs font-semibold mb-1">{label}</label>
+        <input
+          type="text"
+          name={name}
+          value={formData[name]}
+          placeholder={placeholder}
+          onChange={handleChange}
+          readOnly={readOnly}
+          className={`w-full ${readOnly ? "bg-white/10" : "bg-white/20"} text-white placeholder:text-white/60 backdrop-blur-md border border-white/30 rounded py-2 px-3 text-sm`}
+        />
+      </div>
+    ))}
+  </div>
+</Modal>
+
+
       <ToastContainer limit={1} />
     </>
   );
