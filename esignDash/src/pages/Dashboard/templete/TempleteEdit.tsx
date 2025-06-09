@@ -19,6 +19,9 @@ import { ButtonType , buttonConfigs } from '../helper/ButtonUtilities';
 import './templete.css'
 import SignInput from '../helper/SignInput';
 import dayjs from '../helper/dayjsConfig';
+import { Modal, Tabs, Input, Checkbox } from 'antd';
+import type { TabsProps } from 'antd';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 
 type SelectedComponent = {
   id: number;
@@ -49,10 +52,15 @@ interface DraggableButtonProps {
   children: React.ReactNode;
   title: string;
 }
-
-
+interface Props {
+  filteredDoctypes: string[];
+  selectedDoctypes: string[];
+  toggleSelection: (doctype: string) => void;
+}
 
 const TempleteEdit = () => {
+  const { TabPane } = Tabs;
+  const { Search } = Input;
   const [components, setComponents] = useState<ComponentData[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<HTMLElement | null>(null);
@@ -71,7 +79,37 @@ const TempleteEdit = () => {
   const { templete } = location.state as { templete?: TemplateUserDetails } || {};
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState(false);
-  const [isPublic, setIsPublic] = useState(false)
+  const [isPublic, setIsPublic] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [currentTab, setCurrentTab] = useState('1');
+  const [selectedDoctypes, setSelectedDoctypes] = useState<string[]>([]);
+ const [searchText, setSearchText] = useState('');
+
+  const [doctypes, setDoctypes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchDoctypes = async () => {
+      try {
+        const response = await fetch('/api/method/esign_app.api.get_all_non_child_doctypes');
+        const result = await response.json();
+
+        if (result.message && Array.isArray(result.message)) {
+          setDoctypes(result.message);
+        } else {
+          throw new Error('Unexpected response format');
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch doctypes:', err);
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctypes();
+  }, []);
+
 
   const handleCheckboxChangePDF = (e :React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
@@ -314,6 +352,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, componentId: n
 };
 
 
+
 const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, children, title }) => {
   const [{ isDragging }, dragRef] = useDrag(() => ({
     type: 'component',
@@ -349,10 +388,8 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ type, onClick, childr
       </button>
     </div>
   );
-  
-  
-  
 };
+
 
 const [, drop] = useDrop(() => ({
   accept: 'component',
@@ -526,19 +563,6 @@ const handleSelectChange = (event:any) => {
       setCurrentPage(0);
     }
   };
-
-// const loadComponents = () => {
-//   setComponents(initialComponents);
-// };
-
-// const loadDexcissComponents = () => {
-//   setComponents(DexcissTemplete);
-// };
-// const loadHelloDexcissComponents = () => {
-//   setComponents(HelloDexciss);
-// };
-
-// sel the cmpt, set target , 
 useEffect(() => {
   if (selectedId !== null) {
     const selectedElement = document.querySelector(`[data-id="${selectedId}"]`);
@@ -571,137 +595,6 @@ useEffect(() => {
 const base64ToUint8Array = (base64:any) => {
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
 };
-
-// const mergeAndPrintPDF = async () => {
-//   const pdfDoc = await PDFDocument.create(); // Create a new PDF document
-  
-//   for (let i = 0; i < datapdf.length; i++) {
-//     const pdfBytes = base64ToUint8Array(datapdf[i].data);
-//     const pdfToMerge = await PDFDocument.load(pdfBytes);
-
-//     const pages = await pdfDoc.copyPages(pdfToMerge, pdfToMerge.getPageIndices());
-//     pages.forEach(page => pdfDoc.addPage(page));
-//   }
-
-//   const componentsByPage: { [key: number]: ComponentData[] } = components.reduce((acc, component) => {
-//     if (!acc[component.pageNo]) acc[component.pageNo] = [];
-//     acc[component.pageNo].push(component);
-//     return acc;
-//   }, {} as { [key: number]: ComponentData[] });
-
-//   const pages = pdfDoc.getPages();
-  
-//   for (const page of pages) {
-//     const pageIndex = pages.indexOf(page);
-//     const pageComponents = componentsByPage[pageIndex] || [];
-
-//     for (const component of pageComponents) {
-//       const { left, top } = component.position;
-
-//       if (component.type === 'text' || component.type === 'v_text') {
-//         const fontSize = component.fontSize ?? 12;
-//         const yPosition = page.getHeight() - top - fontSize - 3;
-//         page.drawText(component.content || '', {
-//           x: left + 3,
-//           y: yPosition,
-//           size: fontSize,
-//           color: rgb(0, 0, 0),
-//           lineHeight: fontSize * 1.2,
-//           maxWidth: component.size?.width ?? 0,
-//         });
-//       } else if ((component.type === 'image' || component.type === 'v_image'  || component.type === 'v_signature'  || component.type === 'signature' ) && component.content) {
-//         const imageData = component.content.split(',')[1];
-//         if (!imageData) {
-//           console.error('Invalid image data');
-//           continue;
-//         }
-
-//         const imageBytes = base64ToUint8Array(imageData);
-//         let embeddedImage;
-
-//         if (component.content.startsWith('data:image/png')) {
-//           embeddedImage = await pdfDoc.embedPng(imageBytes);
-//         } else if (component.content.startsWith('data:image/jpeg') || component.content.startsWith('data:image/jpg')) {
-//           embeddedImage = await pdfDoc.embedJpg(imageBytes);
-//         } else {
-//           console.error('Unsupported image format');
-//           continue;
-//         }
-
-//         const { width: imageWidth, height: imageHeight } = embeddedImage;
-//         const containerWidth = component.size?.width ?? 0;
-//         const containerHeight = component.size?.height ?? 0;
-
-//         const widthRatio = containerWidth / imageWidth;
-//         const heightRatio = containerHeight / imageHeight;
-//         const scaleRatio = Math.min(widthRatio, heightRatio);
-
-//         const drawWidth = imageWidth * scaleRatio;
-//         const drawHeight = imageHeight * scaleRatio;
-
-//         const x = left;
-//         const y = page.getHeight() - top - drawHeight;
-
-//         page.drawImage(embeddedImage, {
-//           x: x,
-//           y: y,
-//           width: drawWidth,
-//           height: drawHeight,
-//         });
-//       } else if (component.type === 'checkbox') {
-//         const size = 10; //=================================================================================== CheckBox
-//         const yPosition = page.getHeight() - top - size - 5;
-
-//         if (component.checked) {
-//           page.drawRectangle({
-//             x: left + 5,
-//             y: yPosition,
-//             width: size,
-//             height: size,
-//             color: rgb(0, 0, 0),
-//           });
-//         } else {
-//           page.drawRectangle({
-//             x: left + 5,
-//             y: yPosition,
-//             width: size,
-//             height: size,
-//             borderColor: rgb(0, 0, 0),
-//             borderWidth: 1,
-//             color: rgb(1, 1, 1),
-//           });
-//         }
-//       } else if (component.type === 'm_date'||component.type === 'live_date' || component.type === 'fix_date') {
-//         const fontSize = component.fontSize ?? 12;
-//         const yPosition = page.getHeight() - top - fontSize - 3;
-//         const dateValue = component.content || new Date().toLocaleDateString();
-
-//         page.drawText(dateValue, {
-//           x: left + 3,
-//           y: yPosition,
-//           size: fontSize,
-//           color: rgb(0, 0, 0),
-//         });
-//       }
-//     }
-//   }
-
-//   const pdfBytes = await pdfDoc.save();
-//   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-//   const url = URL.createObjectURL(blob);
-//   const varName = `esignTemplate-${templete ? templete.templete_title : 'eSignTemplate'}`;
-//   const link = document.createElement('a');
-//   link.href = url;
-//   link.download = `${varName}.pdf`;
-//   document.body.appendChild(link);
-//   link.click();
-//   document.body.removeChild(link);
-//   URL.revokeObjectURL(url);
-// };
-
-
-
-
 const handleRemoveImage = (componentId: number) => {
   setComponents((prevComponents) =>
     prevComponents.map((c) =>
@@ -729,6 +622,26 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
   }
 };
 
+const confirmDoctypes = () =>{
+  console.log("Selected Doctypes:", selectedDoctypes);
+}
+
+const handleSetDoctype = async () => setVisible(true);
+
+  const filteredDoctypes = doctypes.filter(d =>
+    d.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const toggleSelection = (doctype: string) => {
+    setSelectedDoctypes(prev =>
+      prev.includes(doctype)
+        ? prev.filter(d => d !== doctype)
+        : [...prev, doctype]
+    );
+  };
+
+  const selectAll = () => setSelectedDoctypes(filteredDoctypes);
+  const deselectAll = () => setSelectedDoctypes([]);
 
 const handleSaveTemplete = async() => {
   if (!templete || !templete.name) {
@@ -886,6 +799,8 @@ return (
         </div>
         </label>
        </div>
+       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
+      onClick={handleSetDoctype}>Set Doctype</button>  
       {/* <button onClick={checkboxFun}>click me</button> */}
       <button className="bg-[#283C42] text-white px-4 py-2 rounded border-2 border-transparent hover:border-[#283C42] hover:bg-white hover:text-[#283C42] transition-colors duration-300" 
       onClick={handleSaveTemplete}>Save Templete</button>   
@@ -1177,6 +1092,104 @@ return (
         )}
       </div>  
 </div>
+ <Modal
+        title="Select Doctypes"
+        open={visible}
+        onCancel={() => setVisible(false)}
+        footer={null}
+        className="glass-modal min-w-[70vw]"
+      >
+        <Tabs activeKey={currentTab} onChange={setCurrentTab}>
+          <TabPane
+            key="1"
+            tab={
+              <span className={currentTab === '1' ? 'text-white font-semibold' : 'text-gray-400'}>
+                Doctypes
+              </span>
+            }
+          >
+            <div className="mb-4">
+              <Search
+                placeholder="Search Doctype"
+                allowClear
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 mb-4">
+              <button
+                onClick={selectAll}
+                className="bg-[#283C42] text-white px-3 py-1 rounded text-sm hover:bg-[#1f2f36]"
+              >
+                Select All
+              </button>
+              <button
+                onClick={deselectAll}
+                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+              >
+                Deselect All
+              </button>
+            </div>
+            <Scrollbars
+                autoHeight
+                autoHeightMax={400} // 50vh approx
+                renderThumbVertical={({ style, ...props }) => (
+                  <div
+                    {...props}
+                    style={{
+                      ...style,
+                      backgroundColor: '#6B7280', // Tailwind's gray-500
+                      borderRadius: '10px',
+                      width: '8px',
+                    }}
+                  />
+                )}
+                renderTrackVertical={({ style, ...props }) => (
+                  <div
+                    {...props}
+                    style={{
+                      ...style,
+                      backgroundColor: '#2d3748', // dark track bg
+                      borderRadius: '10px',
+                      right: 0,
+                      bottom: 0,
+                      top: 0,
+                      width: '8px',
+                    }}
+                  />
+                )}
+                className="pl-1"
+              >
+                {filteredDoctypes.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No Doctypes Found</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pr-2">
+                    {filteredDoctypes.map((doctype) => (
+                      <label
+                        key={doctype}
+                        className="flex items-center gap-2 bg-white/5 rounded px-2 py-1 hover:bg-white/10 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={selectedDoctypes.includes(doctype)}
+                          onChange={() => toggleSelection(doctype)}
+                        />
+                        <span className="text-sm text-white break-words">{doctype}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </Scrollbars>
+            <div className="flex justify-end mt-6">
+              <button
+                className="bg-[#283C42] text-white px-4 py-2 rounded hover:bg-[#1f2f36]"
+                onClick={confirmDoctypes}
+              >
+                Confirm
+              </button>
+            </div>
+          </TabPane>
+        </Tabs>
+      </Modal>
 <ToastContainer limit={1} />
     </>
   );

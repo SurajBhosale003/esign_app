@@ -11,7 +11,6 @@
     |-- imp.txt
     |-- index.html
     |-- index.py
-    |-- package-lock.json
     |-- package.json
     |-- postcss.config.js
     |-- proxyOptions.ts
@@ -221,6 +220,13 @@
                 |-- openssl_keys.json
                 |-- openssl_keys.py
                 |-- test_openssl_keys.py
+            |-- template_selected_doctypes
+                |-- __init__.py
+                |-- __pycache__
+                    |-- __init__.cpython-310.pyc
+                    |-- template_selected_doctypes.cpython-310.pyc
+                |-- template_selected_doctypes.json
+                |-- template_selected_doctypes.py
             |-- templetelist
                 |-- __init__.py
                 |-- __pycache__

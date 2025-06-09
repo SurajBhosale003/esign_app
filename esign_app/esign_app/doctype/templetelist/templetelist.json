@@ -16,7 +16,9 @@
   "section_break_iauj",
   "templete_json_data",
   "column_break_rvpd",
-  "base_pdf_data"
+  "base_pdf_data",
+  "section_break_bbcl",
+  "for_doctypes"
  ],
  "fields": [
   {
@@ -76,11 +78,21 @@
    "fieldname": "is_public",
    "fieldtype": "Check",
    "label": "Is Public"
+  },
+  {
+   "fieldname": "section_break_bbcl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "for_doctypes",
+   "fieldtype": "Table",
+   "label": "For Doctypes",
+   "options": "Template Selected Doctypes"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-19 14:28:43.061541",
+ "modified": "2025-06-06 17:11:15.465764",
  "modified_by": "Administrator",
  "module": "Esign App",
  "name": "TempleteList",
@@ -112,6 +124,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

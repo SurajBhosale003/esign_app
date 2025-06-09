@@ -10,6 +10,7 @@ import base64
 
 from frappe.core.doctype.communication.email import make
 from frappe.utils import get_datetime, get_url
+from frappe.model.meta import get_meta
 
 from datetime import datetime , timedelta
 from OpenSSL import crypto
@@ -35,6 +36,22 @@ def generate_random_string():
     random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
     return f"Signature_Eisgn_{random_part}"
 
+
+# Fetch All non Child Doctypes 
+@frappe.whitelist(allow_guest=True) 
+def get_all_non_child_doctypes():
+    """
+    Returns a list of all non-child (is_table = 0) doctypes.
+    """
+    all_doctypes = frappe.get_all("DocType", filters={"issingle": 0}, fields=["name"])
+    
+    non_child_doctypes = []
+    for dt in all_doctypes:
+        meta = get_meta(dt.name)
+        if not meta.istable:
+            non_child_doctypes.append(dt.name)
+    
+    return non_child_doctypes
 
 # ++++ PDF Doc Creation and signing +++++++++++++++
 @frappe.whitelist(allow_guest=True)  # Expose as a Frappe API
