@@ -8,10 +8,7 @@ $(document).on("app_ready", function () {
    
         if (!frm.is_new()) {
           if (frm.footer?.frm?.timeline && !buttonAdded) {
-            let send_esign = async () => {
-
-              console.log("------------------------------------------>")
-         
+            let send_esign = async () => {         
                 let userEmailList = [];
                 try {
                   const res = await frappe.call({
@@ -41,7 +38,7 @@ $(document).on("app_ready", function () {
 
               let templates = [];
               try {
-                let response = await fetch(`/api/method/esign_app.api.get_templetes?user_mail=${email}`);
+                let response = await fetch(`/api/method/esign_app.api.get_templetes_for_doctype?user_mail=${email}&requesting_doctype=${doctype}`);
                 let data = await response.json();
                 if (data.message?.status === 200 && Array.isArray(data.message.data)) {
                   templates = data.message.data.map((temp) => ({
@@ -82,12 +79,14 @@ $(document).on("app_ready", function () {
                     label: "Select Letter Head",
                     fieldtype: "Link",
                     options: "Letter Head",
+                    default: frappe.defaults.get_default("letter_head") || "No Letterhead",
                   },
                   {
                     fieldname: "print_format",
                     label: "Select Print Format",
                     fieldtype: "Link",
                     options: "Print Format",
+                    default: frappe.defaults.get_default("print_format") || "Standard",
                     get_query: function () {
                       return {
                         filters: { doc_type: cur_frm.doc.doctype },
@@ -99,6 +98,7 @@ $(document).on("app_ready", function () {
                     label: "Select Template",
                     fieldtype: "Link",
                     options: "TempleteList",
+                    reqd: 1,
                     get_query() {
                       return {
                         filters: {
@@ -154,9 +154,10 @@ $(document).on("app_ready", function () {
                     const doctype = cur_frm.doc.doctype;
                     const docname = cur_frm.doc.name;
                     const noLetterhead = letterhead === "No Letterhead" ? 1 : 0;
-                
-                    const pdfUrl = `/api/method/frappe.utils.print_format.download_pdf?doctype=${doctype}&name=${docname}&format=${printFormat}&no_letterhead=${noLetterhead}&letterhead=${encodeURIComponent(letterhead)}&settings=%7B%7D&_lang=en`;
-                
+                    const printFormatORG = printFormat || "Standard";
+                    console.log("printFormat", printFormat, "noLetterhead", noLetterhead, "letterhead", letterhead);
+                    const pdfUrl = `/api/method/frappe.utils.print_format.download_pdf?doctype=${doctype}&name=${docname}&format=${printFormatORG}&no_letterhead=${noLetterhead}&letterhead=${encodeURIComponent(letterhead)}&settings=%7B%7D&_lang=en`;
+                    
                     // === Fetch and Convert PDF to Base64 ===
                     const fetchPdfBase64 = async (url) => {
                       try {
@@ -185,6 +186,7 @@ $(document).on("app_ready", function () {
                       return;
                     }
                     // Call new backend API
+                    console.log("email---====+++>", email)
                     frappe.call({
                       method: "esign_app.api.create_updated_document",
                       args: {

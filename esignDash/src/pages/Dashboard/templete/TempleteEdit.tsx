@@ -126,6 +126,8 @@ const TempleteEdit = () => {
         console.log(result);
         setIsChecked(result.message.use_default_base_pdf);
         setIsPublic(result.message.is_public)
+        setSelectedDoctypes(result.message.selected_doctypes || []);
+        console.log(result.message.selected_doctypes, "selected_doctypes");
         if(result.message.templete_json_data == null || result.message.base_pdf_data == null)
         {
           return ;
@@ -623,7 +625,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, componentId: 
 };
 
 const confirmDoctypes = () =>{
-  console.log("Selected Doctypes:", selectedDoctypes);
+   setVisible(false);
 }
 
 const handleSetDoctype = async () => setVisible(true);
@@ -661,14 +663,14 @@ const handleSaveTemplete = async() => {
     value,
     checked,
   }));
-  console.log(JSON.stringify(Componentdata, null, 2));
-
+  console.log("Selected :: ",selectedDoctypes)
   const templeteObject = {
     templete_name: templete.name,
     templete_json_data: JSON.stringify(JSON.stringify(Componentdata, null, 2)),
     base_pdf_data: JSON.stringify(JSON.stringify(datapdf, null, 2)),
     use_default_base_pdf : isChecked,
-    isPublic : isPublic
+    isPublic : isPublic,
+    selectedDoctypes : selectedDoctypes
   };
   try {
     const response = await fetch('/api/method/esign_app.api.update_template', {
@@ -1097,7 +1099,7 @@ return (
         open={visible}
         onCancel={() => setVisible(false)}
         footer={null}
-        className="glass-modal min-w-[70vw]"
+        className="glass-modal min-w-[70vw] "
       >
         <Tabs activeKey={currentTab} onChange={setCurrentTab}>
           <TabPane

@@ -527,6 +527,30 @@ def get_templetes(user_mail):
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 
+@frappe.whitelist(allow_guest=True)
+def get_templetes_for_doctype(user_mail, requesting_doctype):
+    try:
+        templetes_list = frappe.db.sql("""
+            SELECT DISTINCT t.name, t.is_public, t.templete_title, 
+                            t.templete_owner_email, t.templete_owner_name, 
+                            t.templete_created_at
+            FROM `tabTempleteList` t
+            LEFT JOIN `tabTemplate Selected Doctypes` fd ON fd.parent = t.name
+            WHERE (
+                t.is_public = 1 AND fd.doctype_name = %s
+                OR (
+                    t.is_public = 0 
+                    AND t.templete_owner_email = %s
+                    AND fd.doctype_name = %s
+                )
+            )
+        """, (requesting_doctype, user_mail, requesting_doctype), as_dict=True)
+
+        return {'status': 200, 'data': templetes_list}
+
+    except Exception as e:
+        return {'status': 500, 'message': str(e)}
+
 # ++++ Get Templete End ++++++++++++
 
 @frappe.whitelist(allow_guest=True)
@@ -562,20 +586,31 @@ def delete_esign_templete(user_mail, name):
 # Templete APIs --------------------------------------------------------------------
 # ++++ Update Template ++++++++++++
 @frappe.whitelist(allow_guest=True)
-def update_template(templete_name,templete_json_data, base_pdf_data,use_default_base_pdf,isPublic):
+def update_template(templete_name, templete_json_data, base_pdf_data, use_default_base_pdf, isPublic, selectedDoctypes=None):
     try:
         templete_json_data = json.loads(templete_json_data)
         base_pdf_data = json.loads(base_pdf_data)
+
+        if selectedDoctypes:
+            selectedDoctypes = selectedDoctypes
+        else:
+            selectedDoctypes = []
 
         doc = frappe.get_doc("TempleteList", templete_name)
         doc.templete_json_data = templete_json_data
         doc.base_pdf_data = base_pdf_data
         doc.use_default_base_pdf = use_default_base_pdf
         doc.is_public = isPublic
-        message = 'Template Updated successfully'
+        doc.set("for_doctypes", [])
+        # Append to child table without clearing existing entries
+        for doctype in selectedDoctypes:
+            doc.append("for_doctypes", {
+                "doctype_name": doctype
+            })
+
         doc.save()
-        return {'status': 200, 'message': message}
-    
+        return {'status': 200, 'message': 'Template Updated successfully'}
+
     except Exception as e:
         return {'status': 500, 'message': str(e)}
 # ++++ Save/Update Template End ++++++++++++
@@ -587,12 +622,14 @@ def get_template_json(templete_name):
     try:
 
         doc = frappe.get_doc("TempleteList", templete_name)
+        selected_doctypes = [row.doctype_name for row in doc.for_doctypes]
         response = {
             'status': 200,
             'templete_json_data': doc.templete_json_data,
             'base_pdf_data': doc.base_pdf_data,
             'use_default_base_pdf' : doc.use_default_base_pdf,
-            'is_public': doc.is_public
+            'is_public': doc.is_public,
+            'selected_doctypes': selected_doctypes
         }
         return response
 
@@ -744,7 +781,7 @@ def patch_user_status_document(document_title, assigned_user_list):
 # update document and assign to users [ Frezzee the document ]
 
 @frappe.whitelist(allow_guest=True)
-def send_document_data(to, mailUsers, subject, body, document_name, user_mail, isChecked):
+def send_document_data(to, subject, body, document_name, user_mail, isChecked=True, mailUsers=None):
     try:
         doc = frappe.get_doc("DocumentList", document_name)
         
@@ -1313,7 +1350,7 @@ def create_updated_document(custom_docname, selectedValue, pdfBase64, email, upd
         document_doc = frappe.get_doc(document_data)
         document_doc.insert(ignore_permissions=True)
         frappe.db.commit()
-
+        
         to = return_to_data_list(updatedComponentData)
         subject = f"New Document ({custom_docname} - {selectedValue}) - Action Required"
         body = f"""
@@ -1324,9 +1361,10 @@ def create_updated_document(custom_docname, selectedValue, pdfBase64, email, upd
                 Please review and sign it at your earliest convenience.
 
                 Regards,  
-                Your Document Automation System
+                Your Dexciss eSign System
                 """
         document_name=document_doc.name
+        print("------------------------------->",document_name)
         isChecked= True
         send_document_data(to, subject, body, document_name, email, isChecked)
         return {"status": 200, "message": "Document Created Successfully"}
